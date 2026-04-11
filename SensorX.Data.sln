@@ -1,0 +1,56 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SensorX.Data.Application", "SensorX.Data.Application", "{84C6096B-5F83-7DE3-E39E-F5BECBE221E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SensorX.Data.Domain", "SensorX.Data.Domain", "{D6A65330-0F70-2B27-4F59-D5958F37B01D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SensorX.Data.Infrastructure", "SensorX.Data.Infrastructure", "{90863024-07AE-BE95-965C-8735B8ECF21E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SensorX.Data.WebApi", "SensorX.Data.WebApi", "{0C3CC59A-9B8E-8D4B-33D2-CB4FB6513637}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorX.Data.Application", "SensorX.Data.Application\SensorX.Data.Application.csproj", "{11D26F7D-8E55-A781-606B-05741B0C8547}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorX.Data.Domain", "SensorX.Data.Domain\SensorX.Data.Domain.csproj", "{1C13AE08-9FD4-8C07-330B-B6C2C7C987BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorX.Data.Infrastructure", "SensorX.Data.Infrastructure\SensorX.Data.Infrastructure.csproj", "{3D101552-4B5F-CE9B-0D5E-19868F6A4BFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorX.Data.WebApi", "SensorX.Data.WebApi\SensorX.Data.WebApi.csproj", "{1FA8CA9C-1969-E913-A9D8-60144AD22178}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{11D26F7D-8E55-A781-606B-05741B0C8547}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11D26F7D-8E55-A781-606B-05741B0C8547}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11D26F7D-8E55-A781-606B-05741B0C8547}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11D26F7D-8E55-A781-606B-05741B0C8547}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C13AE08-9FD4-8C07-330B-B6C2C7C987BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C13AE08-9FD4-8C07-330B-B6C2C7C987BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C13AE08-9FD4-8C07-330B-B6C2C7C987BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C13AE08-9FD4-8C07-330B-B6C2C7C987BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D101552-4B5F-CE9B-0D5E-19868F6A4BFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D101552-4B5F-CE9B-0D5E-19868F6A4BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D101552-4B5F-CE9B-0D5E-19868F6A4BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D101552-4B5F-CE9B-0D5E-19868F6A4BFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FA8CA9C-1969-E913-A9D8-60144AD22178}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FA8CA9C-1969-E913-A9D8-60144AD22178}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FA8CA9C-1969-E913-A9D8-60144AD22178}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FA8CA9C-1969-E913-A9D8-60144AD22178}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{11D26F7D-8E55-A781-606B-05741B0C8547} = {84C6096B-5F83-7DE3-E39E-F5BECBE221E6}
+		{1C13AE08-9FD4-8C07-330B-B6C2C7C987BD} = {D6A65330-0F70-2B27-4F59-D5958F37B01D}
+		{3D101552-4B5F-CE9B-0D5E-19868F6A4BFD} = {90863024-07AE-BE95-965C-8735B8ECF21E}
+		{1FA8CA9C-1969-E913-A9D8-60144AD22178} = {0C3CC59A-9B8E-8D4B-33D2-CB4FB6513637}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CFC4A67B-6A91-434A-8740-65E2C85A98BA}
+	EndGlobalSection
+EndGlobal
