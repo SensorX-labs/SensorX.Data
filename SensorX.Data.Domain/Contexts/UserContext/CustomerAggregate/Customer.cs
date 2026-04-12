@@ -14,13 +14,11 @@ public class Customer : User<CustomerId>
         Phone phone,
         Email email,
         string taxCode,
-        string address,
-        ShippingInfo shippingInfo
+        string address
     ) : base(id, accountId, code, name, phone, email)
     {
         TaxCode = taxCode;
         Address = address;
-        ShippingInfo = shippingInfo;
     }
 
     public string TaxCode { get; private set; }
@@ -32,13 +30,13 @@ public class Customer : User<CustomerId>
         Phone phone,
         Email email,
         string taxCode,
-        string address,
-        ShippingInfo shippingInfo
+        string address
     )
     {
         base.UpdateProfile(name, phone, email);
         TaxCode = taxCode;
         Address = address;
-        ShippingInfo = shippingInfo;
     }
+
+    public void UpdateShippingInfo(ShippingInfo shippingInfo) => ShippingInfo = shippingInfo;
 }

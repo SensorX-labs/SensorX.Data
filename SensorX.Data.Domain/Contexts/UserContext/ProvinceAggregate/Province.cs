@@ -5,7 +5,6 @@ namespace SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate;
 
 public class Province : Entity<ProvinceId>, IAggregateRoot
 {
-    private Province() : base() { }
     public Province(ProvinceId id, string name) : base(id)
     {
         Name = name;

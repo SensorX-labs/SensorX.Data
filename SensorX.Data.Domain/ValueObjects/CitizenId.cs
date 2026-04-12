@@ -11,6 +11,8 @@ public partial record CitizenId
 
     private CitizenId(string value) => Value = value;
 
+    public static CitizenId From(string value) => new(value);
+
     public static CitizenId Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))

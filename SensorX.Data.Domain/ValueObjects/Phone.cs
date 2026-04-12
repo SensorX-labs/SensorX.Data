@@ -15,6 +15,8 @@ public partial record Phone
         Value = value;
     }
 
+    public static Phone From(string vlaue) => new(vlaue);
+
     public static Phone Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
