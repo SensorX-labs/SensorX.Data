@@ -1,22 +1,19 @@
 using System.Text.RegularExpressions;
 using SensorX.Data.Domain.Common.Exceptions;
-using SensorX.Data.Domain.SeedWork;
 
 namespace SensorX.Data.Domain.ValueObjects;
 
-public record Code
+public partial record Code
 {
-    private static readonly Regex CodeRegex = new(@"^[A-Z]+-\d{6}-\d{9}$", RegexOptions.Compiled);
-
     public string Value { get; init; }
 
     private Code(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new DomainException("Code cannot be empty.");
+            throw new DomainException("Code không được để trống.");
         //kiểm tra định dạng $"{prefix.ToUpper()}-{now:yyMMdd}-{now:HHmmssfff}";
-        if (!CodeRegex.IsMatch(value))
-            throw new DomainException("Code format is invalid.");
+        if (!MyRegex().IsMatch(value))
+            throw new DomainException("Định dạng Code không hợp lệ.");
         Value = value;
     }
 
@@ -25,7 +22,7 @@ public record Code
     public static Code Create(string prefix)
     {
         if (string.IsNullOrWhiteSpace(prefix))
-            throw new DomainException("Prefix cannot be empty.");
+            throw new DomainException("Tiền tố không được để trống.");
 
         var now = DateTime.UtcNow;
         var code = $"{prefix.ToUpper()}-{now:yyMMdd}-{now:HHmmssfff}";
@@ -35,4 +32,6 @@ public record Code
     public static implicit operator string(Code code) => code?.Value ?? string.Empty;
 
     public override string ToString() => Value;
+    [GeneratedRegex(@"^[A-Z]+-\d{6}-\d{9}$")]
+    private static partial Regex MyRegex();
 }
