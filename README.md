@@ -1,8 +1,8 @@
-# 📦 SensorX.Master
+# 📦 SensorX.Data
 
-SensorX.Master là một hệ thống quản lý kho (Master Management System - WMS) hiện đại, tập trung vào hiệu năng, tính mở rộng và tuân thủ các nguyên tắc thiết kế phần mềm sạch (**Clean Architecture**) và phát triển dựa trên tên miền (**Domain-Driven Design - DDD**).
+SensorX.Data là một dịch vụ lưu trữ Data data, tập trung vào hiệu năng, tính mở rộng và tuân thủ các nguyên tắc thiết kế phần mềm sạch (**Clean Architecture**) và phát triển dựa trên tên miền (**Domain-Driven Design - DDD**).
 
-![Banner](file:///C:/Users/nguye/.gemini/antigravity/brain/b46489a5-c760-44cf-9a6f-f2558944fb70/Master_project_banner_1774800371070.png)
+![Banner](file:///C:/Users/nguye/.gemini/antigravity/brain/b46489a5-c760-44cf-9a6f-f2558944fb70/Data_project_banner_1774800371070.png)
 
 ---
 
@@ -13,10 +13,10 @@ Dự án được xây dựng theo mô hình **Clean Architecture**, tách biệ
 ```mermaid
 graph TD
     subgraph Layers
-        WebApi[SensorX.Master.WebApi]
-        Infrastructure[SensorX.Master.Infrastructure]
-        Application[SensorX.Master.Application]
-        Domain[SensorX.Master.Domain]
+        WebApi[SensorX.Data.WebApi]
+        Infrastructure[SensorX.Data.Infrastructure]
+        Application[SensorX.Data.Application]
+        Domain[SensorX.Data.Domain]
     end
 
     WebApi --> Application
@@ -33,22 +33,22 @@ graph TD
 
 ### 🧱 Giải thích các tầng:
 
-1.  **SensorX.Master.Domain (Lõi - Core)**:
+1.  **SensorX.Data.Domain (Lõi - Core)**:
     *   **Mục đích**: Chứa logic nghiệp vụ cốt lõi, không phụ thuộc vào bất kỳ thư viện bên ngoài nào.
     *   **Thành phần**: Aggregates, Entities, Value Objects (Code, InventoryItem, StockIn, StockOut), SeedWork, Domain Events.
     *   **Nguyên tắc**: Đây là trung tâm của ứng dụng.
 
-2.  **SensorX.Master.Application (Cầu nối)**:
+2.  **SensorX.Data.Application (Cầu nối)**:
     *   **Mục đích**: Triển khai các "Use Cases" của hệ thống.
     *   **Thành phần**: CQRS Pattern (Commands & Queries), DTOs, Mapping logic, Interfaces.
     *   **Nguyên tắc**: Phụ thuộc vào tầng Domain nhưng không quan tâm đến cách lưu trữ dữ liệu.
 
-3.  **SensorX.Master.Infrastructure (Hạ tầng)**:
+3.  **SensorX.Data.Infrastructure (Hạ tầng)**:
     *   **Mục đích**: Cung cấp các công cụ thực thi kỹ thuật (Persistence, External Services).
     *   **Thành phần**: EF Core DBContext, Migrations, Repository Implementations, Caching, Logging.
     *   **Nguyên tắc**: Hiện thực hóa các interface được định nghĩa ở tầng Application.
 
-4.  **SensorX.Master.WebApi (Cung cấp API)**:
+4.  **SensorX.Data.WebApi (Cung cấp API)**:
     *   **Mục đích**: Entry point của ứng dụng, xử lý các yêu cầu HTTP.
     *   **Thành phần**: Controllers / Minimal APIs, Middleware, Dependency Injection Setup, Configuration.
 
@@ -59,8 +59,8 @@ graph TD
 ### 1. 📥 Sao chép mã nguồn (Git Clone)
 Mở terminal và chạy lệnh:
 ```bash
-git clone https://github.com/SensorX-labs/SensorX.Master.git
-cd SensorX.Master
+git clone https://github.com/SensorX-labs/SensorX.Data.git
+cd SensorX.Data
 ```
 
 ### 2. 🐋 Khởi chạy Docker (Postgres & Admin)
@@ -75,12 +75,12 @@ docker-compose up -d
 Sau khi Database đã sẵn sàng, hãy thực thi Migration để tạo cấu trúc bảng:
 ```bash
 # Đảm bảo bạn đang ở thư mục gốc của dự án
-dotnet ef database update --context AppDbContext -p ./SensorX.Master.Infrastructure/SensorX.Master.Infrastructure.csproj -s ./SensorX.Master.WebApi/SensorX.Master.WebApi.csproj
+dotnet ef database update --context AppDbContext -p ./SensorX.Data.Infrastructure/SensorX.Data.Infrastructure.csproj -s ./SensorX.Data.WebApi/SensorX.Data.WebApi.csproj
 ```
 
 ### 4. ▶️ Chạy ứng dụng
 ```bash
-dotnet watch run --project .\SensorX.Master.WebApi\
+dotnet watch run --project .\SensorX.Data.WebApi\
 ```
 Truy cập Swagger UI tại: `https://localhost:<port>/swagger`
 
