@@ -1,5 +1,6 @@
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate;
 using SensorX.Data.Domain.SeedWork;
+using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
@@ -7,7 +8,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
 {
     public Product(
         ProductId id,
-        string code,
+        Code code,
         string name,
         string manufacture,
         ProductCategoryId category,
@@ -24,7 +25,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         CreatedAt = DateTimeOffset.UtcNow;
     }
 
-    public string Code { get; private set; }
+    public Code Code { get; private set; }
     public string Name { get; private set; }
     public string Manufacture { get; private set; }
     public ProductCategoryId Category { get; private set; }
