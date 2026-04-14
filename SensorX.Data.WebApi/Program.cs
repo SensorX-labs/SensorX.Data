@@ -73,5 +73,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapProductCategoryApi();
+app.MapInternalPriceApi();
 
 app.Run();
