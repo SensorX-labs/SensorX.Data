@@ -9,11 +9,9 @@ namespace SensorX.Data.Application.Common.ResponseClient
         protected Result(bool isSuccess, T? value, string? error)
         {
             if (isSuccess && error != null)
-                throw new InvalidOperationException("Success result cannot have error");
-            
-            // Check if value is not default (works for both reference and value types)
+                throw new InvalidOperationException();
             if (!isSuccess && value != null && !value.Equals(default(T)))
-                throw new InvalidOperationException("Failure result should not have meaningful value");
+                throw new InvalidOperationException();
 
             IsSuccess = isSuccess;
             Value = value;
@@ -33,9 +31,9 @@ namespace SensorX.Data.Application.Common.ResponseClient
         protected Result(bool isSuccess, string? error)
         {
             if (isSuccess && error != null)
-                throw new InvalidOperationException("Success result cannot have error");
+                throw new InvalidOperationException();
             if (!isSuccess && error == null)
-                throw new InvalidOperationException("Failure result must have error message");
+                throw new InvalidOperationException();
 
             IsSuccess = isSuccess;
             Error = error;
@@ -43,5 +41,6 @@ namespace SensorX.Data.Application.Common.ResponseClient
 
         public static Result Success() => new(true, null);
         public static Result Failure(string error) => new(false, error);
+        public static implicit operator bool(Result? result) => result is not null && result.IsSuccess;
     }
 }
