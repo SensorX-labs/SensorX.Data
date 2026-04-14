@@ -1,5 +1,6 @@
 using SensorX.Data.Infrastructure.DI;
 using SensorX.Data.WebApi.Configurations;
+using SensorX.Data.WebApi.API;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using SensorX.Data.Infrastructure.Persistences;
@@ -71,5 +72,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.Run();
+app.MapProductCategoryApi();
+app.MapInternalPriceApi();
+app.MapProductApi();
 
+app.Run();
