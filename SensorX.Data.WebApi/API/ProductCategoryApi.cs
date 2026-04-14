@@ -16,7 +16,7 @@ public static class ProductCategoryApi
 
         api.MapPost("/productCategories", CreateCategory).WithOpenApi();
         api.MapPut("/productCategories", UpdateCategory).WithOpenApi();
-        api.MapDelete("/productCategories", DeleteCategory).WithOpenApi();
+        api.MapDelete("/productCategories/{id:guid}", DeleteCategory).WithOpenApi();
 
         return api;
     }
@@ -44,10 +44,11 @@ public static class ProductCategoryApi
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> DeleteCategory(
-        [FromBody] DeleteProductCategoryCommand command,
+        [FromRoute] Guid id,
         [FromServices] IMediator mediator
     )
     {
+        var command = new DeleteProductCategoryCommand { Id = id };
         Result<Guid> result = await mediator.Send(command);
         return result.IsSuccess 
             ? TypedResults.Ok(result) 

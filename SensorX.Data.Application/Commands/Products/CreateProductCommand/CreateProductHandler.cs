@@ -7,7 +7,6 @@ using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Application.Commands.CreateProductCommand;
-
 public class CreateProductHandler(
     IRepository<Product> _productRepository,
     IRepository<ProductCategory> _productCategoryRepository,

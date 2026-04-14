@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Commands.CreateProductCommand;
+using SensorX.Data.Application.Commands.Products.DeleteProductCommand;
 
 namespace SensorX.Data.WebApi.API;
 public static class ProductApi
@@ -12,6 +13,7 @@ public static class ProductApi
         var api = app.MapGroup("api/catalog").WithTags("Products");
 
         api.MapPost("/products", CreateProduct).WithOpenApi();
+        api.MapDelete("/products/{id:guid}", DeleteProduct).WithOpenApi();
 
         return api;
     }
@@ -25,5 +27,17 @@ public static class ProductApi
         return result.IsSuccess 
             ? TypedResults.Ok(result) 
             : TypedResults.BadRequest(result.Error ?? "Unknown error");
+    }
+
+    private static async Task<Results<Ok<Result>, NotFound<string>>> DeleteProduct(
+        [FromRoute] Guid id,
+        [FromServices] IMediator mediator
+    )
+    {
+        var command = new DeleteProductCommand { ProductId = id };
+        Result result = await mediator.Send(command);
+        return result.IsSuccess 
+            ? TypedResults.Ok(result) 
+            : TypedResults.NotFound(result.Error ?? "Product not found");
     }
 }
