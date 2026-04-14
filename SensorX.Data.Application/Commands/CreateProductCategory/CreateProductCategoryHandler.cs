@@ -4,7 +4,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate;
 using SensorX.Data.Domain.SeedWork;
 
-namespace Sensorx.Data.Application.Commands.CreateProductCategory;
+namespace SensorX.Data.Application.Commands.CreateProductCategory;
 
 public class CreateProductCategoryHandler(
     IRepository<ProductCategory> _productCategoryRepository,

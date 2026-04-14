@@ -1,4 +1,5 @@
 using SensorX.Data.Domain.SeedWork;
+using SensorX.Data.Domain.Common.Exceptions;
 
 namespace SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate;
 
@@ -12,10 +13,18 @@ public class ProductCategory : Entity<ProductCategoryId>, IAggregateRoot
 
     public string Name { get; private set; }
     public string Description { get; private set; }
+    public ProductCategoryId? ParentId { get; private set; }
     public ProductCategory? Parent { get; private set; }
 
-    public ProductCategory CreateSubCategory(string name, string description)
+    public void Update(string name, string description, ProductCategory? parent)
     {
-        return new ProductCategory(ProductCategoryId.New(), name, description) { Parent = this };
+        if (parent != null && parent.Id == Id)
+        {
+            throw new DomainException("Danh mục không thể là cha của chính nó.");
+        }
+
+        Name = name;
+        Description = description;
+        ParentId = parent?.Id;
     }
 }
