@@ -74,5 +74,6 @@ app.UseAuthorization();
 
 app.MapProductCategoryApi();
 app.MapInternalPriceApi();
+app.MapProductApi();
 
 app.Run();

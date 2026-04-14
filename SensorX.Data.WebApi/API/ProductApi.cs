@@ -1,0 +1,29 @@
+using MediatR;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Commands.CreateProductCommand;
+
+namespace SensorX.Data.WebApi.API;
+public static class ProductApi
+{
+    public static RouteGroupBuilder MapProductApi(this IEndpointRouteBuilder app)
+    {
+        var api = app.MapGroup("api/catalog").WithTags("Products");
+
+        api.MapPost("/products", CreateProduct).WithOpenApi();
+
+        return api;
+    }
+
+    private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateProduct(
+        [FromBody] CreateProductCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<Guid> result = await mediator.Send(command);
+        return result.IsSuccess 
+            ? TypedResults.Ok(result) 
+            : TypedResults.BadRequest(result.Error ?? "Unknown error");
+    }
+}
