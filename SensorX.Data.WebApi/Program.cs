@@ -2,9 +2,10 @@ using SensorX.Data.Infrastructure.DI;
 using SensorX.Data.WebApi.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using SensorX.Data.Infrastructure.Persistences;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Cấu hình Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -33,6 +34,31 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+var autoApplyMigration = builder.Configuration.GetValue("Migration:AutoApply", true);
+if (autoApplyMigration)
+{
+    const int maxMigrationRetries = 12;
+    for (var attempt = 1; attempt <= maxMigrationRetries; attempt++)
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.MigrateAsync();
+            break;
+        }
+        catch (Exception ex) when (attempt < maxMigrationRetries)
+        {
+            app.Logger.LogWarning(
+                ex,
+                "Data API migration attempt {Attempt}/{MaxRetries} failed. Retrying in 5 seconds...",
+                attempt,
+                maxMigrationRetries);
+            await Task.Delay(TimeSpan.FromSeconds(5));
+        }
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {
