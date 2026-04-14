@@ -9,7 +9,6 @@ public class CreateInternalPriceCommand : IRequest<Result<Guid>>
     public Guid ProductId { get; set; }
     public decimal SuggestedPrice { get; set; }
     public decimal FloorPrice { get; set; }
-    public string Currency { get; set; } = "VND";
     public List<PriceTierDto> PriceTiers { get; set; } = [];
 }
 
