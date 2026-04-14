@@ -9,8 +9,7 @@ using SensorX.Data.Domain.ValueObjects;
 namespace SensorX.Data.Application.Commands.CreateProductCommand;
 public class CreateProductHandler(
     IRepository<Product> _productRepository,
-    IRepository<ProductCategory> _productCategoryRepository,
-    IUnitOfWork _unitOfWork
+    IRepository<ProductCategory> _productCategoryRepository
 ) : IRequestHandler<CreateProductCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -78,7 +77,6 @@ public class CreateProductHandler(
     }
 
     await _productRepository.AddAsync(product, cancellationToken);
-    await _unitOfWork.SaveChangesAsync(cancellationToken);
 
     return Result<Guid>.Success(product.Id.Value);
 }

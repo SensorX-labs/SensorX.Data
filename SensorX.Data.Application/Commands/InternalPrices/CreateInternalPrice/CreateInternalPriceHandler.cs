@@ -10,8 +10,7 @@ using SensorX.Data.Domain.ValueObjects;
 namespace SensorX.Data.Application.Commands.CreateInternalPrice;
 public class CreateInternalPriceHandler(
     IRepository<InternalPrice> _internalPriceRepository,
-    IRepository<Product> _productRepository,
-    IUnitOfWork _unitOfWork
+    IRepository<Product> _productRepository
 ) : IRequestHandler<CreateInternalPriceCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateInternalPriceCommand request, CancellationToken cancellationToken)
@@ -44,7 +43,6 @@ public class CreateInternalPriceHandler(
         }
 
         await _internalPriceRepository.AddAsync(internalPrice, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(internalPrice.Id.Value);
     }

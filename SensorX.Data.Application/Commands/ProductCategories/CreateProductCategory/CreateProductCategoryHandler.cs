@@ -7,8 +7,7 @@ using SensorX.Data.Domain.SeedWork;
 namespace SensorX.Data.Application.Commands.CreateProductCategory;
 
 public class CreateProductCategoryHandler(
-    IRepository<ProductCategory> _productCategoryRepository,
-    IUnitOfWork _unitOfWork
+    IRepository<ProductCategory> _productCategoryRepository
 ) : IRequestHandler<CreateProductCategoryCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateProductCategoryCommand request, CancellationToken cancellationToken)
@@ -33,7 +32,6 @@ public class CreateProductCategoryHandler(
         productCategory.SetParent(parent);  
         
         await _productCategoryRepository.AddAsync(productCategory, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Result<Guid>.Success(productCategory.Id.Value);
     }
 }

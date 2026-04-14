@@ -7,8 +7,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate;
 using SensorX.Data.Domain.SeedWork;
 
 public class DeleteProductCategoryHandler(
-    IRepository<ProductCategory> _productCategoryRepository,
-    IUnitOfWork _unitOfWork
+    IRepository<ProductCategory> _productCategoryRepository
 ) : IRequestHandler<DeleteProductCategoryCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(DeleteProductCategoryCommand request, CancellationToken cancellationToken)
@@ -21,7 +20,6 @@ public class DeleteProductCategoryHandler(
         }
 
         await _productCategoryRepository.DeleteAsync(productCategory, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(id);
     }

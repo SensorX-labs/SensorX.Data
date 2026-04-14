@@ -7,8 +7,7 @@ using SensorX.Data.Domain.SeedWork;
 namespace SensorX.Data.Application.Commands.Products.DeleteProductCommand;
 
 public class DeleteProductHandler(
-    IRepository<Product> _productRepository,
-    IUnitOfWork _unitOfWork
+    IRepository<Product> _productRepository
 ) : IRequestHandler<DeleteProductCommand, Result>
 {
     public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
@@ -21,8 +20,6 @@ public class DeleteProductHandler(
         }
 
         await _productRepository.DeleteAsync(product, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
         return Result.Success();
     }
 }
