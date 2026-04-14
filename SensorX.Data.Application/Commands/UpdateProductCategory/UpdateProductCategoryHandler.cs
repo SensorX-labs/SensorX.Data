@@ -13,6 +13,7 @@ public class UpdateProductCategoryHandler(
 {
     public async Task<Result<Guid>> Handle(UpdateProductCategoryCommand request, CancellationToken cancellationToken)
     {
+        // kiểm tra tồn tại
         var id = new ProductCategoryId(request.Id);
         var productCategory = await _productCategoryRepository.GetByIdAsync(id, cancellationToken);
         if (productCategory == null)

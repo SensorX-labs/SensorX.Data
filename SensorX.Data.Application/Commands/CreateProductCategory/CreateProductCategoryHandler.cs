@@ -13,11 +13,25 @@ public class CreateProductCategoryHandler(
 {
     public async Task<Result<Guid>> Handle(CreateProductCategoryCommand request, CancellationToken cancellationToken)
     {
+        ProductCategory? parent = null;
+        
+        if (request.ParentId.HasValue)
+        {
+            var parentId = new ProductCategoryId(request.ParentId.Value);
+            parent = await _productCategoryRepository.GetByIdAsync(parentId, cancellationToken);
+            if (parent == null)
+            {
+                return Result<Guid>.Failure("Không tìm thấy danh mục cha");
+            }
+        }
+        
         var productCategory = new ProductCategory(
             ProductCategoryId.New(), 
             request.Name,
             request.Description
         );
+        productCategory.SetParent(parent);  
+        
         await _productCategoryRepository.AddAsync(productCategory, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Result<Guid>.Success(productCategory.Id.Value);
