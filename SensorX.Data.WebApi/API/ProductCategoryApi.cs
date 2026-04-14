@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Commands.CreateProductCategory;
-using SensorX.Data.Application.Commands.UpdateProductCategory;
+using SensorX.Data.Application.Commands.SetParentProductCategory;
 using SensorX.Data.Application.Commands.DeleteProductCategory;
 
 namespace SensorX.Data.WebApi.API;
@@ -15,7 +15,7 @@ public static class ProductCategoryApi
         var api = app.MapGroup("api/catalog").WithTags("Categories");
 
         api.MapPost("/productCategories", CreateCategory).WithOpenApi();
-        api.MapPut("/productCategories", UpdateCategory).WithOpenApi();
+        api.MapPut("/productCategories/setParent", SetParent).WithOpenApi();
         api.MapDelete("/productCategories/{id:guid}", DeleteCategory).WithOpenApi();
 
         return api;
@@ -32,8 +32,8 @@ public static class ProductCategoryApi
             : TypedResults.BadRequest(result.Error ?? "Unknown error");
     }
 
-    private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> UpdateCategory(
-        [FromBody] UpdateProductCategoryCommand command,
+    private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> SetParent(
+        [FromBody] SetParentProductCategoryCommand command,
         [FromServices] IMediator mediator
     )
     {

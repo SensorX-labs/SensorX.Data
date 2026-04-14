@@ -4,15 +4,15 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate;
 using SensorX.Data.Domain.SeedWork;
 
-namespace SensorX.Data.Application.Commands.UpdateProductCategory;
+namespace SensorX.Data.Application.Commands.SetParentProductCategory;
 
-public class UpdateProductCategoryHandler(
+public class SetParentProductCategoryHandler(
     IRepository<ProductCategory> _productCategoryRepository
-) : IRequestHandler<UpdateProductCategoryCommand, Result<Guid>>
+) : IRequestHandler<SetParentProductCategoryCommand, Result<Guid>>
 {
-    public async Task<Result<Guid>> Handle(UpdateProductCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(SetParentProductCategoryCommand request, CancellationToken cancellationToken)
     {
-        // kiểm tra tồn tại
+        // Kiểm tra danh mục tồn tại
         var id = new ProductCategoryId(request.Id);
         var productCategory = await _productCategoryRepository.GetByIdAsync(id, cancellationToken);
         if (productCategory == null)
@@ -20,6 +20,7 @@ public class UpdateProductCategoryHandler(
             return Result<Guid>.Failure("Không tìm thấy danh mục sản phẩm");
         }
 
+        // Set parent nếu có
         ProductCategory? parent = null;
         if (request.ParentId.HasValue)
         {
@@ -31,11 +32,10 @@ public class UpdateProductCategoryHandler(
             }
         }
 
-        productCategory.Update(request.Name, request.Description, parent);
+        productCategory.SetParent(parent);
 
         await _productCategoryRepository.UpdateAsync(productCategory, cancellationToken);
-        var newproductCategory = await _productCategoryRepository.GetByIdAsync(id, cancellationToken);
 
-        return Result<Guid>.Success(newproductCategory!.Id);
+        return Result<Guid>.Success(productCategory.Id.Value);
     }
 }

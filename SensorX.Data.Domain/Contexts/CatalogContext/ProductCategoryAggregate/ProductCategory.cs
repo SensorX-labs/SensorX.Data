@@ -16,18 +16,6 @@ public class ProductCategory : Entity<ProductCategoryId>, IAggregateRoot
     public ProductCategoryId? ParentId { get; private set; }
     public ProductCategory? Parent { get; private set; }
 
-    public void Update(string name, string description, ProductCategory? parent)
-    {
-        if (parent != null && parent.Id == Id)
-        {
-            throw new DomainException("Danh mục không thể là cha của chính nó.");
-        }
-
-        Name = name;
-        Description = description;
-        ParentId = parent?.Id;
-    }
-
     public void SetParent(ProductCategory? parent)
     {
         if (parent != null && parent.Id == Id)
