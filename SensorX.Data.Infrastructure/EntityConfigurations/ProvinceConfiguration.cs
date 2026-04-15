@@ -17,18 +17,5 @@ public class ProvinceConfiguration : IEntityTypeConfiguration<Province>
             .ValueGeneratedNever();
 
         builder.Property(p => p.Name).IsRequired();
-
-        builder.OwnsMany(p => p.Wards, ward =>
-        {
-            ward.ToTable("Wards");
-
-            ward.HasKey(w => w.Id);
-
-            ward.Property(w => w.Id)
-                .HasConversion(id => id.Value, v => new WardId(v))
-                .ValueGeneratedNever();
-
-            ward.Property(w => w.Name).IsRequired();
-        });
     }
 }

@@ -1,20 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Infrastructure.EntityConfigurations;
 
-public class ProductCategoryConfiguration : IEntityTypeConfiguration<ProductCategory>
+public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
-    public void Configure(EntityTypeBuilder<ProductCategory> builder)
+    public void Configure(EntityTypeBuilder<Category> builder)
     {
-        builder.ToTable("ProductCategories");
+        builder.ToTable("Categories");
 
         builder.HasKey(s => s.Id);
 
         builder.Property(s => s.Id)
-            .HasConversion(id => id.Value, v => new ProductCategoryId(v))
+            .HasConversion(id => id.Value, v => new CategoryId(v))
             .ValueGeneratedNever();
 
         // Configure Parent relationship

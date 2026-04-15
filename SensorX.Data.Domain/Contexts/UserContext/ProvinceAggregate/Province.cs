@@ -11,13 +11,4 @@ public class Province : Entity<ProvinceId>, IAggregateRoot
     }
 
     public string Name { get; private set; }
-    private readonly List<Ward> _wards = [];
-    public IReadOnlyList<Ward> Wards => _wards.AsReadOnly();
-
-    public void AddWard(Ward ward)
-    {
-        if (ward is null)
-            throw new DomainException("Ward không được để trống.");
-        _wards.Add(ward);
-    }
 }
