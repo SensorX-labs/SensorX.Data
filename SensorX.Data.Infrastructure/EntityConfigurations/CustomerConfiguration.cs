@@ -49,5 +49,10 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
                 .HasConversion(p => p.Value, v => Phone.From(v))
                 .HasColumnName("ReceiverPhone");
         });
+
+        builder.HasOne<Ward>()
+            .WithMany()
+            .HasForeignKey(c => c.ShippingInfo.WardId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

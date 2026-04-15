@@ -1,4 +1,4 @@
-using SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.ValueObjects;
 
@@ -11,7 +11,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         Code code,
         string name,
         string manufacture,
-        ProductCategoryId category,
+        CategoryId categoryId,
         ProductStatus status,
         string unit
     ) : base(id)
@@ -19,7 +19,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         Code = code;
         Name = name;
         Manufacture = manufacture;
-        Category = category;
+        CategoryId = categoryId;
         Status = status;
         Unit = unit;
         CreatedAt = DateTimeOffset.UtcNow;
@@ -28,7 +28,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
     public Code Code { get; private set; }
     public string Name { get; private set; }
     public string Manufacture { get; private set; }
-    public ProductCategoryId Category { get; private set; }
+    public CategoryId CategoryId { get; private set; }
     public ProductStatus Status { get; private set; }
     public string Unit { get; private set; }
 
@@ -65,9 +65,9 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         _images.Remove(image);
         UpdatedAt = DateTimeOffset.UtcNow;
     }
-    public void ChangeCategory(ProductCategoryId newCategoryId)
+    public void ChangeCategory(CategoryId newCategoryId)
     {
-        Category = newCategoryId;
+        CategoryId = newCategoryId;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
     public void AddProductAttribute(ProductAttribute newAttribute)
