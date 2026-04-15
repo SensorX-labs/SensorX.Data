@@ -44,5 +44,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             s.Property(p => p.AttributeName).HasMaxLength(255);
             s.Property(p => p.AttributeValue).HasMaxLength(255);
         });
+
     }
 }
