@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SensorX.Data.Infrastructure.Persistences.Migrations
 {
     /// <inheritdoc />
-    public partial class ProductContextConfig : Migration
+    public partial class AddParentToProductCategory : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,7 +45,8 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         name: "FK_ProductCategories_ProductCategories_ParentId",
                         column: x => x.ParentId,
                         principalTable: "ProductCategories",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(

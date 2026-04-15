@@ -10,7 +10,7 @@ namespace SensorX.Data.Application.Common.ResponseClient
         {
             if (isSuccess && error != null)
                 throw new InvalidOperationException();
-            if (!isSuccess && value != null)
+            if (!isSuccess && value != null && !value.Equals(default(T)))
                 throw new InvalidOperationException();
 
             IsSuccess = isSuccess;
@@ -44,4 +44,3 @@ namespace SensorX.Data.Application.Common.ResponseClient
         public static implicit operator bool(Result? result) => result is not null && result.IsSuccess;
     }
 }
-

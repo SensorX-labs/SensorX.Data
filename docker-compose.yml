@@ -1,30 +1,181 @@
-name: sensorx
+name: sensorx-backend
 
 services:
   postgres:
     image: postgres:16-alpine
     container_name: sensorx_postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: sk1234
-      POSTGRES_DB: postgres # DB mặc định để khởi tạo
+      POSTGRES_DB: sensorx_gateway
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Mount script tạo nhiều DB vào đây
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./SensorX.Data/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U postgres -d sensorx_gateway
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: sensorx_redis
+    restart: unless-stopped
+    command: redis-server --requirepass redis123 --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - -a
+        - redis123
+        - ping
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks:
+      - backend
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:8
     container_name: sensorx_pgadmin
-    restart: always
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@sensorx.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "8080:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
+
+  gateway:
+    build:
+      context: ./SensorX-gateway
+      dockerfile: Dockerfile
+    image: ducdz2903/sensorx-gateway:latest
+    container_name: sensorx_gateway
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=sensorx_gateway;Username=postgres;Password=sk1234
+      Redis__ConnectionString: redis:6379,password=redis123
+      JwtSettings__Issuer: http://localhost:5053
+      JwtSettings__Audience: api
+      JwtSettings__PrivateKeyPath: /app/Keys/private.key
+      JwtSettings__HmacSecret: local-dev-hmac-secret-change-me-123456
+      Migration__AutoApply: "true"
+    ports:
+      - "5053:8080"
+    volumes:
+      - ./SensorX-gateway/src/SensorX.Gateway.Api/Keys/private.key:/app/Keys/private.key:ro
+      - ./SensorX-gateway/src/SensorX.Gateway.Api/Keys/public.key:/app/Keys/public.key:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+
+  data-api:
+    build:
+      context: ./SensorX.Data
+      dockerfile: Dockerfile
+    image: ducdz2903/sensorx-data-api:latest
+    container_name: sensorx_data_api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=SensorX_Data;Username=postgres;Password=sk1234
+      Jwt__Authority: http://gateway:8080
+      Jwt__Audience: api
+      Jwt__RequireHttpsMetadata: "false"
+      Migration__AutoApply: "true"
+    ports:
+      - "5201:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gateway:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - product-service
+
+  master-api:
+    build:
+      context: ./SensorX.Master
+      dockerfile: Dockerfile
+    image: ducdz2903/sensorx-master-api:latest
+    container_name: sensorx_master_api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=SensorX_Master;Username=postgres;Password=sk1234
+      Jwt__Authority: http://gateway:8080
+      Jwt__Audience: api
+      Jwt__RequireHttpsMetadata: "false"
+      Migration__AutoApply: "true"
+    ports:
+      - "5202:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gateway:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - order-service
+
+  warehouse-api:
+    build:
+      context: ./SensorX.Warehouse
+      dockerfile: Dockerfile
+    image: ducdz2903/sensorx-warehouse-api:latest
+    container_name: sensorx_warehouse_api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=SensorX_Warehouse;Username=postgres;Password=sk1234
+      Jwt__Authority: http://gateway:8080
+      Jwt__Audience: api
+      Jwt__RequireHttpsMetadata: "false"
+      Migration__AutoApply: "true"
+    ports:
+      - "5203:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gateway:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - inventory-service
 
 volumes:
   postgres_data:
+  redis_data:
+
+networks:
+  backend:
+    driver: bridge

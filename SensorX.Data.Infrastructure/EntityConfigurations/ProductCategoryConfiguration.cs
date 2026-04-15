@@ -16,5 +16,11 @@ public class ProductCategoryConfiguration : IEntityTypeConfiguration<ProductCate
         builder.Property(s => s.Id)
             .HasConversion(id => id.Value, v => new ProductCategoryId(v))
             .ValueGeneratedNever();
+
+        // Configure Parent relationship
+        builder.HasOne(s => s.Parent)
+            .WithMany()
+            .HasForeignKey(s => s.ParentId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

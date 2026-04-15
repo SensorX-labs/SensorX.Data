@@ -12,8 +12,8 @@ using SensorX.Data.Infrastructure.Persistences;
 namespace SensorX.Data.Infrastructure.Persistences.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260412183803_ProductContextConfig")]
-    partial class ProductContextConfig
+    [Migration("20260414081622_AddParentToProductCategory")]
+    partial class AddParentToProductCategory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -590,7 +590,8 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                 {
                     b.HasOne("SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate.ProductCategory", "Parent")
                         .WithMany()
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Parent");
                 });

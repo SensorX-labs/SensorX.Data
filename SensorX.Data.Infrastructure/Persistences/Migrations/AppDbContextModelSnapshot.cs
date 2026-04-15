@@ -587,7 +587,8 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                 {
                     b.HasOne("SensorX.Data.Domain.Contexts.CatalogContext.ProductCategoryAggregate.ProductCategory", "Parent")
                         .WithMany()
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Parent");
                 });
