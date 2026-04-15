@@ -7,6 +7,7 @@ namespace SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 
 public class InternalPrice : Entity<InternalPriceId>, IAggregateRoot, ICreationTrackable
 {
+    private InternalPrice() { }
     public InternalPrice(
         InternalPriceId id,
         ProductId productId,

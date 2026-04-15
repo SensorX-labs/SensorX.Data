@@ -28,7 +28,7 @@ public class Customer : User<CustomerId>
 
     public string TaxCode { get; private set; }
     public string Address { get; private set; }
-    public ShippingInfo? ShippingInfo { get; private set; }
+    public ShippingInfo ShippingInfo { get; private set; }
 
     public void UpdateProfile(
         string name,
