@@ -1,10 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SensorX.Data.Application.Commands.Categories.CreateCategory;
+using SensorX.Data.Application.Commands.Categories.DeleteCategory;
+using SensorX.Data.Application.Commands.Categories.SetParentCategory;
 using SensorX.Data.Application.Common.ResponseClient;
-using SensorX.Data.Application.Commands.CreateProductCategory;
-using SensorX.Data.Application.Commands.SetParentProductCategory;
-using SensorX.Data.Application.Commands.DeleteProductCategory;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -22,24 +22,24 @@ public static class ProductCategoryApi
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateCategory(
-        [FromBody] CreateProductCategoryCommand command,
+        [FromBody] CreateCategoryCommand command,
         [FromServices] IMediator mediator
     )
     {
         Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess 
-            ? TypedResults.Ok(result) 
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
             : TypedResults.BadRequest(result.Error ?? "Unknown error");
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> SetParent(
-        [FromBody] SetParentProductCategoryCommand command,
+        [FromBody] SetParentCategoryCommand command,
         [FromServices] IMediator mediator
     )
     {
         Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess 
-            ? TypedResults.Ok(result) 
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
             : TypedResults.BadRequest(result.Error ?? "Unknown error");
     }
 
@@ -48,10 +48,10 @@ public static class ProductCategoryApi
         [FromServices] IMediator mediator
     )
     {
-        var command = new DeleteProductCategoryCommand { Id = id };
+        var command = new DeleteCategoryCommand { Id = id };
         Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess 
-            ? TypedResults.Ok(result) 
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
             : TypedResults.BadRequest(result.Error ?? "Unknown error");
     }
 }
