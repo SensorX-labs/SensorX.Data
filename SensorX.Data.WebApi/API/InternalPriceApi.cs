@@ -11,7 +11,7 @@ public static class InternalPriceApi
 {
     public static RouteGroupBuilder MapInternalPriceApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/catalog").WithTags("Internal Prices");
+        var api = app.MapGroup("catalog").WithTags("Internal Prices");
         api.MapPost("/internalPrices", CreateInternalPrice).WithOpenApi();
 
         return api;

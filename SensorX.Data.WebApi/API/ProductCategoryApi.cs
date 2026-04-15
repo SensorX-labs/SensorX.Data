@@ -12,7 +12,7 @@ public static class ProductCategoryApi
 {
     public static RouteGroupBuilder MapProductCategoryApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/catalog").WithTags("Categories");
+        var api = app.MapGroup("catalog").WithTags("Categories");
 
         api.MapPost("/productCategories", CreateCategory).WithOpenApi();
         api.MapPut("/productCategories/setParent", SetParent).WithOpenApi();

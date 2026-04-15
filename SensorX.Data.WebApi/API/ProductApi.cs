@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Data.Application.Commands.CreateProductCommand;
 using SensorX.Data.Application.Commands.Products.CreateProductCommand;
 using SensorX.Data.Application.Commands.Products.DeleteProductCommand;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -12,7 +11,7 @@ public static class ProductApi
 {
     public static RouteGroupBuilder MapProductApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/catalog").WithTags("Products");
+        var api = app.MapGroup("catalog").WithTags("Products");
 
         api.MapPost("/products", CreateProduct).WithOpenApi();
         api.MapDelete("/products/{id:guid}", DeleteProduct).WithOpenApi();
