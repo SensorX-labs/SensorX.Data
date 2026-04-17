@@ -3,7 +3,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
-public class GetPageListProductsQuery : IRequest<Result<PaginatedResult<GetPageListProductsDto>>>
+public class GetPageListProductsQuery : IRequest<Result<PaginatedResult<GetPageListProductsResponse>>>
 {
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 10;

@@ -21,7 +21,7 @@ public static class ProductApi
         return api;
     }
 
-    private static async Task<Results<Ok<Result<PaginatedResult<GetPageListProductsDto>>>, BadRequest<string>>> GetPageListProducts(
+    private static async Task<Results<Ok<Result<PaginatedResult<GetPageListProductsResponse>>>, BadRequest<string>>> GetPageListProducts(
         [FromServices] IMediator mediator,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,

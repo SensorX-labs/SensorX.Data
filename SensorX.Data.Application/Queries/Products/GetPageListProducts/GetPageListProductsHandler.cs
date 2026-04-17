@@ -1,4 +1,5 @@
 using MediatR;
+using SensorX.Data.Application.Common.Dtos.Responses;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 using SensorX.Data.Domain.SeedWork;
@@ -7,9 +8,9 @@ namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
 public class GetPageListProductsHandler(
     IRepository<Product> _productRepository
-) : IRequestHandler<GetPageListProductsQuery, Result<PaginatedResult<GetPageListProductsDto>>>
+) : IRequestHandler<GetPageListProductsQuery, Result<PaginatedResult<GetPageListProductsResponse>>>
 {
-    public async Task<Result<PaginatedResult<GetPageListProductsDto>>> Handle(
+    public async Task<Result<PaginatedResult<GetPageListProductsResponse>>> Handle(
         GetPageListProductsQuery request,
         CancellationToken cancellationToken)
     {
@@ -52,7 +53,7 @@ public class GetPageListProductsHandler(
                 .ToList();
 
             // Chuyển đổi Product entity thành DTO để trả về API
-            var productDtos = products.Select(p => new GetPageListProductsDto
+            var productDtos = products.Select(p => new GetPageListProductsResponse
             {
                 Id = p.Id.Value,
                 Code = p.Code.Value,
@@ -64,20 +65,17 @@ public class GetPageListProductsHandler(
                 CategoryName = null,
                 
                 // Chuyển Showcase (nếu có)
-                Showcase = p.Showcase != null ? new ProductShowcaseDto
+                Showcase = p.Showcase != null ? new ProductShowcaseResponse
                 {
                     Summary = p.Showcase.Summary,
                     Body = p.Showcase.Body
                 } : null,
                 
                 // Chuyển danh sách ảnh sản phẩm
-                Images = p.Images.Select(img => new ProductImageDto
-                {
-                    ImageUrl = img.ImageUrl
-                }).ToList(),
+                Images = p.Images.Select(img => img.ImageUrl).ToList(),
                 
                 // Chuyển danh sách thuộc tính sản phẩm
-                Attributes = p.Attributes.Select(attr => new ProductAttribute
+                Attributes = p.Attributes.Select(attr => new ProductAttributeResponse
                 {
                     AttributeName = attr.AttributeName,
                     AttributeValue = attr.AttributeValue
@@ -88,7 +86,7 @@ public class GetPageListProductsHandler(
             }).ToList();
 
             // Tạo kết quả phân trang với thông tin meta
-            var paginatedResult = new PaginatedResult<GetPageListProductsDto>(
+            var paginatedResult = new PaginatedResult<GetPageListProductsResponse>(
                 productDtos,
                 totalCount,
                 request.PageNumber,
@@ -96,12 +94,12 @@ public class GetPageListProductsHandler(
             );
 
             // Trả về kết quả thành công
-            return Result<PaginatedResult<GetPageListProductsDto>>.Success(paginatedResult);
+            return Result<PaginatedResult<GetPageListProductsResponse>>.Success(paginatedResult);
         }
         catch (Exception ex)
         {
             // Trả về lỗi nếu có exception
-            return Result<PaginatedResult<GetPageListProductsDto>>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
+            return Result<PaginatedResult<GetPageListProductsResponse>>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
         }
     }
 }

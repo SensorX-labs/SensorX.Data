@@ -1,6 +1,6 @@
-namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
+namespace SensorX.Data.Application.Common.Dtos.Requests;
 
-public class ProductAttribute
+public class ProductAttributeRequest
 {
     public required string AttributeName { get; set; }
     public required string AttributeValue { get; set; }
