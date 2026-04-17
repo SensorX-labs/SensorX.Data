@@ -14,10 +14,8 @@ public class DeleteProductHandler(
     {
         var productId = new ProductId(request.ProductId);
         var product = await _productRepository.GetByIdAsync(productId, cancellationToken);
-        if (product == null)
-        {
+        if (product is null)
             return Result.Failure("Không tìm thấy sản phẩm");
-        }
 
         await _productRepository.DeleteAsync(product, cancellationToken);
         return Result.Success();

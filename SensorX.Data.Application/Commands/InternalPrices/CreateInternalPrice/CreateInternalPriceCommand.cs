@@ -2,7 +2,7 @@ using MediatR;
 using SensorX.Data.Application.Common.Dtos;
 using SensorX.Data.Application.Common.ResponseClient;
 
-namespace SensorX.Data.Application.Commands.CreateInternalPrice;
+namespace SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
 
 public class CreateInternalPriceCommand : IRequest<Result<Guid>>
 {
