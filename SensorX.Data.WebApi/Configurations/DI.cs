@@ -4,7 +4,7 @@ namespace SensorX.Data.WebApi.Configurations
 {
     public static class DI
     {
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Register your services here
 
@@ -12,6 +12,7 @@ namespace SensorX.Data.WebApi.Configurations
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(Assembly.Load("SensorX.Data.Application"));
+                cfg.LicenseKey = configuration["MediatR:LicenseKey"];
             });
             return services;
         }

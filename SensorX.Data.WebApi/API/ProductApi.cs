@@ -1,16 +1,17 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Data.Application.Common.ResponseClient;
-using SensorX.Data.Application.Commands.CreateProductCommand;
+using SensorX.Data.Application.Commands.Products.CreateProductCommand;
 using SensorX.Data.Application.Commands.Products.DeleteProductCommand;
+using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.WebApi.API;
+
 public static class ProductApi
 {
     public static RouteGroupBuilder MapProductApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/catalog").WithTags("Products");
+        var api = app.MapGroup("catalog").WithTags("Products");
 
         api.MapPost("/products", CreateProduct).WithOpenApi();
         api.MapDelete("/products/{id:guid}", DeleteProduct).WithOpenApi();
@@ -24,8 +25,8 @@ public static class ProductApi
     )
     {
         Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess 
-            ? TypedResults.Ok(result) 
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
             : TypedResults.BadRequest(result.Error ?? "Unknown error");
     }
 
@@ -36,8 +37,8 @@ public static class ProductApi
     {
         var command = new DeleteProductCommand { ProductId = id };
         Result result = await mediator.Send(command);
-        return result.IsSuccess 
-            ? TypedResults.Ok(result) 
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
             : TypedResults.NotFound(result.Error ?? "Product not found");
     }
 }

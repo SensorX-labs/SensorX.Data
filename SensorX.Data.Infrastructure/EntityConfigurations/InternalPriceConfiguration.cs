@@ -44,9 +44,10 @@ public class InternalPriceConfiguration : IEntityTypeConfiguration<InternalPrice
                 p.Property(x => x.Currency).HasColumnName("PriceCurrency");
             });
         });
+
         builder.HasOne<Product>()
             .WithOne()
             .HasForeignKey<InternalPrice>(p => p.ProductId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

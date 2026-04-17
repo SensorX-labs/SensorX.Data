@@ -50,8 +50,16 @@ public class InternalPrice : Entity<InternalPriceId>, IAggregateRoot, ICreationT
         //TODO: lặp qua các price tier để tìm giá hiệu quả với số lượng tương ứng
         return _priceTiers.OrderByDescending(t => t.Quantity.Value).FirstOrDefault(t => t.Quantity.Value <= quantity.Value) ?? new PriceTier(quantity, FloorPrice);
     }
-    public void CheckPrice(Money price, Quantity quantity)
+    public bool CheckPrice(Money price, Quantity quantity)
     {
         //TODO: lặp qua các price tier để kiểm tra giá có hợp lệ với số lượng tương ứng không
+        if (price < FloorPrice)
+            throw new DomainException("Giá không được thấp hơn giá sàn.");
+        if (price > SuggestedPrice)
+            throw new DomainException("Giá không được cao hơn giá đề xuất.");
+        var effectivePrice = GetEffectivePrice(quantity);
+        if (price < effectivePrice.Price)
+            throw new DomainException("Giá không được thấp hơn giá hiệu quả.");
+        return true;
     }
 }

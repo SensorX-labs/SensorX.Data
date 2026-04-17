@@ -1,3 +1,4 @@
+using SensorX.Data.Domain.Common.Exceptions;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;
@@ -18,6 +19,10 @@ public class Customer : User<CustomerId>
         ShippingInfo shippingInfo
     ) : base(id, accountId, code, name, phone, email)
     {
+        if (string.IsNullOrWhiteSpace(taxCode))
+            throw new DomainException("Mã số thuế không được để trống.");
+        if (string.IsNullOrWhiteSpace(address))
+            throw new DomainException("Địa chỉ không được để trống.");
         TaxCode = taxCode;
         Address = address;
         ShippingInfo = shippingInfo;
@@ -39,6 +44,10 @@ public class Customer : User<CustomerId>
         string address
     )
     {
+        if (string.IsNullOrWhiteSpace(taxCode))
+            throw new DomainException("Mã số thuế không được để trống.");
+        if (string.IsNullOrWhiteSpace(address))
+            throw new DomainException("Địa chỉ không được để trống.");
         base.UpdateProfile(name, phone, email);
         TaxCode = taxCode;
         Address = address;

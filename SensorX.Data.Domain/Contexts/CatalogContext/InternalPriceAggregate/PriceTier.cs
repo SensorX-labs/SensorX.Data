@@ -7,10 +7,7 @@ public record PriceTier
     public Quantity Quantity { get; init; }
     public Money Price { get; init; }
 
-    // Constructor cho EF Core
-    private PriceTier() { }
-
-    // Constructor cho nghiệp vụ
+    protected PriceTier() { }
     public PriceTier(Quantity quantity, Money price)
     {
         Quantity = quantity;

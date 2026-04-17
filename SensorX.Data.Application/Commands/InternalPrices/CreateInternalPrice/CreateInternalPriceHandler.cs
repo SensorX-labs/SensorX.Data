@@ -6,8 +6,8 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.ValueObjects;
 
+namespace SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
 
-namespace SensorX.Data.Application.Commands.CreateInternalPrice;
 public class CreateInternalPriceHandler(
     IRepository<InternalPrice> _internalPriceRepository,
     IRepository<Product> _productRepository
@@ -17,10 +17,8 @@ public class CreateInternalPriceHandler(
     {
         var productId = new ProductId(request.ProductId);
         var product = await _productRepository.GetByIdAsync(productId, cancellationToken);
-        if (product == null)
-        {
+        if (product is null)
             return Result<Guid>.Failure("Không tìm thấy sản phẩm");
-        }
 
         var suggestedPrice = Money.FromVnd(request.SuggestedPrice);
         var floorPrice = Money.FromVnd(request.FloorPrice);
