@@ -14,12 +14,18 @@ public class Customer : User<CustomerId>
         Phone phone,
         Email email,
         string taxCode,
-        string address
+        string address,
+        ShippingInfo shippingInfo
     ) : base(id, accountId, code, name, phone, email)
     {
         TaxCode = taxCode;
         Address = address;
+        ShippingInfo = shippingInfo;
     }
+
+#pragma warning disable CS8618
+    private Customer() : base() { }
+#pragma warning restore CS8618
 
     public string TaxCode { get; private set; }
     public string Address { get; private set; }
