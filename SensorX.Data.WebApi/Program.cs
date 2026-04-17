@@ -42,7 +42,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddSwaggerGen(options =>
 {
     options.UseInlineDefinitionsForEnums();
-    
+
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -103,8 +103,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapCustomerApi();
-
-
+app.MapStaffApi();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

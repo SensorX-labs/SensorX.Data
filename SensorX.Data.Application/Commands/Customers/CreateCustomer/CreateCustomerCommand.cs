@@ -1,11 +1,10 @@
 using MediatR;
 using SensorX.Data.Application.Common.ResponseClient;
 
-namespace SensorX.Data.Application.Commands.Customers.CreateCustomer;
+namespace SensorX.Data.Application.Commands;
 
 public class CreateCustomerCommand : IRequest<Result<Guid>>
 {
-    public Guid Id { get; set; }
     public Guid AccountId { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }

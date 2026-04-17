@@ -7,7 +7,7 @@ using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;
 using SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate;
 
-namespace SensorX.Data.Application.Commands.CreateCustomer;
+namespace SensorX.Data.Application.Commands.Customers.CreateCustomer;
 
 public class CreateCustomerHandler(
     IRepository<Customer> _customerRepository,
@@ -16,8 +16,9 @@ public class CreateCustomerHandler(
 {
     public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
+        var id = new CustomerId(Guid.NewGuid());
         var customer = new Customer(
-            new CustomerId(Guid.NewGuid()),
+            id,
             new AccountId(request.AccountId),
             Code.From(request.Code),
             request.Name,
