@@ -38,6 +38,10 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             s.Property(p => p.WardId)
                 .HasConversion(id => id.Value, v => new WardId(v))
                 .HasColumnName("WardId");
+            s.HasOne(p => p.Ward)
+                .WithMany()
+                .HasForeignKey(p => p.WardId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             s.Property(p => p.ShippingAddress)
                 .HasColumnName("ShippingAddress");
@@ -48,11 +52,6 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             s.Property(p => p.ReceiverPhone)
                 .HasConversion(p => p.Value, v => Phone.From(v))
                 .HasColumnName("ReceiverPhone");
-
-            s.HasOne<Ward>()
-                .WithMany()
-                .HasForeignKey(p => p.WardId)
-                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

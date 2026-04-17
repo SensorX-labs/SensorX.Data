@@ -1,5 +1,5 @@
 using MediatR;
-using SensorX.Data.Application.Common.Dtos;
+using SensorX.Data.Application.Common.Dtos.Requests;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 namespace SensorX.Data.Application.Commands.Products.CreateProductCommand;
@@ -20,7 +20,7 @@ public class CreateProductCommand : IRequest<Result<Guid>>
     // images 
     public List<string> ImageUrls { get; set; } = [];
     // attributes
-    public List<ProductAttributeDto> Attributes { get; set; } = [];
+    public List<ProductAttributeRequest> Attributes { get; set; } = [];
 
 
 }
