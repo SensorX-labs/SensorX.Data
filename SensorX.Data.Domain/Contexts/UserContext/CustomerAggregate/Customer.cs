@@ -1,5 +1,4 @@
 using SensorX.Data.Domain.Common.Exceptions;
-using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;
 
@@ -28,9 +27,9 @@ public class Customer : User<CustomerId>
         ShippingInfo = shippingInfo;
     }
 
-#pragma warning disable CS8618
-    private Customer() : base() { }
-#pragma warning restore CS8618
+    private Customer() : base()
+    {
+    }
 
     public string TaxCode { get; private set; }
     public string Address { get; private set; }

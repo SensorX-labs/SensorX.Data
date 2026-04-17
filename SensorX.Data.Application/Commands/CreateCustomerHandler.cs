@@ -25,7 +25,7 @@ public class CreateCustomerHandler(
             Email.From(request.Email),
             request.TaxCode,
             request.Address,
-            new ShippingInfo(
+            ShippingInfo.Create(
                 new WardId(request.WardId),
                 request.ShippingAddress,
                 request.ReceiverName,
