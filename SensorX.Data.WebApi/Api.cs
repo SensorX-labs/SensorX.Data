@@ -11,6 +11,8 @@ public static class Api
         api.MapProductCategoryApi();
         api.MapInternalPriceApi();
         api.MapProductApi();
+        api.MapCustomerApi();
+        api.MapStaffApi();
 
         return api;
     }
