@@ -17,10 +17,11 @@ public class CreateCustomerHandler(
     public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         var id = new CustomerId(Guid.NewGuid());
+        var code = Code.Create("CUS");
         var customer = new Customer(
             id,
             new AccountId(request.AccountId),
-            Code.From(request.Code),
+            code,
             request.Name,
             Phone.From(request.Phone),
             Email.From(request.Email),
