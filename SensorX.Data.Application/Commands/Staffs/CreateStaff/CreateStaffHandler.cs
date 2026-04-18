@@ -16,7 +16,7 @@ public class CreateStaffHandler(
     public async Task<Result<Guid>> Handle(CreateStaffCommand request, CancellationToken cancellationToken)
     {
         var id = new StaffId(Guid.NewGuid());
-        var code = Code.Create("STAFF");
+        var code = Code.Create("STF");
         
         // Parse Department from string to Enum
         if (!Enum.TryParse<Department>(request.Department, true, out var department))
