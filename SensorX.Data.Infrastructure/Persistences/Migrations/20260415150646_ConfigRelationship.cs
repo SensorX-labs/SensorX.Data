@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -45,12 +45,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InternalPrices_ProductId",
-                table: "InternalPrices",
-                column: "ProductId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Customers_WardId",
                 table: "Customers",
                 column: "WardId");
@@ -69,14 +63,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                 onDelete: ReferentialAction.SetNull);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_InternalPrices_Products_ProductId",
-                table: "InternalPrices",
-                column: "ProductId",
-                principalTable: "Products",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_Products_Categories_CategoryId",
                 table: "Products",
                 column: "CategoryId",
@@ -93,10 +79,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                 table: "Customers");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_InternalPrices_Products_ProductId",
-                table: "InternalPrices");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_Products_Categories_CategoryId",
                 table: "Products");
 
@@ -106,10 +88,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_Products_CategoryId",
                 table: "Products");
-
-            migrationBuilder.DropIndex(
-                name: "IX_InternalPrices_ProductId",
-                table: "InternalPrices");
 
             migrationBuilder.DropIndex(
                 name: "IX_Customers_WardId",

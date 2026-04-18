@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Products.CreateProductCommand;
 using SensorX.Data.Application.Commands.Products.DeleteProductCommand;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -13,10 +14,26 @@ public static class ProductApi
     {
         var api = app.MapGroup("catalog").WithTags("Products");
 
+        api.MapGet("/products", GetPageListProducts).WithOpenApi();
         api.MapPost("/products", CreateProduct).WithOpenApi();
         api.MapDelete("/products/{id:guid}", DeleteProduct).WithOpenApi();
 
         return api;
+    }
+
+    private static async Task<Results<Ok<Result<PaginatedResult<GetPageListProductsResponse>>>, BadRequest<string>>> GetPageListProducts(
+        [FromServices] IMediator mediator,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] Guid? categoryId = null
+    )
+    {
+        var query = new GetPageListProductsQuery(pageNumber, pageSize, searchTerm, categoryId);
+        var result = await mediator.Send(query);
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
+            : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy danh sách sản phẩm");
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateProduct(

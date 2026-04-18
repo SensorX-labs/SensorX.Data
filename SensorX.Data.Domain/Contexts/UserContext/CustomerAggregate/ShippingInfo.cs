@@ -7,6 +7,7 @@ namespace SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate;
 
 public record ShippingInfo
 {
+    public Ward Ward { get; init; }
     public WardId WardId { get; init; }
     public string ShippingAddress { get; init; }
     public string ReceiverName { get; init; }

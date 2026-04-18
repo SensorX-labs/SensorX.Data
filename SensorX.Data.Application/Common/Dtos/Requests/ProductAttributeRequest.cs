@@ -1,6 +1,6 @@
-namespace SensorX.Data.Application.Common.Dtos;
+namespace SensorX.Data.Application.Common.Dtos.Requests;
 
-public class ProductAttributeDto
+public class ProductAttributeRequest
 {
     public required string AttributeName { get; set; }
     public required string AttributeValue { get; set; }
