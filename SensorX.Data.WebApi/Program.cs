@@ -104,6 +104,9 @@ if (app.Environment.IsDevelopment())
 
 app.MapCustomerApi();
 app.MapStaffApi();
+app.MapProductApi();
+app.MapProductCategoryApi();
+app.MapInternalPriceApi();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
