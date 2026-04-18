@@ -17,6 +17,10 @@ public abstract class User<UserId> : Entity<UserId>, IAggregateRoot, ICreationTr
         CreatedAt = DateTimeOffset.UtcNow;
     }
 
+#pragma warning disable CS8618
+    protected User() { }
+#pragma warning restore CS8618
+
     public AccountId AccountId { get; private set; }
     public Code Code { get; private set; }
     public string Name { get; private set; }
