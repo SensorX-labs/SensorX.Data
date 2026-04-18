@@ -1,4 +1,5 @@
 using MediatR;
+using SensorX.Data.Application.Common.Dtos.Responses;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;

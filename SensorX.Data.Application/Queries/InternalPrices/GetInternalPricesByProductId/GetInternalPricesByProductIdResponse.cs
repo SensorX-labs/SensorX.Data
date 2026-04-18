@@ -1,3 +1,5 @@
+using SensorX.Data.Application.Common.Dtos.Responses;
+
 namespace SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 
 public class GetInternalPricesByProductIdResponse
@@ -14,11 +16,4 @@ public class GetInternalPricesByProductIdResponse
     public List<PriceTierResponse> PriceTiers { get; set; } = [];
     
     public DateTimeOffset CreatedAt { get; set; }
-}
-
-public class PriceTierResponse
-{
-    public int Quantity { get; set; }
-    public decimal PriceAmount { get; set; }
-    public string PriceCurrency { get; set; } = string.Empty;
 }
