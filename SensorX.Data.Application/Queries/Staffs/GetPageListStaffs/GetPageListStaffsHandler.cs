@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
 using SensorX.Data.Domain.SeedWork;
@@ -7,7 +6,8 @@ using SensorX.Data.Domain.SeedWork;
 namespace SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 
 public class GetPageListStaffsHandler(
-    IRepository<Staff> _staffRepository
+    IQueryBuilder<Staff> _staffBuilder,
+    IQueryExecutor _queryExecutor
 ) : IRequestHandler<GetPageListStaffsQuery, Result<PaginatedResult<GetPageListStaffsResponse>>>
 {
     public async Task<Result<PaginatedResult<GetPageListStaffsResponse>>> Handle(
@@ -17,8 +17,7 @@ public class GetPageListStaffsHandler(
         try
         {
             // Lấy query từ repository
-            var query = _staffRepository.AsQueryable()
-                .AsNoTracking();
+            var query = _staffBuilder.QueryAsNoTracking;
 
             // Áp dụng bộ lọc tìm kiếm theo tên, mã hoặc email
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
@@ -38,17 +37,16 @@ public class GetPageListStaffsHandler(
             }
 
             // Tính tổng số lượng nhân viên phù hợp với bộ lọc (không phân trang)
-            var totalCount = await query.CountAsync(cancellationToken);
+            var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
             // Tính số dòng cần bỏ qua (skip) cho phân trang
             var skip = (request.PageNumber - 1) * request.PageSize;
 
             // Sắp xếp và lấy dữ liệu phân trang từ Database
-            var staffs = await query
+            var staffs = await _queryExecutor.ToListAsync(query
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip(skip)
-                .Take(request.PageSize)
-                .ToListAsync(cancellationToken);
+                .Take(request.PageSize), cancellationToken);
 
             // Chuyển đổi Staff entity thành DTO để trả về API
             var staffDtos = staffs.Select(p => new GetPageListStaffsResponse

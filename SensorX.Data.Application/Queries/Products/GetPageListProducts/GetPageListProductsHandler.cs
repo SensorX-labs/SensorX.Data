@@ -9,9 +9,10 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
 public class GetPageListProductsHandler(
-    IReadRepository<Product> _productRepository,
-    IReadRepository<Category> _categoryRepository,
-    IReadRepository<InternalPrice> _internalPriceRepository
+    IQueryBuilder<Product> _productBuilder,
+    IQueryBuilder<Category> _categoryBuilder,
+    IQueryBuilder<InternalPrice> _internalPriceBuilder,
+    IQueryExecutor _queryExecutor
 ) : IRequestHandler<GetPageListProductsQuery, Result<ProductCursorPagedResult>>
 {
     public async Task<Result<ProductCursorPagedResult>> Handle(
@@ -21,10 +22,10 @@ public class GetPageListProductsHandler(
         try
         {
             var sourceQuery =
-                from product in _productRepository.QueryAsNoTracking
-                from category in _categoryRepository.QueryAsNoTracking
+                from product in _productBuilder.QueryAsNoTracking
+                from category in _categoryBuilder.QueryAsNoTracking
                     .Where(x => x.Id == product.CategoryId).DefaultIfEmpty()
-                from internalPrice in _internalPriceRepository.QueryAsNoTracking
+                from internalPrice in _internalPriceBuilder.QueryAsNoTracking
                     .Where(x => x.ProductId == product.Id).DefaultIfEmpty()
                 select new { product, category, internalPrice };
 
@@ -48,9 +49,8 @@ public class GetPageListProductsHandler(
                 x.product.Images.Select(i => i.ImageUrl).ToList()
             ));
 
-            var items = await dtoQuery
-                .Take(request.PageSize + 1) // +1 để check có next page không
-                .ToListAsync(cancellationToken);
+            var items = await _queryExecutor.ToListAsync(dtoQuery
+                .Take(request.PageSize + 1), cancellationToken);
 
             var hasNext = items.Count > request.PageSize;
             if (hasNext) items.RemoveAt(request.PageSize); // remove phần tử cuối cùng nếu có next page (kỹ thuật key-set pagination)
