@@ -7,18 +7,26 @@ namespace SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 
 public class InternalPrice : Entity<InternalPriceId>, IAggregateRoot, ICreationTrackable
 {
-    private InternalPrice() { }
-    public InternalPrice(
+    private InternalPrice(
         InternalPriceId id,
-        ProductId productId,
-        Money suggestedPrice,
-        Money floorPrice
+        ProductId productId
     ) : base(id)
     {
         ProductId = productId;
-        SuggestedPrice = suggestedPrice;
-        FloorPrice = floorPrice;
+        SuggestedPrice = Money.Zero();
+        FloorPrice = Money.Zero();
         CreatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public static InternalPrice Create(ProductId productId, Money suggestedPrice, Money floorPrice, IReadOnlyList<PriceTier> priceTiers)
+    {
+        var internalPrice = new InternalPrice(InternalPriceId.New(), productId);
+        internalPrice.UpdateBasePrices(suggestedPrice, floorPrice);
+        foreach (var priceTier in priceTiers)
+        {
+            internalPrice.AddPriceTier(priceTier);
+        }
+        return internalPrice;
     }
 
     public ProductId ProductId { get; private set; }
