@@ -1,13 +1,15 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SensorX.Data.Application.Common.Interfaces; // Giả sử interface nằm đây
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate;
-using SensorX.Data.Domain.SeedWork;
+using SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate; // Thêm để lấy Ward/Province
+using SensorX.Data.Domain.StrongIDs;
 
 namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
 public class GetPageListCustomersHandler(
-    IRepository<Customer> _customerRepository
+    IReadRepository<Customer> _customerRepo
 ) : IRequestHandler<GetPageListCustomersQuery, Result<PaginatedResult<GetPageListCustomersResponse>>>
 {
     public async Task<Result<PaginatedResult<GetPageListCustomersResponse>>> Handle(
@@ -16,79 +18,69 @@ public class GetPageListCustomersHandler(
     {
         try
         {
-            // Lấy query từ repository với các Include để nạp dữ liệu liên quan
-            var query = _customerRepository.AsQueryable()
-                .Include(p => p.ShippingInfo.Ward)
-                .ThenInclude(w => w.Province)
-                .AsNoTracking();
+            // 1. Tạo query cơ sở từ Customer (Sử dụng QueryAsNoTracking để tối ưu)
+            var customerQuery = _customerRepo.QueryAsNoTracking;
 
-            // Áp dụng bộ lọc tìm kiếm theo tên, mã khách hàng hoặc email
+            // 2. Áp dụng bộ lọc (Filter) trên bảng chính trước khi Join để tối ưu hiệu năng
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 var searchTerm = request.SearchTerm.Trim().ToLower();
-                query = query.Where(p =>
+                customerQuery = customerQuery.Where(p =>
                     p.Name.ToLower().Contains(searchTerm) ||
                     p.Code.Value.ToLower().Contains(searchTerm) ||
                     p.Email.Value.ToLower().Contains(searchTerm)
                 );
             }
 
-            // Áp dụng bộ lọc khách hàng nếu được chỉ định
             if (request.CustomerId.HasValue)
             {
-                query = query.Where(p => p.Id.Value == request.CustomerId.Value);
-            }
+                var targetId = new CustomerId(request.CustomerId.Value);
+                customerQuery = customerQuery.Where(p => p.Id == targetId);
 
-            // Tính tổng số lượng khách hàng phù hợp với bộ lọc (không phân trang)
-            var totalCount = await query.CountAsync(cancellationToken);
 
-            // Tính số dòng cần bỏ qua (skip) cho phân trang
-            var skip = (request.PageNumber - 1) * request.PageSize;
 
-            // Sắp xếp và lấy dữ liệu phân trang từ Database
-            var customers = await query
-                .OrderByDescending(p => p.CreatedAt)
-                .Skip(skip)
-                .Take(request.PageSize)
-                .ToListAsync(cancellationToken);
+                // 4. Tính tổng số lượng
+                var totalCount = await joinedQuery.CountAsync(cancellationToken);
 
-            // Chuyển đổi Customer entity thành DTO để trả về API
-            var customerDtos = customers.Select(p => new GetPageListCustomersResponse
-            {
-                Id = p.Id.Value,
-                Name = p.Name,
-                Email = p.Email.Value,
-                PhoneNumber = p.Phone.Value,
-                TaxCode = p.TaxCode,
-                Address = p.Address,
-                ShippingInfo = p.ShippingInfo != null
-                    ? new ShippingInfoDto
+                // 5. Phân trang và Projection trực tiếp xuống Database
+                var skip = (request.PageNumber - 1) * request.PageSize;
+
+                var items = await joinedQuery
+                    .OrderByDescending(x => x.c.CreatedAt)
+                    .Skip(skip)
+                    .Take(request.PageSize)
+                    .Select(x => new GetPageListCustomersResponse
                     {
-                        WardId = p.ShippingInfo.WardId.Value.ToString(),
-                        WardName = p.ShippingInfo.Ward?.Name ?? "N/A",
-                        ProvinceId = p.ShippingInfo.Ward?.ProvinceId.Value.ToString() ?? "N/A",
-                        ProvinceName = p.ShippingInfo.Ward?.Province?.Name ?? "N/A",
-                        RecipientName = p.ShippingInfo.ReceiverName,
-                        RecipientPhone = p.ShippingInfo.ReceiverPhone?.Value ?? "N/A",
-                        RecipientAddress = p.ShippingInfo.ShippingAddress
-                    }
-                    : null!
-            }).ToList();
+                        Id = x.c.Id.Value,
+                        Name = x.c.Name,
+                        Email = x.c.Email.Value,
+                        PhoneNumber = x.c.Phone.Value,
+                        TaxCode = x.c.TaxCode,
+                        Address = x.c.Address,
+                        ShippingInfo = x.c.ShippingInfo != null ? new ShippingInfoDto
+                        {
+                            WardId = x.c.ShippingInfo!.WardId.Value.ToString(),
+                            WardName = x.w!.Name,
+                            ProvinceId = x.w.ProvinceId.Value.ToString(),
+                            ProvinceName = x.p!.Name,
+                            RecipientName = x.c.ShippingInfo.ReceiverName,
+                            RecipientPhone = x.c.ShippingInfo.ReceiverPhone.Value!,
+                            RecipientAddress = x.c.ShippingInfo.ShippingAddress
+                        } : null
+                    })
+                    .ToListAsync(cancellationToken);
 
-            // Tạo kết quả phân trang với thông tin meta
-            var paginatedResult = new PaginatedResult<GetPageListCustomersResponse>(
-                customerDtos,
-                totalCount,
-                request.PageNumber,
-                request.PageSize
-            );
+                var paginatedResult = new PaginatedResult<GetPageListCustomersResponse>(
+                    items,
+                    totalCount,
+                    request.PageNumber,
+                    request.PageSize
+                );
 
-            // Trả về kết quả thành công
-            return Result<PaginatedResult<GetPageListCustomersResponse>>.Success(paginatedResult);
-        }
+                return Result<PaginatedResult<GetPageListCustomersResponse>>.Success(paginatedResult);
+            }
         catch (Exception ex)
         {
-            // Trả về lỗi nếu có exception
             return Result<PaginatedResult<GetPageListCustomersResponse>>.Failure(
                 $"Lỗi khi lấy danh sách khách hàng: {ex.Message}");
         }

@@ -1,22 +1,31 @@
-using SensorX.Data.Application.Common.Dtos.Responses;
+using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
-public class GetPageListProductsResponse
-{
-    public Guid Id { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Manufacture { get; set; } = string.Empty;
-    public string Unit { get; set; } = string.Empty;
-    public int Status { get; set; }
-    public Guid? CategoryId { get; set; }
-    public string? CategoryName { get; set; }
-    
-    public ProductShowcaseResponse? Showcase { get; set; }
-    public List<string> Images { get; set; } = [];
-    public List<ProductAttributeResponse> Attributes { get; set; } = [];
-    
-    public DateTimeOffset CreatedAt { get; set; }
-    public DateTimeOffset? UpdatedAt { get; set; }
-}
+public record GetPageListProductsResponse
+(
+    Guid Id,
+    string Code,
+    string Name,
+    string Manufacture,
+    string? CategoryName,
+    decimal SuggestedPrice,
+    ProductStatus Status,
+    DateTimeOffset CreatedAt,
+    List<string> Images
+);
+
+/// <summary>
+/// This is a wrapper around paginated data, not a plain DTO.
+/// 
+/// We use a class (not record) because:
+/// - It represents pagination context (HasNext, HasPrevious, cursors, etc.)
+/// - It holds state, not just data
+/// - It wraps another object (CursorPagedResult<T>)
+///
+/// Rule of thumb:
+/// - Use record for pure DTOs (data only, no behavior/state)
+/// - Use class for wrappers, results, or objects with state
+/// </summary>
+public class ProductCursorPagedResult : CursorPagedResult<GetPageListProductsResponse> { }
