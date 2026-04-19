@@ -9,7 +9,7 @@ public record GetPageListProductsResponse
     string Code,
     string Name,
     string Manufacture,
-    string? CategoryName,
+    string CategoryName,
     decimal SuggestedPrice,
     ProductStatus Status,
     DateTimeOffset CreatedAt,

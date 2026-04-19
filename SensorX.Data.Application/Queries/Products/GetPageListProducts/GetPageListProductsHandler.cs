@@ -1,6 +1,7 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
@@ -23,30 +24,31 @@ public class GetPageListProductsHandler(
         {
             var sourceQuery =
                 from product in _productBuilder.QueryAsNoTracking
+                    .ApplySearch(request.SearchTerm)
                 from category in _categoryBuilder.QueryAsNoTracking
                     .Where(x => x.Id == product.CategoryId).DefaultIfEmpty()
                 from internalPrice in _internalPriceBuilder.QueryAsNoTracking
                     .Where(x => x.ProductId == product.Id).DefaultIfEmpty()
-                select new { product, category, internalPrice };
+                select new GetPageListProductsQueryModel(product, category, internalPrice);
 
             var pagedQuery = sourceQuery.ApplyCursorPagination(
                 request,
-                x => x.product.CreatedAt,
-                x => x.product.Id.Value
+                x => x.Product.CreatedAt,
+                x => x.Product.Id.Value
             )
-            .OrderByDescending(x => x.product.CreatedAt)
-            .ThenByDescending(x => x.product.Id.Value);
+            .OrderByDescending(x => x.Product.CreatedAt)
+            .ThenByDescending(x => x.Product.Id.Value);
 
             var dtoQuery = pagedQuery.Select(x => new GetPageListProductsResponse(
-                x.product.Id.Value,
-                x.product.Code.Value,
-                x.product.Name,
-                x.product.Manufacture,
-                x.category != null ? x.category.Name : null,
-                x.internalPrice != null ? x.internalPrice.SuggestedPrice.Amount : 0,
-                x.product.Status,
-                x.product.CreatedAt,
-                x.product.Images.Select(i => i.ImageUrl).ToList()
+                x.Product.Id.Value,
+                x.Product.Code.Value,
+                x.Product.Name,
+                x.Product.Manufacture,
+                x.Category is not null ? x.Category.Name : "",
+                x.InternalPrice is not null ? x.InternalPrice.SuggestedPrice.Amount : 0,
+                x.Product.Status,
+                x.Product.CreatedAt,
+                x.Product.Images.Select(i => i.ImageUrl).ToList()
             ));
 
             var items = await _queryExecutor.ToListAsync(dtoQuery

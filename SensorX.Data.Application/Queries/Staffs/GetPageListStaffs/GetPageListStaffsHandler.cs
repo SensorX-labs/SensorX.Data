@@ -1,4 +1,5 @@
 using MediatR;
+using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
 using SensorX.Data.Domain.SeedWork;
@@ -8,9 +9,9 @@ namespace SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 public class GetPageListStaffsHandler(
     IQueryBuilder<Staff> _staffBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListStaffsQuery, Result<PaginatedResult<GetPageListStaffsResponse>>>
+) : IRequestHandler<GetPageListStaffsQuery, Result<StaffCursorPagedResult>>
 {
-    public async Task<Result<PaginatedResult<GetPageListStaffsResponse>>> Handle(
+    public async Task<Result<StaffCursorPagedResult>> Handle(
         GetPageListStaffsQuery request,
         CancellationToken cancellationToken)
     {
