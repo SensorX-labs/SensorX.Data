@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands;
 using SensorX.Data.Application.Common.ResponseClient;
-using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
+using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
 namespace SensorX.Data.WebApi.API
 {
@@ -30,16 +30,12 @@ namespace SensorX.Data.WebApi.API
         }
 
         private static async
-            Task<Results<Ok<Result<PaginatedResult<GetPageListCustomersResponse>>>, BadRequest<string>>>
+            Task<Results<Ok<Result<CustomerCursorPagedResult>>, BadRequest<string>>>
             GetPageListCustomers(
                 [FromServices] IMediator mediator,
-                [FromQuery] int pageNumber = 1,
-                [FromQuery] int pageSize = 10,
-                [FromQuery] string? searchTerm = null,
-                [FromQuery] Guid? customerId = null
-            )
+                [AsParameters] GetPageListCustomersQuery query
+        )
         {
-            var query = new GetPageListCustomersQuery(pageNumber, pageSize, searchTerm, customerId);
             var result = await mediator.Send(query);
             return result.IsSuccess
                 ? TypedResults.Ok(result)

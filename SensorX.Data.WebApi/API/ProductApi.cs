@@ -25,7 +25,7 @@ public static class ProductApi
 
     private static async Task<Results<Ok<Result<ProductCursorPagedResult>>, BadRequest<string>>> GetPageListProducts(
         [FromServices] IMediator mediator,
-        [FromQuery] GetPageListProductsQuery query
+        [AsParameters] GetPageListProductsQuery query
     )
     {
         var result = await mediator.Send(query);
