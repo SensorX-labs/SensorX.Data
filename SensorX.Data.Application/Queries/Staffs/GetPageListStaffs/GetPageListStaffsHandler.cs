@@ -1,5 +1,7 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
 using SensorX.Data.Domain.SeedWork;
@@ -17,69 +19,50 @@ public class GetPageListStaffsHandler(
     {
         try
         {
-            // Lấy query từ repository
-            var query = _staffBuilder.QueryAsNoTracking;
+            var sourceQuery = _staffBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
+            var pagedQuery = sourceQuery.ApplyCursorPagination(
+                request,
+                x => x.CreatedAt,
+                x => x.Id.Value
+            )
+            .OrderByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.Id.Value);
 
-            // Áp dụng bộ lọc tìm kiếm theo tên, mã hoặc email
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            var dtoQuery = pagedQuery.Select(x => new GetPageListStaffsResponse
             {
-                var searchTerm = request.SearchTerm.Trim().ToLower();
-                query = query.Where(p =>
-                    p.Name.ToLower().Contains(searchTerm) ||
-                    p.Code.Value.ToLower().Contains(searchTerm) ||
-                    p.Email.Value.ToLower().Contains(searchTerm)
-                );
-            }
+                Id = x.Id.Value,
+                Code = x.Code.Value,
+                Name = x.Name,
+                Phone = x.Phone.Value,
+                Email = x.Email.Value,
+                CitizenId = x.CitizenId.Value,
+                Department = x.Department.ToString(),
+                CreatedAt = x.CreatedAt
+            });
 
-            // Áp dụng bộ lọc theo StaffId nếu được chỉ định
-            if (request.StaffId.HasValue)
+            var items = await _queryExecutor.ToListAsync(dtoQuery
+                .Take(request.PageSize + 1), cancellationToken);
+
+            var hasNext = items.Count > request.PageSize;
+            if (hasNext) items.RemoveAt(request.PageSize);
+
+            var result = new StaffCursorPagedResult
             {
-                query = query.Where(p => p.Id.Value == request.StaffId.Value);
-            }
+                Items = items,
+                HasNext = hasNext,
+                HasPrevious = request.IsPrevious,
+                FirstCreatedAt = items.FirstOrDefault()?.CreatedAt,
+                FirstId = items.FirstOrDefault()?.Id,
+                LastCreatedAt = items.LastOrDefault()?.CreatedAt,
+                LastId = items.LastOrDefault()?.Id
+            };
 
-            // Tính tổng số lượng nhân viên phù hợp với bộ lọc (không phân trang)
-            var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
-
-            // Tính số dòng cần bỏ qua (skip) cho phân trang
-            var skip = (request.PageNumber - 1) * request.PageSize;
-
-            // Sắp xếp và lấy dữ liệu phân trang từ Database
-            var staffs = await _queryExecutor.ToListAsync(query
-                .OrderByDescending(p => p.CreatedAt)
-                .Skip(skip)
-                .Take(request.PageSize), cancellationToken);
-
-            // Chuyển đổi Staff entity thành DTO để trả về API
-            var staffDtos = staffs.Select(p => new GetPageListStaffsResponse
-            {
-                Id = p.Id.Value,
-                AccountId = p.AccountId.Value.ToString(),
-                Code = p.Code.Value,
-                Name = p.Name,
-                Phone = p.Phone.Value,
-                Email = p.Email.Value,
-                CitizenId = p.CitizenId.Value,
-                Biography = p.Biography,
-                JoinDate = p.JoinDate,
-                Department = p.Department.ToString(),
-                CreatedAt = p.CreatedAt
-            }).ToList();
-
-            // Tạo kết quả phân trang
-            var paginatedResult = new PaginatedResult<GetPageListStaffsResponse>(
-                staffDtos,
-                totalCount,
-                request.PageNumber,
-                request.PageSize
-            );
-
-            // Trả về kết quả thành công
-            return Result<PaginatedResult<GetPageListStaffsResponse>>.Success(paginatedResult);
+            return Result<StaffCursorPagedResult>.Success(result);
         }
         catch (Exception ex)
         {
             // Trả về lỗi nếu có exception
-            return Result<PaginatedResult<GetPageListStaffsResponse>>.Failure(
+            return Result<StaffCursorPagedResult>.Failure(
                 $"Lỗi khi lấy danh sách nhân viên: {ex.Message}");
         }
     }

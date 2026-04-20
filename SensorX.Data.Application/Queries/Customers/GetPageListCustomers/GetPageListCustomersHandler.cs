@@ -1,6 +1,7 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate;
 using SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate;
@@ -19,7 +20,7 @@ public class GetPageListCustomersHandler(
     {
         try
         {
-            var sourceQuery = _customerBuilder.QueryAsNoTracking;
+            var sourceQuery = _customerBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
             var pagedQuery = sourceQuery.ApplyCursorPagination(
                 request,
                 x => x.CreatedAt,

@@ -1,7 +1,7 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.Pagination;
-using SensorX.Data.Application.Common.QueryExtensions;
+using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;

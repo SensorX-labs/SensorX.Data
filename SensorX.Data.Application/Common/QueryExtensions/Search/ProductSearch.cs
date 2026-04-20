@@ -1,8 +1,8 @@
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
-namespace SensorX.Data.Application.Common.QueryExtensions;
+namespace SensorX.Data.Application.Common.QueryExtensions.Search;
 
-public static class ProductExtensions
+public static class ProductSearch
 {
     public static IQueryable<Product> ApplySearch(
         this IQueryable<Product> query,
