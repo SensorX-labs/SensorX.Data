@@ -23,22 +23,12 @@ public class CreateInternalPriceHandler(
         var suggestedPrice = Money.FromVnd(request.SuggestedPrice);
         var floorPrice = Money.FromVnd(request.FloorPrice);
 
-        var internalPrice = new InternalPrice(
-            InternalPriceId.New(),
+        var internalPrice = InternalPrice.Create(
             productId,
             suggestedPrice,
-            floorPrice
+            floorPrice,
+            [.. request.PriceTiers.Select(t => new PriceTier(new Quantity(t.Quantity), Money.FromVnd(t.Price)))]
         );
-
-        // thêm price tiers
-        foreach (var tierDto in request.PriceTiers)
-        {
-            var tier = new PriceTier(
-                new Quantity(tierDto.Quantity),
-                Money.FromVnd(tierDto.Price)
-            );
-            internalPrice.AddPriceTier(tier);
-        }
 
         await _internalPriceRepository.AddAsync(internalPrice, cancellationToken);
 

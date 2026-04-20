@@ -12,5 +12,5 @@ public class Ward : Entity<WardId>, IAggregateRoot
 
     public string Name { get; private set; }
     public ProvinceId ProvinceId { get; private set; }
-    public Province Province { get; private set; }
+    public Province Province { get; private set; } = null!;
 }

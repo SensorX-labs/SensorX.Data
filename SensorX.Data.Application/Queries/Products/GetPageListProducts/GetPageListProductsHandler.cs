@@ -1,105 +1,78 @@
 using MediatR;
-using SensorX.Data.Application.Common.Dtos.Responses;
+using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
-using SensorX.Data.Domain.SeedWork;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
 public class GetPageListProductsHandler(
-    IRepository<Product> _productRepository
-) : IRequestHandler<GetPageListProductsQuery, Result<PaginatedResult<GetPageListProductsResponse>>>
+    IQueryBuilder<Product> _productBuilder,
+    IQueryBuilder<Category> _categoryBuilder,
+    IQueryBuilder<InternalPrice> _internalPriceBuilder,
+    IQueryExecutor _queryExecutor
+) : IRequestHandler<GetPageListProductsQuery, Result<ProductCursorPagedResult>>
 {
-    public async Task<Result<PaginatedResult<GetPageListProductsResponse>>> Handle(
+    public async Task<Result<ProductCursorPagedResult>> Handle(
         GetPageListProductsQuery request,
         CancellationToken cancellationToken)
     {
         try
         {
-            // Lấy tất cả sản phẩm từ repository
-            var allProducts = await _productRepository.ListAsync(cancellationToken);
+            var sourceQuery =
+                from product in _productBuilder.QueryAsNoTracking
+                    .ApplySearch(request.SearchTerm)
+                from category in _categoryBuilder.QueryAsNoTracking
+                    .Where(x => x.Id == product.CategoryId).DefaultIfEmpty()
+                from internalPrice in _internalPriceBuilder.QueryAsNoTracking
+                    .Where(x => x.ProductId == product.Id).DefaultIfEmpty()
+                select new GetPageListProductsQueryModel(product, category, internalPrice);
 
-            // Chuyển đổi danh sách thành IQueryable để áp dụng LINQ
-            var query = allProducts.AsQueryable();
+            var pagedQuery = sourceQuery.ApplyCursorPagination(
+                request,
+                x => x.Product.CreatedAt,
+                x => x.Product.Id.Value
+            )
+            .OrderByDescending(x => x.Product.CreatedAt)
+            .ThenByDescending(x => x.Product.Id.Value);
 
-            // Áp dụng bộ lọc tìm kiếm theo tên, mã sản phẩm hoặc hãng sản xuất
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            var dtoQuery = pagedQuery.Select(x => new GetPageListProductsResponse(
+                x.Product.Id.Value,
+                x.Product.Code.Value,
+                x.Product.Name,
+                x.Product.Manufacture,
+                x.Category != null ? x.Category.Name : "",
+                x.InternalPrice != null ? x.InternalPrice.SuggestedPrice.Amount : 0,
+                x.Product.Status,
+                x.Product.CreatedAt,
+                x.Product.Images.Select(i => i.ImageUrl).ToList()
+            ));
+
+            var items = await _queryExecutor.ToListAsync(dtoQuery
+                .Take(request.PageSize + 1), cancellationToken);
+
+            var hasNext = items.Count > request.PageSize;
+            if (hasNext) items.RemoveAt(request.PageSize); // remove phần tử cuối cùng nếu có next page (kỹ thuật key-set pagination)
+
+            var result = new ProductCursorPagedResult
             {
-                var searchTerm = request.SearchTerm.Trim().ToLower();
-                query = query.Where(p =>
-                    p.Name.ToLower().Contains(searchTerm) ||
-                    p.Code.Value.ToLower().Contains(searchTerm) ||
-                    p.Manufacture.ToLower().Contains(searchTerm)
-                );
-            }
+                Items = items,
+                HasNext = hasNext,
+                HasPrevious = request.IsPrevious,
+                FirstCreatedAt = items.FirstOrDefault()?.CreatedAt,
+                FirstId = items.FirstOrDefault()?.Id,
+                LastCreatedAt = items.LastOrDefault()?.CreatedAt,
+                LastId = items.LastOrDefault()?.Id
+            };
 
-            // Áp dụng bộ lọc danh mục nếu được chỉ định
-            if (request.CategoryId.HasValue)
-            {
-                query = query.Where(p => p.CategoryId.Value == request.CategoryId.Value);
-            }
-
-            // Tính tổng số lượng sản phẩm phù hợp với bộ lọc
-            var totalCount = query.Count();
-
-            // Tính số dòng cần bỏ qua (skip) cho phân trang
-            var skip = (request.PageNumber - 1) * request.PageSize;
-
-            // Sắp xếp theo thời gian tạo (mới nhất trước) và áp dụng phân trang
-            var products = query
-                .OrderByDescending(p => p.CreatedAt)
-                .Skip(skip)
-                .Take(request.PageSize)
-                .ToList();
-
-            // Chuyển đổi Product entity thành DTO để trả về API
-            var productDtos = products.Select(p => new GetPageListProductsResponse
-            {
-                Id = p.Id.Value,
-                Code = p.Code.Value,
-                Name = p.Name,
-                Manufacture = p.Manufacture,
-                Unit = p.Unit,
-                Status = (int)p.Status,
-                CategoryId = p.CategoryId.Value,
-                CategoryName = null,
-                
-                // Chuyển Showcase (nếu có)
-                Showcase = p.Showcase != null ? new ProductShowcaseResponse
-                {
-                    Summary = p.Showcase.Summary,
-                    Body = p.Showcase.Body
-                } : null,
-                
-                // Chuyển danh sách ảnh sản phẩm
-                Images = p.Images.Select(img => img.ImageUrl).ToList(),
-                
-                // Chuyển danh sách thuộc tính sản phẩm
-                Attributes = p.Attributes.Select(attr => new ProductAttributeResponse
-                {
-                    AttributeName = attr.AttributeName,
-                    AttributeValue = attr.AttributeValue
-                }).ToList(),
-                
-                CreatedAt = p.CreatedAt,
-                UpdatedAt = p.UpdatedAt
-            }).ToList();
-
-            // Tạo kết quả phân trang với thông tin meta
-            var paginatedResult = new PaginatedResult<GetPageListProductsResponse>(
-                productDtos,
-                totalCount,
-                request.PageNumber,
-                request.PageSize
-            );
-
-            // Trả về kết quả thành công
-            return Result<PaginatedResult<GetPageListProductsResponse>>.Success(paginatedResult);
+            return Result<ProductCursorPagedResult>.Success(result);
         }
         catch (Exception ex)
         {
-            // Trả về lỗi nếu có exception
-            return Result<PaginatedResult<GetPageListProductsResponse>>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
+            return Result<ProductCursorPagedResult>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
         }
     }
 }

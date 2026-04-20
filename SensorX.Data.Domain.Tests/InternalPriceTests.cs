@@ -15,14 +15,11 @@ public class InternalPriceTests
     [Fact]
     public void CreateInternalPrice_ShouldInitializeCorrectly()
     {
-        // Arrange
-        var id = InternalPriceId.New();
-
         // Act
-        var internalPrice = new InternalPrice(id, _productId, _suggestedPrice, _floorPrice);
+        var internalPrice = InternalPrice.Create(_productId, _suggestedPrice, _floorPrice, []);
 
         // Assert
-        Assert.Equal(id, internalPrice.Id);
+        Assert.NotNull(internalPrice.Id);
         Assert.Equal(_productId, internalPrice.ProductId);
         Assert.Equal(_suggestedPrice, internalPrice.SuggestedPrice);
         Assert.Equal(_floorPrice, internalPrice.FloorPrice);
@@ -32,7 +29,7 @@ public class InternalPriceTests
     public void AddPriceTier_WhenPriceLowerThanFloor_ShouldThrowDomainException()
     {
         // Arrange
-        var internalPrice = new InternalPrice(InternalPriceId.New(), _productId, _suggestedPrice, _floorPrice);
+        var internalPrice = InternalPrice.Create(_productId, _suggestedPrice, _floorPrice, []);
         var cheapPrice = Money.FromVnd(70000);
         var tier = new PriceTier(new Quantity(10), cheapPrice);
 
@@ -45,8 +42,8 @@ public class InternalPriceTests
     public void GetEffectivePrice_ShouldReturnHighestTierMatchingQuantity()
     {
         // Arrange
-        var internalPrice = new InternalPrice(InternalPriceId.New(), _productId, _suggestedPrice, _floorPrice);
-        
+        var internalPrice = InternalPrice.Create(_productId, _suggestedPrice, _floorPrice, []);
+
         internalPrice.AddPriceTier(new PriceTier(new Quantity(10), Money.FromVnd(95000)));
         internalPrice.AddPriceTier(new PriceTier(new Quantity(50), Money.FromVnd(90000)));
         internalPrice.AddPriceTier(new PriceTier(new Quantity(100), Money.FromVnd(85000)));
@@ -59,16 +56,16 @@ public class InternalPriceTests
 
         // Assert
         Assert.Equal(_floorPrice, priceFor5.Price); // No tier matches, return floor
-        Assert.Equal( Money.FromVnd(95000), priceFor15.Price);
-        Assert.Equal( Money.FromVnd(90000), priceFor60.Price);
-        Assert.Equal( Money.FromVnd(85000), priceFor150.Price);
+        Assert.Equal(Money.FromVnd(95000), priceFor15.Price);
+        Assert.Equal(Money.FromVnd(90000), priceFor60.Price);
+        Assert.Equal(Money.FromVnd(85000), priceFor150.Price);
     }
 
     [Fact]
     public void UpdateBasePrices_WhenSuggestedLowerThanFloor_ShouldThrowDomainException()
     {
         // Arrange
-        var internalPrice = new InternalPrice(InternalPriceId.New(), _productId, _suggestedPrice, _floorPrice);
+        var internalPrice = InternalPrice.Create(_productId, _suggestedPrice, _floorPrice, []);
 
         // Act & Assert
         Assert.Throws<DomainException>(() => internalPrice.UpdateBasePrices(Money.FromVnd(50000), Money.FromVnd(60000)));

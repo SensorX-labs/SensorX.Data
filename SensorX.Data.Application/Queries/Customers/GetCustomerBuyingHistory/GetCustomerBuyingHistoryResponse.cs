@@ -8,6 +8,6 @@ public record GetCustomerBuyingHistoryResponse(
     string Phone,
     string Address,
     string TaxCode,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt
 );

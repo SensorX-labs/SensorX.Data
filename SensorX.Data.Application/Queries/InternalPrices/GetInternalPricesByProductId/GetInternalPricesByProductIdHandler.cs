@@ -1,5 +1,5 @@
 using MediatR;
-using SensorX.Data.Application.Common.Dtos.Responses;
+using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
@@ -8,8 +8,8 @@ using SensorX.Data.Domain.SeedWork;
 namespace SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 
 public class GetInternalPricesByProductIdHandler(
-    IRepository<InternalPrice> _internalPriceRepository,
-    IRepository<Product> _productRepository
+    IQueryBuilder<InternalPrice> _internalPriceBuilder,
+    IQueryExecutor _queryExecutor
 ) : IRequestHandler<GetInternalPricesByProductIdQuery, Result<GetInternalPricesByProductIdResponse>>
 {
     public async Task<Result<GetInternalPricesByProductIdResponse>> Handle(
@@ -18,38 +18,29 @@ public class GetInternalPricesByProductIdHandler(
     {
         try
         {
-            // Kiểm tra sản phẩm có tồn tại không
-            var productId = new ProductId(request.ProductId);
-            var product = await _productRepository.GetByIdAsync(productId, cancellationToken);
-            if (product is null)
-                return Result<GetInternalPricesByProductIdResponse>.Failure("Không tìm thấy sản phẩm");
+            var query = _internalPriceBuilder.QueryAsNoTracking
+                .Where(x => x.ProductId == new ProductId(request.ProductId))
+                .Select(x => new GetInternalPricesByProductIdResponse(
+                    x.Id.Value,
+                    x.ProductId.Value,
+                    x.SuggestedPrice.Amount,
+                    x.SuggestedPrice.Currency,
+                    x.FloorPrice.Amount,
+                    x.FloorPrice.Currency,
+                    x.PriceTiers.Select(pt => new PriceTierResponse(
+                        pt.Quantity.Value,
+                        pt.Price.Amount,
+                        pt.Price.Currency
+                    )).ToList(),
+                    x.CreatedAt
+                ));
 
-            // Lấy giá nội bộ của sản phẩm
-            var allInternalPrices = await _internalPriceRepository.ListAsync(cancellationToken);
-            var internalPrice = allInternalPrices.FirstOrDefault(ip => ip.ProductId.Value == request.ProductId);
-            
+            var internalPrice = await _queryExecutor.FirstOrDefaultAsync(query, cancellationToken);
+
             if (internalPrice is null)
                 return Result<GetInternalPricesByProductIdResponse>.Failure("Không tìm thấy giá nội bộ cho sản phẩm này");
 
-            // Chuyển đổi thành DTO
-            var response = new GetInternalPricesByProductIdResponse
-            {
-                Id = internalPrice.Id.Value,
-                ProductId = internalPrice.ProductId.Value,
-                SuggestedPriceAmount = internalPrice.SuggestedPrice.Amount,
-                SuggestedPriceCurrency = internalPrice.SuggestedPrice.Currency,
-                FloorPriceAmount = internalPrice.FloorPrice.Amount,
-                FloorPriceCurrency = internalPrice.FloorPrice.Currency,
-                CreatedAt = internalPrice.CreatedAt,
-                PriceTiers = internalPrice.PriceTiers.Select(pt => new PriceTierResponse
-                {
-                    Quantity = pt.Quantity.Value,
-                    PriceAmount = pt.Price.Amount,
-                    PriceCurrency = pt.Price.Currency
-                }).ToList()
-            };
-
-            return Result<GetInternalPricesByProductIdResponse>.Success(response);
+            return Result<GetInternalPricesByProductIdResponse>.Success(internalPrice);
         }
         catch (Exception ex)
         {

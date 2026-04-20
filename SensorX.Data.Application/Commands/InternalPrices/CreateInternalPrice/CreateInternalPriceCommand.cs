@@ -1,14 +1,15 @@
 using MediatR;
-using SensorX.Data.Application.Common.Dtos.Requests;
 using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
 
-public class CreateInternalPriceCommand : IRequest<Result<Guid>>
+public record CreateInternalPriceCommand(
+    Guid ProductId,
+    decimal SuggestedPrice,
+    decimal FloorPrice,
+    List<PriceTierDto> PriceTiers
+) : IRequest<Result<Guid>>
 {
-    public Guid ProductId { get; set; }
-    public decimal SuggestedPrice { get; set; }
-    public decimal FloorPrice { get; set; }
-    public List<PriceTierDto> PriceTiers { get; set; } = [];
+    public List<PriceTierDto> PriceTiers { get; init; } = PriceTiers ?? [];
 }
-
+public record PriceTierDto(int Quantity, decimal Price);
