@@ -16,23 +16,27 @@ public class CreateCustomerHandler(
     public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         var id = new CustomerId(Guid.NewGuid());
-        var code = Code.Create("CUS");
         var customer = new Customer(
             id,
             new AccountId(request.AccountId),
-            code,
+            Code.Create("CUS"),
             request.Name,
             Phone.From(request.Phone),
             Email.From(request.Email),
             request.TaxCode,
             request.Address
         );
-        customer.UpdateShippingInfo(ShippingInfo.Create(
-            new WardId(request.WardId),
-            request.ShippingAddress,
-            request.ReceiverName,
-            Phone.From(request.ReceiverPhone)
-        ));
+
+        if (request.WardId != null && request.ShippingAddress != null && request.ReceiverName != null && request.ReceiverPhone != null)
+        {
+            customer.UpdateShippingInfo(ShippingInfo.Create(
+                new WardId(request.WardId.Value),
+                request.ShippingAddress,
+                request.ReceiverName,
+                Phone.From(request.ReceiverPhone)
+            ));
+        }
+
         await _customerRepository.AddAsync(customer, cancellationToken);
         return Result<Guid>.Success(customer.Id.Value);
     }
