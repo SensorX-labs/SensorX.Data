@@ -20,6 +20,12 @@ public class CreateInternalPriceHandler(
         if (product is null)
             return Result<Guid>.Failure("Không tìm thấy sản phẩm");
 
+        // Kiểm tra xem đã có giá nội bộ cho sản phẩm này chưa
+        var allInternalPrices = await _internalPriceRepository.ListAsync(cancellationToken);
+        var existingPrice = allInternalPrices.FirstOrDefault(ip => ip.ProductId.Value == request.ProductId);
+        if (existingPrice != null)
+            return Result<Guid>.Failure("Giá nội bộ cho sản phẩm này đã được cấu hình. Vui lòng sử dụng chức năng cập nhật.");
+
         var suggestedPrice = Money.FromVnd(request.SuggestedPrice);
         var floorPrice = Money.FromVnd(request.FloorPrice);
 
