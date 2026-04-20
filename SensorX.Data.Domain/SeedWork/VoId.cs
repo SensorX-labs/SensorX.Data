@@ -6,4 +6,6 @@ public record VoId(Guid Value)
     public override string ToString() => Value.ToString();
     public static bool operator <(VoId a, VoId b) => a.Value.CompareTo(b.Value) < 0;
     public static bool operator >(VoId a, VoId b) => a.Value.CompareTo(b.Value) > 0;
+    public static bool operator <=(VoId a, VoId b) => a.Value.CompareTo(b.Value) <= 0;
+    public static bool operator >=(VoId a, VoId b) => a.Value.CompareTo(b.Value) >= 0;
 }
