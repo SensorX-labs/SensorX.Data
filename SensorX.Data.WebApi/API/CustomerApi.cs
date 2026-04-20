@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
+using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 
 namespace SensorX.Data.WebApi.API
 {
@@ -11,10 +12,11 @@ namespace SensorX.Data.WebApi.API
     {
         public static RouteGroupBuilder MapCustomerApi(this IEndpointRouteBuilder app)
         {
-            var api = app.MapGroup("api/customer").WithTags("Customer");
+            var api = app.MapGroup("customer").WithTags("Customer");
 
             api.MapPost("/create", CreateCustomer).WithOpenApi();
             api.MapGet("/list", GetPageListCustomers).WithOpenApi();
+            api.MapGet("/{customerId:guid}/buying-history", GetCustomerBuyingHistory).WithOpenApi();
             return api;
         }
 
@@ -42,6 +44,18 @@ namespace SensorX.Data.WebApi.API
             return result.IsSuccess
                 ? TypedResults.Ok(result)
                 : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy danh sách khách hàng");
+        }
+
+        private static async Task<Results<Ok<Result<GetCustomerBuyingHistoryResponse>>, BadRequest<string>>> GetCustomerBuyingHistory(
+            [FromRoute] Guid customerId,
+            [FromServices] IMediator mediator
+        )
+        {
+            var query = new GetCustomerBuyingHistoryQuery(customerId);
+            var result = await mediator.Send(query);
+            return result.IsSuccess
+                ? TypedResults.Ok(result)
+                : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy lịch sử mua hàng");
         }
     }
 }
