@@ -44,8 +44,8 @@ public class GetPageListProductsHandler(
                 x.Product.Code.Value,
                 x.Product.Name,
                 x.Product.Manufacture,
-                x.Category is not null ? x.Category.Name : "",
-                x.InternalPrice is not null ? x.InternalPrice.SuggestedPrice.Amount : 0,
+                x.Category != null ? x.Category.Name : "",
+                x.InternalPrice != null ? x.InternalPrice.SuggestedPrice.Amount : 0,
                 x.Product.Status,
                 x.Product.CreatedAt,
                 x.Product.Images.Select(i => i.ImageUrl).ToList()

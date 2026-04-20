@@ -1,5 +1,6 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.Application.Common.Pagination;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate;
 using SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate;
@@ -9,78 +10,57 @@ namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
 public class GetPageListCustomersHandler(
     IQueryBuilder<Customer> _customerBuilder,
-    IQueryBuilder<Ward> _wardBuilder,
-    IQueryBuilder<Province> _provinceBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListCustomersQuery, Result<PaginatedResult<GetPageListCustomersResponse>>>
+) : IRequestHandler<GetPageListCustomersQuery, Result<CustomerCursorPagedResult>>
 {
-    public async Task<Result<PaginatedResult<GetPageListCustomersResponse>>> Handle(
+    public async Task<Result<CustomerCursorPagedResult>> Handle(
         GetPageListCustomersQuery request,
         CancellationToken cancellationToken)
     {
         try
         {
-            var customerQuery = _customerBuilder.QueryAsNoTracking;
+            var sourceQuery = _customerBuilder.QueryAsNoTracking;
+            var pagedQuery = sourceQuery.ApplyCursorPagination(
+                request,
+                x => x.CreatedAt,
+                x => x.Id.Value
+            )
+            .OrderByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.Id.Value);
 
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            var dtoQuery = pagedQuery.Select(x => new GetPageListCustomersResponse(
+                x.Id.Value,
+                x.Name,
+                x.Code.Value,
+                x.TaxCode,
+                x.Email.Value,
+                x.Phone.Value,
+                x.Address,
+                x.CreatedAt
+            ));
+
+            var items = await _queryExecutor.ToListAsync(dtoQuery
+                .Take(request.PageSize + 1), cancellationToken);
+
+            var hasNext = items.Count > request.PageSize;
+            if (hasNext) items.RemoveAt(request.PageSize);
+
+            var result = new CustomerCursorPagedResult
             {
-                var searchTerm = request.SearchTerm.Trim().ToLower();
-                customerQuery = customerQuery.Where(p =>
-                    p.Name.ToLower().Contains(searchTerm) ||
-                    p.Code.Value.ToLower().Contains(searchTerm) ||
-                    p.Email.Value.ToLower().Contains(searchTerm)
-                );
-            }
+                Items = items,
+                HasNext = hasNext,
+                HasPrevious = request.IsPrevious,
+                FirstCreatedAt = items.FirstOrDefault()?.CreatedAt,
+                FirstId = items.FirstOrDefault()?.Id,
+                LastCreatedAt = items.LastOrDefault()?.CreatedAt,
+                LastId = items.LastOrDefault()?.Id
+            };
 
-            // JOIN logic to include Ward and Province names
-            var joinedQuery = from c in customerQuery
-                              join w in _wardBuilder.QueryAsNoTracking on c.ShippingInfo.WardId equals w.Id into wards
-                              from w in wards.DefaultIfEmpty()
-                              join p in _provinceBuilder.QueryAsNoTracking on w.ProvinceId equals p.Id into provinces
-                              from p in provinces.DefaultIfEmpty()
-                              select new { c, w, p };
-
-            var totalCount = await _queryExecutor.CountAsync(joinedQuery, cancellationToken);
-
-            var skip = (request.PageNumber - 1) * request.PageSize;
-
-            var items = await _queryExecutor.ToListAsync(joinedQuery
-                .OrderByDescending(x => x.c.CreatedAt)
-                .Skip(skip)
-                .Take(request.PageSize)
-                .Select(x => new GetPageListCustomersResponse
-                {
-                    Id = x.c.Id.Value,
-                    Name = x.c.Name,
-                    Code = x.c.Code.Value,
-                    Email = x.c.Email.Value,
-                    PhoneNumber = x.c.Phone.Value,
-                    TaxCode = x.c.TaxCode,
-                    Address = x.c.Address,
-                    ShippingInfo = x.c.ShippingInfo != null ? new ShippingInfoDto
-                    {
-                        WardId = x.c.ShippingInfo!.WardId.Value.ToString(),
-                        WardName = x.w != null ? x.w.Name : null,
-                        ProvinceId = x.w != null ? x.w.ProvinceId.Value.ToString() : null,
-                        ProvinceName = x.p != null ? x.p.Name : null,
-                        RecipientName = x.c.ShippingInfo.ReceiverName,
-                        RecipientPhone = x.c.ShippingInfo.ReceiverPhone.Value!,
-                        RecipientAddress = x.c.ShippingInfo.ShippingAddress
-                    } : null
-                }), cancellationToken);
-
-            var paginatedResult = new PaginatedResult<GetPageListCustomersResponse>(
-                items,
-                totalCount,
-                request.PageNumber,
-                request.PageSize
-            );
-
-            return Result<PaginatedResult<GetPageListCustomersResponse>>.Success(paginatedResult);
+            return Result<CustomerCursorPagedResult>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<PaginatedResult<GetPageListCustomersResponse>>.Failure(
+            return Result<CustomerCursorPagedResult>.Failure(
                 $"Lỗi khi lấy danh sách khách hàng: {ex.Message}");
         }
     }

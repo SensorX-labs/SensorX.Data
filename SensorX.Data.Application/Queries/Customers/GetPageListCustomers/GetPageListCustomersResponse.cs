@@ -1,15 +1,16 @@
-using SensorX.Data.Application.Common.Dtos.Responses;
-using SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate;
+using SensorX.Data.Application.Common.Pagination;
 
 namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
-public class GetPageListCustomersResponse
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Code { get; set; } = string.Empty;
-    public string TaxCode { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string PhoneNumber { get; set; } = string.Empty;
-    public string Address { get; set; } = string.Empty;
-}
+public record GetPageListCustomersResponse(
+    Guid Id,
+    string Name,
+    string Code,
+    string TaxCode,
+    string Email,
+    string PhoneNumber,
+    string Address,
+    DateTimeOffset CreatedAt
+);
+
+public class CustomerCursorPagedResult : CursorPagedResult<GetPageListCustomersResponse> { }
