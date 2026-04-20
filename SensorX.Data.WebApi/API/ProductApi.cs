@@ -5,6 +5,7 @@ using SensorX.Data.Application.Commands.Products.CreateProductCommand;
 using SensorX.Data.Application.Commands.Products.DeleteProductCommand;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
+using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -17,6 +18,7 @@ public static class ProductApi
         api.MapGet("/products", GetPageListProducts).WithOpenApi();
         api.MapPost("/products", CreateProduct).WithOpenApi();
         api.MapDelete("/products/{id:guid}", DeleteProduct).WithOpenApi();
+        api.MapPost("/products/pricing-policy/batch", GetProductPricingPolicy).WithOpenApi();
 
         return api;
     }
@@ -54,4 +56,20 @@ public static class ProductApi
             ? TypedResults.Ok(result)
             : TypedResults.NotFound(result.Error ?? "Product not found");
     }
+    private static async Task<Results<Ok<Result<List<GetProductPricingPolicyResponse>>>, BadRequest<string>>> GetProductPricingPolicy(
+        [FromBody] GetProductPricingPolicyRequest request,
+        [FromServices] IMediator mediator
+    )
+    {
+        var query = new GetProductPricingPolicyQuery(request.ProductIds);
+        var result = await mediator.Send(query);
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
+            : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy chính sách định giá");
+    }
+}
+
+public class GetProductPricingPolicyRequest
+{
+    public List<Guid> ProductIds { get; set; } = [];
 }

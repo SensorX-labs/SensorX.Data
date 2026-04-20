@@ -51,6 +51,8 @@ namespace SensorX.Data.Infrastructure.DI
             services.AddScoped<IQueryExecutor, QueryExecutor>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUser, CurrentUser>();
+            // Cloudinary
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             return services;
         }
