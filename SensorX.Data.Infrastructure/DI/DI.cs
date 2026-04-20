@@ -49,6 +49,8 @@ namespace SensorX.Data.Infrastructure.DI
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUser, CurrentUser>();
+            // Cloudinary
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             return services;
         }
