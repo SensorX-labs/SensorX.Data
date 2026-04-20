@@ -1,4 +1,4 @@
-namespace SensorX.Data.Application.Common.Dtos;
+namespace SensorX.Data.Application.Common.Dtos.Requests;
 
 public class PriceTierDto
 {

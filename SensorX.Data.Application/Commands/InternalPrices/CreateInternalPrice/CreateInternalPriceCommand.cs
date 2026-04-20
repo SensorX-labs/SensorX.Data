@@ -1,5 +1,5 @@
 using MediatR;
-using SensorX.Data.Application.Common.Dtos;
+using SensorX.Data.Application.Common.Dtos.Requests;
 using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;

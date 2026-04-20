@@ -20,7 +20,7 @@ public class CreateProductCommand : IRequest<Result<Guid>>
     // images 
     public List<string> ImageUrls { get; set; } = [];
     // attributes
-    public List<ProductAttributeRequest> Attributes { get; set; } = [];
+    public List<ProductAttributeDto> Attributes { get; set; } = [];
 
 
 }
