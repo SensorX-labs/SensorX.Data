@@ -1,4 +1,5 @@
 using MediatR;
+using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate;
 using SensorX.Data.Domain.SeedWork;
@@ -6,30 +7,30 @@ using SensorX.Data.Domain.SeedWork;
 namespace SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 
 public class GetCustomerBuyingHistoryHandler(
-    IRepository<Customer> customerRepository
+    IQueryBuilder<Customer> customerQueryBuilder,
+    IQueryExecutor queryExecutor
 ) : IRequestHandler<GetCustomerBuyingHistoryQuery, Result<GetCustomerBuyingHistoryResponse>>
 {
     public async Task<Result<GetCustomerBuyingHistoryResponse>> Handle(
         GetCustomerBuyingHistoryQuery request,
         CancellationToken cancellationToken)
     {
-        var customerId = new CustomerId(request.CustomerId);
-        var customer = await customerRepository.GetByIdAsync(customerId, cancellationToken);
+        var query = customerQueryBuilder.QueryAsNoTracking
+            .Where(x => x.Id == new CustomerId(request.CustomerId))
+            .Select(x => new GetCustomerBuyingHistoryResponse(
+                x.Id.Value,
+                x.Code.Value,
+                x.Name,
+                x.Email.Value,
+                x.Phone.Value,
+                x.Address,
+                x.TaxCode,
+                x.CreatedAt,
+                x.UpdatedAt
+            ));
 
-        if (customer is null)
-            return Result<GetCustomerBuyingHistoryResponse>.Failure("Khách hàng không tồn tại");
-
-        var response = new GetCustomerBuyingHistoryResponse(
-            CustomerId: customer.Id.Value,
-            CustomerCode: customer.Code.Value,
-            CustomerName: customer.Name,
-            Email: customer.Email.Value,
-            Phone: customer.Phone.Value,
-            Address: customer.Address,
-            TaxCode: customer.TaxCode,
-            CreatedAt: customer.CreatedAt.DateTime,
-            UpdatedAt: customer.UpdatedAt?.DateTime
-        );
+        var response = await queryExecutor.FirstOrDefaultAsync(query, cancellationToken)
+            ?? throw new ApplicationException("Không tìm thấy khách hàng");
 
         return Result<GetCustomerBuyingHistoryResponse>.Success(response);
     }
