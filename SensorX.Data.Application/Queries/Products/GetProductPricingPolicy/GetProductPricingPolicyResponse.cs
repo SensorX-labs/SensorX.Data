@@ -1,3 +1,5 @@
+using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
+
 namespace SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 
 public record GetProductPricingPolicyResponse(
@@ -7,16 +9,16 @@ public record GetProductPricingPolicyResponse(
     string ProductName,
     string Manufacture,
     string Unit,
-    int ProductStatus,           // 0=Inactive, 1=Active
-    
+    ProductStatus ProductStatus,           // 0=Inactive, 1=Active
+
     // InternalPrice data
-    decimal FloorPrice,
     decimal SuggestedPrice,
+    decimal FloorPrice,
     List<ProductPriceTier> PriceTiers,
-    
+
     // Timestamps
-    DateTime CreatedAt,
-    DateTime? UpdatedAt
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt
 );
 
 public record ProductPriceTier(

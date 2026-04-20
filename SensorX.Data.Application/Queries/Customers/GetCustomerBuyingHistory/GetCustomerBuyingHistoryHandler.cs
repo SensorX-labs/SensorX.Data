@@ -29,8 +29,10 @@ public class GetCustomerBuyingHistoryHandler(
                 x.UpdatedAt
             ));
 
-        var response = await queryExecutor.FirstOrDefaultAsync(query, cancellationToken)
-            ?? throw new ApplicationException("Không tìm thấy khách hàng");
+        var response = await queryExecutor.FirstOrDefaultAsync(query, cancellationToken);
+
+        if (response is null)
+            return Result<GetCustomerBuyingHistoryResponse>.Failure("Không tìm thấy khách hàng");
 
         return Result<GetCustomerBuyingHistoryResponse>.Success(response);
     }
