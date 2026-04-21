@@ -66,7 +66,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                     b.HasIndex("Delivered");
 
-                    b.ToTable("InboxState", (string)null);
+                    b.ToTable("InboxState");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -157,7 +157,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.HasIndex("InboxMessageId", "InboxConsumerId", "SequenceNumber")
                         .IsUnique();
 
-                    b.ToTable("OutboxMessage", (string)null);
+                    b.ToTable("OutboxMessage");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxState", b =>
@@ -187,7 +187,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                     b.HasIndex("Created");
 
-                    b.ToTable("OutboxState", (string)null);
+                    b.ToTable("OutboxState");
                 });
 
             modelBuilder.Entity("SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate.Category", b =>
@@ -237,7 +237,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -386,7 +386,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("JoinDate")
+                    b.Property<DateTimeOffset>("JoinDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
@@ -451,7 +451,29 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                             b1.HasKey("InternalPriceId");
 
-                            b1.ToTable("InternalPrices", (string)null);
+                            b1.ToTable("InternalPrices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InternalPriceId");
+                        });
+
+                    b.OwnsOne("SensorX.Data.Domain.ValueObjects.Money", "SuggestedPrice", b1 =>
+                        {
+                            b1.Property<Guid>("InternalPriceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("numeric")
+                                .HasColumnName("SuggestedPriceAmount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("SuggestedPriceCurrency");
+
+                            b1.HasKey("InternalPriceId");
+
+                            b1.ToTable("InternalPrices");
 
                             b1.WithOwner()
                                 .HasForeignKey("InternalPriceId");
@@ -497,7 +519,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                                     b2.HasKey("PriceTierInternalPriceId", "PriceTierId");
 
-                                    b2.ToTable("PriceTiers", (string)null);
+                                    b2.ToTable("PriceTiers");
 
                                     b2.WithOwner()
                                         .HasForeignKey("PriceTierInternalPriceId", "PriceTierId");
@@ -505,28 +527,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                             b1.Navigation("Price")
                                 .IsRequired();
-                        });
-
-                    b.OwnsOne("SensorX.Data.Domain.ValueObjects.Money", "SuggestedPrice", b1 =>
-                        {
-                            b1.Property<Guid>("InternalPriceId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("numeric")
-                                .HasColumnName("SuggestedPriceAmount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("SuggestedPriceCurrency");
-
-                            b1.HasKey("InternalPriceId");
-
-                            b1.ToTable("InternalPrices", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("InternalPriceId");
                         });
 
                     b.Navigation("FloorPrice")
@@ -543,8 +543,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.HasOne("SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate.Category", null)
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.OwnsMany("SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate.ProductAttribute", "Attributes", b1 =>
                         {
@@ -616,7 +615,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                             b1.HasKey("ProductId");
 
-                            b1.ToTable("Products", (string)null);
+                            b1.ToTable("Products");
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
@@ -657,22 +656,13 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                             b1.HasKey("CustomerId");
 
-                            b1.HasIndex("WardId");
-
-                            b1.ToTable("Customers", (string)null);
+                            b1.ToTable("Customers");
 
                             b1.WithOwner()
                                 .HasForeignKey("CustomerId");
-
-                            b1.HasOne("SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate.Ward", null)
-                                .WithMany()
-                                .HasForeignKey("WardId")
-                                .OnDelete(DeleteBehavior.SetNull)
-                                .IsRequired();
                         });
 
-                    b.Navigation("ShippingInfo")
-                        .IsRequired();
+                    b.Navigation("ShippingInfo");
                 });
 
             modelBuilder.Entity("SensorX.Data.Domain.Contexts.UserContext.ProvinceAggregate.Ward", b =>
