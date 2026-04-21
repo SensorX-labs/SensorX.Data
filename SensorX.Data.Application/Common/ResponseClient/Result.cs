@@ -8,9 +8,9 @@ namespace SensorX.Data.Application.Common.ResponseClient
 
         protected Result(bool isSuccess, T? value, string? message)
         {
-            if (isSuccess && message != null)
-                throw new InvalidOperationException();
             if (!isSuccess && value != null && !value.Equals(default(T)))
+                throw new InvalidOperationException();
+            if (!isSuccess && message == null)
                 throw new InvalidOperationException();
 
             IsSuccess = isSuccess;
@@ -30,8 +30,6 @@ namespace SensorX.Data.Application.Common.ResponseClient
 
         protected Result(bool isSuccess, string? message)
         {
-            if (isSuccess && message != null)
-                throw new InvalidOperationException();
             if (!isSuccess && message == null)
                 throw new InvalidOperationException();
 
