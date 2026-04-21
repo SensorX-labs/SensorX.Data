@@ -15,10 +15,36 @@ public static class CategoryApi
     {
         var api = app.MapGroup("catalog").WithTags("Categories");
 
-        api.MapPost("/categories/create", CreateCategory).WithOpenApi();
-        api.MapPut("/categories/setParent", SetParent).WithOpenApi();
-        api.MapDelete("/categories/delete/{id:guid}", DeleteCategory).WithOpenApi();
-        api.MapGet("/categories/getPageList", GetPageListCategories).WithOpenApi();
+        api.MapPost("/categories/create", CreateCategory)
+            .WithOpenApi()
+            .WithSummary("Create category")
+            .WithDescription("""
+                - Name: Category name (must be unique)
+                - ParentId: Optional, set parent category
+                - Description: Optional description
+                """);
+
+        api.MapPut("/categories/setParent", SetParent)
+            .WithOpenApi()
+            .WithSummary("Set parent category")
+            .WithDescription("""
+                - ParentId: Null to move category to root
+                """);
+
+        api.MapDelete("/categories/delete/{id:guid}", DeleteCategory)
+            .WithOpenApi()
+            .WithSummary("Delete category");
+
+        api.MapGet("/categories/getPageList", GetPageListCategories)
+            .WithOpenApi()
+            .WithSummary("Get categories (cursor paging)")
+            .WithDescription("""
+                - SearchTerm: Filter by name/description
+                - PageSize: Number of items per page
+                - LastCreatedAt + LastId: Next page cursor
+                - FirstCreatedAt + FirstId: Previous page cursor
+                - IsPrevious: if your previous page is null, set this to false
+                """);
 
         return api;
     }

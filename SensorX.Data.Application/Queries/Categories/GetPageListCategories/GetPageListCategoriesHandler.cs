@@ -17,13 +17,15 @@ public class GetPageListCategoriesHandler(
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
-            query = query.Where(x => x.Name.StartsWith(request.SearchTerm));
+            query = query.Where(x => x.Name.Contains(request.SearchTerm));
+            query = query.Where(x => x.Description.Contains(request.SearchTerm));
         }
         query = query.ApplyCursorPagination(request, x => x.CreatedAt, x => x.Id);
         var dtoQuery = query.Select(x => new GetPageListCategoriesResponse(
             x.Id.Value,
             x.Name,
             x.Description,
+            x.ParentId == null ? null : x.ParentId.Value,
             x.CreatedAt
         ));
 

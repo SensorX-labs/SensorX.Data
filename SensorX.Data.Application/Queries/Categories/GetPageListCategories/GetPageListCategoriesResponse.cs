@@ -6,6 +6,7 @@ public record GetPageListCategoriesResponse(
     Guid Id,
     string Name,
     string Description,
+    Guid? ParentId,
     DateTimeOffset CreatedAt
 );
 
