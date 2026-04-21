@@ -31,7 +31,7 @@ public static class ProductApi
         var result = await mediator.Send(query);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy danh sách sản phẩm");
+            : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy danh sách sản phẩm");
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateProduct(
@@ -42,7 +42,7 @@ public static class ProductApi
         Result<Guid> result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Unknown error");
+            : TypedResults.BadRequest(result.Message ?? "Unknown error");
     }
 
     private static async Task<Results<Ok<Result>, NotFound<string>>> DeleteProduct(
@@ -54,7 +54,7 @@ public static class ProductApi
         Result result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.NotFound(result.Error ?? "Product not found");
+            : TypedResults.NotFound(result.Message ?? "Product not found");
     }
     private static async Task<Results<Ok<Result<List<GetProductPricingPolicyResponse>>>, BadRequest<string>>> GetProductPricingPolicy(
         [FromBody] GetProductPricingPolicyRequest request,
@@ -65,7 +65,7 @@ public static class ProductApi
         var result = await mediator.Send(query);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy chính sách định giá");
+            : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy chính sách định giá");
     }
 }
 

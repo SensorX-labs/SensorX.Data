@@ -26,7 +26,7 @@ namespace SensorX.Data.WebApi.API
         )
         {
             Result<Guid> result = await mediator.Send(command);
-            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Error);
+            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
         }
 
         private static async
@@ -39,7 +39,7 @@ namespace SensorX.Data.WebApi.API
             var result = await mediator.Send(query);
             return result.IsSuccess
                 ? TypedResults.Ok(result)
-                : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy danh sách khách hàng");
+                : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy danh sách khách hàng");
         }
 
         private static async Task<Results<Ok<Result<GetCustomerBuyingHistoryResponse>>, BadRequest<string>>> GetCustomerBuyingHistory(
@@ -51,7 +51,7 @@ namespace SensorX.Data.WebApi.API
             var result = await mediator.Send(query);
             return result.IsSuccess
                 ? TypedResults.Ok(result)
-                : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy lịch sử mua hàng");
+                : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy lịch sử mua hàng");
         }
     }
 }

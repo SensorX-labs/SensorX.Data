@@ -29,7 +29,7 @@ public static class ProductCategoryApi
         Result<Guid> result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Unknown error");
+            : TypedResults.BadRequest(result.Message ?? "Unknown error");
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> SetParent(
@@ -40,7 +40,7 @@ public static class ProductCategoryApi
         Result<Guid> result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Unknown error");
+            : TypedResults.BadRequest(result.Message ?? "Unknown error");
     }
 
     private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> DeleteCategory(
@@ -52,6 +52,6 @@ public static class ProductCategoryApi
         Result<Guid> result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Unknown error");
+            : TypedResults.BadRequest(result.Message ?? "Unknown error");
     }
 }
