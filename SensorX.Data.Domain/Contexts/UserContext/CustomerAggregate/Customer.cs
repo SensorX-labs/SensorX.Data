@@ -14,8 +14,7 @@ public class Customer : User<CustomerId>
         Phone phone,
         Email email,
         string taxCode,
-        string address,
-        ShippingInfo shippingInfo
+        string address
     ) : base(id, accountId, code, name, phone, email)
     {
         if (string.IsNullOrWhiteSpace(taxCode))
@@ -24,16 +23,11 @@ public class Customer : User<CustomerId>
             throw new DomainException("Địa chỉ không được để trống.");
         TaxCode = taxCode;
         Address = address;
-        ShippingInfo = shippingInfo;
-    }
-
-    private Customer() : base()
-    {
     }
 
     public string TaxCode { get; private set; }
     public string Address { get; private set; }
-    public ShippingInfo ShippingInfo { get; private set; }
+    public ShippingInfo? ShippingInfo { get; private set; }
 
     public void UpdateProfile(
         string name,

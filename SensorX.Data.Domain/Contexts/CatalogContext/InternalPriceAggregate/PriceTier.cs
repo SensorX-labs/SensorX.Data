@@ -4,13 +4,16 @@ namespace SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 
 public record PriceTier
 {
-    public Quantity Quantity { get; init; }
-    public Money Price { get; init; }
+    //tắt cảnh báo không dùng constructor
+#pragma warning disable CS8618
+    protected PriceTier() { } // EF Core
+#pragma warning restore CS8618
 
-    protected PriceTier() { }
     public PriceTier(Quantity quantity, Money price)
     {
         Quantity = quantity;
         Price = price;
     }
+    public Quantity Quantity { get; init; }
+    public Money Price { get; init; }
 }

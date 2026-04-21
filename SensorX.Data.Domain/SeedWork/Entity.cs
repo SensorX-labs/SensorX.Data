@@ -38,8 +38,8 @@ namespace SensorX.Data.Domain.SeedWork
             return _requestedHashCode.Value;
         }
 
-        public static bool operator ==(Entity<TId> left, Entity<TId> right) => Equals(left, right);
-        public static bool operator !=(Entity<TId> left, Entity<TId> right) => !(left == right);
+        public static bool operator ==(Entity<TId>? left, Entity<TId>? right) => Equals(left, right);
+        public static bool operator !=(Entity<TId>? left, Entity<TId>? right) => !(left == right);
     }
 }
 

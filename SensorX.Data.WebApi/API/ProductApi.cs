@@ -23,15 +23,11 @@ public static class ProductApi
         return api;
     }
 
-    private static async Task<Results<Ok<Result<PaginatedResult<GetPageListProductsResponse>>>, BadRequest<string>>> GetPageListProducts(
+    private static async Task<Results<Ok<Result<ProductCursorPagedResult>>, BadRequest<string>>> GetPageListProducts(
         [FromServices] IMediator mediator,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string? searchTerm = null,
-        [FromQuery] Guid? categoryId = null
+        [AsParameters] GetPageListProductsQuery query
     )
     {
-        var query = new GetPageListProductsQuery(pageNumber, pageSize, searchTerm, categoryId);
         var result = await mediator.Send(query);
         return result.IsSuccess
             ? TypedResults.Ok(result)
@@ -54,7 +50,7 @@ public static class ProductApi
         [FromServices] IMediator mediator
     )
     {
-        var command = new DeleteProductCommand { ProductId = id };
+        var command = new DeleteProductCommand(id);
         Result result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)

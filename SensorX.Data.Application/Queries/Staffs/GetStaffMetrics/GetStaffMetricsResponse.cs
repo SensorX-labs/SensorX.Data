@@ -7,6 +7,6 @@ public record GetStaffMetricsResponse(
     string Email,
     string Phone,
     string Department,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt
 );

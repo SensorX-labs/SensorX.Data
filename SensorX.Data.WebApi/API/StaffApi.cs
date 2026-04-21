@@ -31,16 +31,12 @@ namespace SensorX.Data.WebApi.API
         }
 
         private static async
-            Task<Results<Ok<Result<PaginatedResult<GetPageListStaffsResponse>>>, BadRequest<string>>>
+            Task<Results<Ok<Result<StaffCursorPagedResult>>, BadRequest<string>>>
             GetPageListStaffs(
                 [FromServices] IMediator mediator,
-                [FromQuery] int pageNumber = 1,
-                [FromQuery] int pageSize = 10,
-                [FromQuery] string? searchTerm = null,
-                [FromQuery] Guid? staffId = null
-            )
+                [AsParameters] GetPageListStaffsQuery query
+        )
         {
-            var query = new GetPageListStaffsQuery(pageNumber, pageSize, searchTerm, staffId);
             var result = await mediator.Send(query);
             return result.IsSuccess
                 ? TypedResults.Ok(result)
