@@ -1,9 +1,9 @@
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace SensorX.Data.Application.Common.Interfaces
+namespace SensorX.Data.Application.Common.Interfaces;
+
+public interface ICloudinaryService
 {
-    public interface ICloudinaryService
-    {
-        Task<string> UploadImageAsync(byte[] fileData, string fileName, string contentType, string? folder = null);
-    }
+    Task<string> UploadImageAsync(byte[] fileData, string fileName, string contentType, string? folder = null, CancellationToken cancellationToken = default);
 }
