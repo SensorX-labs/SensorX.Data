@@ -27,7 +27,7 @@ public static class InternalPriceApi
         Result<Guid> result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Unknown error");
+            : TypedResults.BadRequest(result.Message ?? "Unknown error");
     }
 
     private static async Task<Results<Ok<Result<GetInternalPricesByProductIdResponse>>, BadRequest<string>>> GetInternalPricesByProductId(
@@ -39,6 +39,6 @@ public static class InternalPriceApi
         Result<GetInternalPricesByProductIdResponse> result = await mediator.Send(query);
         return result.IsSuccess
             ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Error ?? "Unknown error");
+            : TypedResults.BadRequest(result.Message ?? "Unknown error");
     }
 }

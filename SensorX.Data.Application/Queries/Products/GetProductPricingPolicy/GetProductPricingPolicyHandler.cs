@@ -21,11 +21,13 @@ public class GetProductPricingPolicyHandler(
         if (request.ProductIds == null || request.ProductIds.Count == 0)
             return Result<List<GetProductPricingPolicyResponse>>.Failure("Danh sách ProductId không được rỗng");
 
+        var productIds = request.ProductIds.Select(id => new ProductId(id)).ToList();
+
         // Lấy tất cả products theo danh sách ProductIds
         var query = from p in productQueryBuilder.QueryAsNoTracking
                     join ip in internalPriceQueryBuilder.QueryAsNoTracking
                     on p.Id equals ip.ProductId
-                    where request.ProductIds.Contains(p.Id.Value)
+                    where productIds.Contains(p.Id)
                     select new GetProductPricingPolicyResponse(
                         p.Id.Value,
                         p.Code.Value,

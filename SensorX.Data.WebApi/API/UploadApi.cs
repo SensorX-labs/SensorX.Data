@@ -2,8 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+<<<<<<< HEAD
 using SensorX.Data.Application.Features.Uploads;
 using SensorX.Data.Application.Common.ResponseClient;
+=======
+using SensorX.Data.Application.Commands.UploadImage;
+>>>>>>> 670d248c2d659306b94af4fd9a94f1ace1b62395
 
 namespace SensorX.Data.WebApi.API
 {
@@ -19,7 +23,11 @@ namespace SensorX.Data.WebApi.API
 
         [RequestSizeLimit(5 * 1024 * 1024)]
         [Consumes("multipart/form-data")]
+<<<<<<< HEAD
         private static async Task<Results<Ok<Result<string>>, BadRequest<string>>>
+=======
+        private static async Task<Results<Ok<UploadImageSuccessResponse>, BadRequest<UploadImageErrorResponse>, ProblemHttpResult>>
+>>>>>>> 670d248c2d659306b94af4fd9a94f1ace1b62395
         UploadImage([FromForm] IFormFile? file, [FromServices] IMediator mediator)
         {
             if (file is null)

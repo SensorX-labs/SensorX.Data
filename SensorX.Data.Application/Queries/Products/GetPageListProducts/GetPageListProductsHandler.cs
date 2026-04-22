@@ -22,40 +22,44 @@ public class GetPageListProductsHandler(
     {
         try
         {
-            var sourceQuery =
-                from product in _productBuilder.QueryAsNoTracking
-                    .ApplySearch(request.SearchTerm)
-                from category in _categoryBuilder.QueryAsNoTracking
-                    .Where(x => x.Id == product.CategoryId).DefaultIfEmpty()
-                from internalPrice in _internalPriceBuilder.QueryAsNoTracking
-                    .Where(x => x.ProductId == product.Id).DefaultIfEmpty()
-                select new GetPageListProductsQueryModel(product, category, internalPrice);
+            var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-            var pagedQuery = sourceQuery.ApplyCursorPagination(
+            // Phân trang và sắp xếp trên Product trước để tránh lỗi dịch LINQ phức tạp
+            var pagedProductBaseQuery = productQuery.ApplyCursorPagination(
                 request,
-                x => x.Product.CreatedAt,
-                x => x.Product.Id.Value
+                x => x.CreatedAt,
+                x => x.Id
             )
-            .OrderByDescending(x => x.Product.CreatedAt)
-            .ThenByDescending(x => x.Product.Id.Value);
+            .OrderByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.Id);
 
-            var dtoQuery = pagedQuery.Select(x => new GetPageListProductsResponse(
-                x.Product.Id.Value,
-                x.Product.Code.Value,
-                x.Product.Name,
-                x.Product.Manufacture,
-                x.Category != null ? x.Category.Name : "",
-                x.InternalPrice != null ? x.InternalPrice.SuggestedPrice.Amount : 0,
-                x.Product.Status,
-                x.Product.CreatedAt,
-                x.Product.Images.Select(i => i.ImageUrl).ToList()
+            // Sau đó mới Join để lấy thông tin bổ sung (Left Join)
+            var sourceQuery = from product in pagedProductBaseQuery
+                              join category in _categoryBuilder.QueryAsNoTracking
+                                  on product.CategoryId equals category.Id into cs
+                              from c in cs.DefaultIfEmpty()
+                              join internalPrice in _internalPriceBuilder.QueryAsNoTracking
+                                  on product.Id equals internalPrice.ProductId into ips
+                              from i in ips.DefaultIfEmpty()
+                              select new { product, category = c, internalPrice = i };
+
+            var dtoQuery = sourceQuery.Select(x => new GetPageListProductsResponse(
+                x.product.Id.Value,
+                x.product.Code.Value,
+                x.product.Name,
+                x.product.Manufacture,
+                x.category != null ? x.category.Name : "",
+                x.internalPrice != null ? x.internalPrice.SuggestedPrice.Amount : 0,
+                x.product.Status,
+                x.product.CreatedAt,
+                x.product.Images.Select(i => i.ImageUrl).ToList()
             ));
 
             var items = await _queryExecutor.ToListAsync(dtoQuery
                 .Take(request.PageSize + 1), cancellationToken);
 
             var hasNext = items.Count > request.PageSize;
-            if (hasNext) items.RemoveAt(request.PageSize); // remove phần tử cuối cùng nếu có next page (kỹ thuật key-set pagination)
+            if (hasNext) items.RemoveAt(request.PageSize);
 
             var result = new ProductCursorPagedResult
             {

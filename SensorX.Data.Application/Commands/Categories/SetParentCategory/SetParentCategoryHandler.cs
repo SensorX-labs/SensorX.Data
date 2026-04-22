@@ -19,13 +19,14 @@ public class SetParentCategoryHandler(
             return Result<Guid>.Failure("Không tìm thấy danh mục sản phẩm");
 
         // Set parent nếu có
-        if (!request.ParentId.HasValue)
-            return Result<Guid>.Failure("Không tìm thấy danh mục cha");
-
-        var parentId = new CategoryId(request.ParentId.Value);
-        var parent = await _categoryRepository.GetByIdAsync(parentId, cancellationToken);
-        if (parent is null)
-            return Result<Guid>.Failure("Không tìm thấy danh mục cha");
+        Category? parent = null;
+        if (request.ParentId.HasValue)
+        {
+            var parentId = new CategoryId(request.ParentId.Value);
+            parent = await _categoryRepository.GetByIdAsync(parentId, cancellationToken);
+            if (parent is null)
+                return Result<Guid>.Failure("Không tìm thấy danh mục cha");
+        }
 
         category.SetParent(parent);
 
