@@ -8,15 +8,15 @@ namespace SensorX.Data.Application.Commands.Categories.SetParentCategory;
 
 public class SetParentCategoryHandler(
     IRepository<Category> _categoryRepository
-) : IRequestHandler<SetParentCategoryCommand, Result<Guid>>
+) : IRequestHandler<SetParentCategoryCommand, Result>
 {
-    public async Task<Result<Guid>> Handle(SetParentCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(SetParentCategoryCommand request, CancellationToken cancellationToken)
     {
         // Kiểm tra danh mục tồn tại
         var id = new CategoryId(request.Id);
         var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
         if (category is null)
-            return Result<Guid>.Failure("Không tìm thấy danh mục sản phẩm");
+            return Result.Failure("Không tìm thấy danh mục sản phẩm");
 
         // Set parent nếu có
         Category? parent = null;
@@ -25,13 +25,13 @@ public class SetParentCategoryHandler(
             var parentId = new CategoryId(request.ParentId.Value);
             parent = await _categoryRepository.GetByIdAsync(parentId, cancellationToken);
             if (parent is null)
-                return Result<Guid>.Failure("Không tìm thấy danh mục cha");
+                return Result.Failure("Không tìm thấy danh mục cha");
         }
 
         category.SetParent(parent);
 
         await _categoryRepository.UpdateAsync(category, cancellationToken);
 
-        return Result<Guid>.Success(category.Id.Value);
+        return Result.Success("Cập nhật danh mục sản phẩm thành công.");
     }
 }
