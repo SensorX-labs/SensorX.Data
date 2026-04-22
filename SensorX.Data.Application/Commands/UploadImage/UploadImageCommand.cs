@@ -7,4 +7,4 @@ public record UploadImageCommand(
     string FileName,
     string ContentType,
     string? Folder = "sensorx"
-) : IRequest<string>;
+) : IRequest<Result<UploadImageSuccessResponse, UploadImageErrorResponse>>;

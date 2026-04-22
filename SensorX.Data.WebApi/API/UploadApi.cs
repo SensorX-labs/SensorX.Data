@@ -2,12 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-<<<<<<< HEAD
-using SensorX.Data.Application.Features.Uploads;
-using SensorX.Data.Application.Common.ResponseClient;
-=======
 using SensorX.Data.Application.Commands.UploadImage;
->>>>>>> 670d248c2d659306b94af4fd9a94f1ace1b62395
 
 namespace SensorX.Data.WebApi.API
 {
@@ -23,16 +18,12 @@ namespace SensorX.Data.WebApi.API
 
         [RequestSizeLimit(5 * 1024 * 1024)]
         [Consumes("multipart/form-data")]
-<<<<<<< HEAD
-        private static async Task<Results<Ok<Result<string>>, BadRequest<string>>>
-=======
         private static async Task<Results<Ok<UploadImageSuccessResponse>, BadRequest<UploadImageErrorResponse>, ProblemHttpResult>>
->>>>>>> 670d248c2d659306b94af4fd9a94f1ace1b62395
         UploadImage([FromForm] IFormFile? file, [FromServices] IMediator mediator)
         {
             if (file is null)
             {
-                return TypedResults.BadRequest("No file provided");
+                return TypedResults.BadRequest(new UploadImageErrorResponse("No file provided"));
             }
 
             using var memoryStream = new MemoryStream();
@@ -47,9 +38,14 @@ namespace SensorX.Data.WebApi.API
             );
 
             var result = await mediator.Send(command);
-            return result.IsSuccess
-                ? TypedResults.Ok(result)
-                : TypedResults.BadRequest(result.Error);
+            if (result.IsSuccess && result.Success is not null)
+            {
+                return TypedResults.Ok(result.Success);
+            }
+            else
+            {
+                return TypedResults.BadRequest(result.Error ?? new UploadImageErrorResponse("Unknown error"));
+            }
         }
     }
 }

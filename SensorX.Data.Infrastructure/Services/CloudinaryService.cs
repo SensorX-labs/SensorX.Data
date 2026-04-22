@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.Application.Commands.UploadImage;
+
 namespace SensorX.Data.Infrastructure.Services;
 
 public class CloudinaryService : ICloudinaryService
@@ -26,10 +28,12 @@ public class CloudinaryService : ICloudinaryService
         _cloudinary.Api.Secure = true;
     }
 
-    public async Task<string> UploadImageAsync(byte[] fileData, string fileName, string contentType, string? folder = null, CancellationToken cancellationToken = default)
+    public async Task<Result<UploadImageSuccessResponse, UploadImageErrorResponse>> UploadImageAsync(byte[] fileData, string fileName, string contentType, string? folder = null, CancellationToken cancellationToken = default)
     {
         if (fileData == null || fileData.Length == 0)
-            throw new ArgumentException("File data is required and cannot be empty", nameof(fileData));
+        {
+            return Result<UploadImageSuccessResponse, UploadImageErrorResponse>.ErrorResult(new UploadImageErrorResponse("File data is required and cannot be empty"));
+        }
 
         var uploadFolder = string.IsNullOrWhiteSpace(folder) ? _defaultFolder : folder;
 
@@ -47,16 +51,31 @@ public class CloudinaryService : ICloudinaryService
                 .FetchFormat("auto")
         };
 
-        var uploadResult = await _cloudinary.UploadAsync(uploadParams, cancellationToken);
-
-        if (uploadResult.Error != null)
+        try
         {
-            _logger.LogError("Cloudinary upload error: {Error}", uploadResult.Error.Message);
-            throw new InvalidOperationException($"Upload failed: {uploadResult.Error.Message}");
-        }
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams, cancellationToken);
 
-        _logger.LogInformation("Image uploaded successfully to {Folder}", uploadFolder);
-        return uploadResult.SecureUrl?.ToString() ?? throw new InvalidOperationException("Upload result URL is null");
+            if (uploadResult.Error != null)
+            {
+                _logger.LogError("Cloudinary upload error: {Error}", uploadResult.Error.Message);
+                return Result<UploadImageSuccessResponse, UploadImageErrorResponse>.ErrorResult(new UploadImageErrorResponse(uploadResult.Error.Message));
+            }
+
+            var secureUrl = uploadResult.SecureUrl?.ToString();
+            if (string.IsNullOrEmpty(secureUrl))
+            {
+                _logger.LogError("Cloudinary upload result URL is null");
+                return Result<UploadImageSuccessResponse, UploadImageErrorResponse>.ErrorResult(new UploadImageErrorResponse("Upload result URL is null"));
+            }
+
+            _logger.LogInformation("Image uploaded successfully to {Folder}", uploadFolder);
+            return Result<UploadImageSuccessResponse, UploadImageErrorResponse>.SuccessResult(new UploadImageSuccessResponse(secureUrl));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred during Cloudinary upload");
+            return Result<UploadImageSuccessResponse, UploadImageErrorResponse>.ErrorResult(new UploadImageErrorResponse(ex.Message));
+        }
     }
 }
 
