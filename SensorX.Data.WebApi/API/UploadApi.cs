@@ -38,13 +38,13 @@ namespace SensorX.Data.WebApi.API
             );
 
             var result = await mediator.Send(command);
-            if (result.IsSuccess && result.Success is not null)
+            if (result.IsSuccess && result.Value is not null)
             {
-                return TypedResults.Ok(result.Success);
+                return TypedResults.Ok(result.Value);
             }
             else
             {
-                return TypedResults.BadRequest(result.Error ?? new UploadImageErrorResponse("Unknown error"));
+                return TypedResults.BadRequest(new UploadImageErrorResponse(result.Message ?? "Unknown error"));
             }
         }
     }
