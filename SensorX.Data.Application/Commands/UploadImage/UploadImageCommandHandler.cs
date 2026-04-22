@@ -9,9 +9,9 @@ namespace SensorX.Data.Application.Commands.UploadImage;
 
 public class UploadImageCommandHandler(
     ICloudinaryService _cloudinaryService
-) : IRequestHandler<UploadImageCommand, Result<UploadImageSuccessResponse>>
+) : IRequestHandler<UploadImageCommand, Result<string>>
 {
-    public async Task<Result<UploadImageSuccessResponse>> Handle(UploadImageCommand command, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(UploadImageCommand command, CancellationToken cancellationToken)
     {
         return await _cloudinaryService.UploadImageAsync(command.FileData, command.FileName, command.ContentType, command.Folder);
     }

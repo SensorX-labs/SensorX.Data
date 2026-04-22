@@ -8,4 +8,4 @@ public record UploadImageCommand(
     string FileName,
     string ContentType,
     string? Folder = "sensorx"
-) : IRequest<Result<UploadImageSuccessResponse>>;
+) : IRequest<Result<string>>;
