@@ -12,19 +12,21 @@ public class CreateCategoryHandler(
 {
     public async Task<Result<Guid>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        if (!request.ParentId.HasValue)
-            return Result<Guid>.Failure("Không tìm thấy danh mục cha");
-
-        var parentId = new CategoryId(request.ParentId.Value);
-        var parent = await _CategoryRepository.GetByIdAsync(parentId, cancellationToken);
-        if (parent is null)
-            return Result<Guid>.Failure("Không tìm thấy danh mục cha");
-
         var category = Category.Create(
             request.Name,
             request.Description
         );
-        category.SetParent(parent);
+
+        // Chỉ set parent nếu ParentId được cung cấp
+        if (request.ParentId.HasValue)
+        {
+            var parentId = new CategoryId(request.ParentId.Value);
+            var parent = await _CategoryRepository.GetByIdAsync(parentId, cancellationToken);
+            if (parent is null)
+                return Result<Guid>.Failure("Không tìm thấy danh mục cha");
+
+            category.SetParent(parent);
+        }
 
         await _CategoryRepository.AddAsync(category, cancellationToken);
         return Result<Guid>.Success(category.Id.Value);

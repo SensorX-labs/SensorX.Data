@@ -48,6 +48,14 @@ TestResults/
 *.nupkg
 *.snupkg
 *.nuspec
+
+## Configuration files with sensitive data
+appsettings.json
+appsettings.*.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.local.json
+launchSettings.json
 packages/
 project.lock.json
 project.fragment.lock.json
