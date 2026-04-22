@@ -4,6 +4,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
-public record GetPageListCustomersQuery(
-    string? SearchTerm
-) : CursorPagedQuery, IRequest<Result<CustomerCursorPagedResult>>;
+public record GetPageListCustomersQuery : CursorPagedQuery, IRequest<Result<CustomerCursorPagedResult>>
+{
+    public string? SearchTerm { get; init; }
+}

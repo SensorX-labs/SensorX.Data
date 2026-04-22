@@ -24,10 +24,10 @@ public class GetPageListCustomersHandler(
             var pagedQuery = sourceQuery.ApplyCursorPagination(
                 request,
                 x => x.CreatedAt,
-                x => x.Id.Value
+                x => x.Id
             )
             .OrderByDescending(x => x.CreatedAt)
-            .ThenByDescending(x => x.Id.Value);
+            .ThenByDescending(x => x.Id);
 
             var dtoQuery = pagedQuery.Select(x => new GetPageListCustomersResponse(
                 x.Id.Value,

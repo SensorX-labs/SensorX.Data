@@ -15,7 +15,7 @@ public class Staff : User<StaffId>
         Email email,
         CitizenId citizenId,
         string biography,
-        DateTime joinDate,
+        DateTimeOffset joinDate,
         Department department
     ) : base(id, accountId, code, name, phone, email)
     {
@@ -27,7 +27,7 @@ public class Staff : User<StaffId>
 
     public CitizenId CitizenId { get; private set; }
     public string Biography { get; private set; }
-    public DateTime JoinDate { get; private set; }
+    public DateTimeOffset JoinDate { get; private set; }
     public Department Department { get; private set; }
 
     public void UpdateProfile(
@@ -36,7 +36,7 @@ public class Staff : User<StaffId>
         Email email,
         CitizenId citizenId,
         string biography,
-        DateTime joinDate,
+        DateTimeOffset joinDate,
         Department department
     )
     {

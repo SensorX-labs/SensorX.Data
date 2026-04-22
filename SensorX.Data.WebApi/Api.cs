@@ -8,7 +8,7 @@ public static class Api
     {
         var api = app.MapGroup("api");
 
-        api.MapProductCategoryApi();
+        api.MapCategoryApi();
         api.MapInternalPriceApi();
         api.MapProductApi();
         api.MapCustomerApi();
