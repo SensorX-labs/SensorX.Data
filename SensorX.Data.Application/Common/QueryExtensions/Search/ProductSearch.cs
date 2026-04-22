@@ -15,9 +15,9 @@ public static class ProductSearch
         var term = searchTerm.Trim();
 
         return query.Where(p =>
-            p.Name.StartsWith(term) ||
-            p.Code.Value.StartsWith(term) ||
-            p.Manufacture.StartsWith(term)
+            p.Name.Contains(term) ||
+            p.Code.Value.Contains(term) ||
+            p.Manufacture.Contains(term)
         );
     }
 }

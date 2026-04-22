@@ -3,12 +3,13 @@ using SensorX.Data.Domain.SeedWork;
 
 namespace SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 
-public class Category : Entity<CategoryId>, IAggregateRoot
+public class Category : Entity<CategoryId>, IAggregateRoot, ICreationTrackable
 {
     private Category(CategoryId id, string name, string description) : base(id)
     {
         Name = name;
         Description = description;
+        CreatedAt = DateTimeOffset.UtcNow;
     }
 
     public static Category Create(string name, string description)
@@ -22,6 +23,7 @@ public class Category : Entity<CategoryId>, IAggregateRoot
     public string Description { get; private set; }
     public CategoryId? ParentId { get; private set; }
     public Category? Parent { get; private set; }
+    public DateTimeOffset CreatedAt { get; set; }
 
     public void SetParent(Category? parent)
     {

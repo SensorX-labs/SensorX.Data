@@ -8,21 +8,8 @@ using SensorX.Data.Infrastructure.DI;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.WebApi;
 using SensorX.Data.WebApi.Configurations;
-using SensorX.Data.WebApi.API;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowNextJs",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:3000")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
-
 // Cấu hình Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -59,8 +46,16 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.UseInlineDefinitionsForEnums();
 });
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -75,6 +70,10 @@ if (autoApplyMigration)
             using var scope = app.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await dbContext.Database.MigrateAsync();
+            
+            // Seed fake data using Bogus
+            await BogusSeeder.SeedData(dbContext);
+            
             break;
         }
         catch (Exception ex) when (attempt < maxMigrationRetries)
@@ -94,13 +93,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseHttpsRedirection();
 
-app.UseCors("AllowNextJs");
-
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapApi();
 
 app.Run();

@@ -70,3 +70,4 @@ coverage/
 
 ## Config dump
 appsettings.Development.json
+.agents/skills/

@@ -7,5 +7,5 @@ public class CreateCategoryCommand : IRequest<Result<Guid>>
 {
     public required string Name { get; set; }
     public Guid? ParentId { get; set; }
-    public required string Description { get; set; }
+    public string? Description { get; set; }
 }

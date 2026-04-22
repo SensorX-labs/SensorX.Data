@@ -4,7 +4,8 @@ using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 
-public record GetPageListStaffsQuery(
-    string? SearchTerm,
-    string? Code
-) : CursorPagedQuery, IRequest<Result<StaffCursorPagedResult>>;
+public record GetPageListStaffsQuery : CursorPagedQuery, IRequest<Result<StaffCursorPagedResult>>
+{
+    public string? SearchTerm { get; init; }
+    public string? Code { get; init; }
+}

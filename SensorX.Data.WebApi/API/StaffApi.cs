@@ -27,7 +27,7 @@ namespace SensorX.Data.WebApi.API
         )
         {
             Result<Guid> result = await mediator.Send(command);
-            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Error);
+            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
         }
 
         private static async
@@ -40,7 +40,7 @@ namespace SensorX.Data.WebApi.API
             var result = await mediator.Send(query);
             return result.IsSuccess
                 ? TypedResults.Ok(result)
-                : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy danh sách nhân viên");
+                : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy danh sách nhân viên");
         }
 
         private static async Task<Results<Ok<Result<GetStaffMetricsResponse>>, BadRequest<string>>> GetEmployeeMetrics(
@@ -52,7 +52,7 @@ namespace SensorX.Data.WebApi.API
             var result = await mediator.Send(query);
             return result.IsSuccess
                 ? TypedResults.Ok(result)
-                : TypedResults.BadRequest(result.Error ?? "Lỗi khi lấy chỉ số hiệu suất");
+                : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy chỉ số hiệu suất");
         }
     }
 }

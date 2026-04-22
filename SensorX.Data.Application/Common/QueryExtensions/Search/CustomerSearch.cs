@@ -15,11 +15,11 @@ public static class CustomerSearch
         var term = searchTerm.Trim();
 
         return query.Where(p =>
-            p.Name.StartsWith(term) ||
-            p.Code.Value.StartsWith(term) ||
-            p.TaxCode.StartsWith(term) ||
-            p.Email.Value.StartsWith(term) ||
-            p.Phone.Value.StartsWith(term)
+            p.Name.Contains(term) ||
+            p.Code.Value.Contains(term) ||
+            p.TaxCode.Contains(term) ||
+            p.Email.Value.Contains(term) ||
+            p.Phone.Value.Contains(term)
         );
     }
 }
