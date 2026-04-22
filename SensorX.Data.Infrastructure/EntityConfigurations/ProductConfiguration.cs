@@ -24,12 +24,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(s => s.CategoryId)
             .HasConversion(id => id!.Value, v => new CategoryId(v));
 
-        builder.OwnsOne(s => s.Showcase, s =>
-        {
-            s.Property(p => p.Summary).HasMaxLength(255);
-            s.Property(p => p.Body).HasMaxLength(4000);
-        });
-
         builder.OwnsMany(s => s.Images, s =>
         {
             s.ToTable("ProductImages");

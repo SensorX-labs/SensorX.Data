@@ -52,15 +52,13 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
     public CategoryId? CategoryId { get; private set; }
     public ProductStatus Status { get; private set; }
     public string Unit { get; private set; }
+    public string? Showcase { get; private set; }
 
     private readonly List<ProductImage> _images = [];
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 
     private readonly List<ProductAttribute> _attributes = [];
     public IReadOnlyList<ProductAttribute> Attributes => _attributes.AsReadOnly();
-
-    private ProductShowcase? _showcase;
-    public ProductShowcase? Showcase => _showcase;
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
@@ -101,9 +99,9 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         _attributes.Remove(attribute);
         UpdatedAt = DateTimeOffset.UtcNow;
     }
-    public void SetShowcase(ProductShowcase showcase)
+    public void SetShowcase(string? showcase)
     {
-        _showcase = showcase;
+        Showcase = showcase;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

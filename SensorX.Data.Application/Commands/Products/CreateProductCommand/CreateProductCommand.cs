@@ -9,8 +9,7 @@ public record CreateProductCommand(
     Guid CategoryId,
     string Unit,
     ProductStatus Status = ProductStatus.Active,
-    string? ShowcaseSummary = null,
-    string? ShowcaseBody = null,
+    string? Showcase = null,
     List<string>? ImageUrls = null,
     List<ProductAttributeRequest>? Attributes = null
 ) : IRequest<Result<Guid>>
