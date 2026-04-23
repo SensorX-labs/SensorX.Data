@@ -3,7 +3,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
-public record GetPageListProductsResponse(
+public sealed record GetPageListProductsResponse(
     Guid Id,
     string Code,
     string Name,
@@ -15,4 +15,4 @@ public record GetPageListProductsResponse(
     List<string> Images
 );
 
-public class ProductOffsetPagedResult : OffsetPagedResult<GetPageListProductsResponse> { }
+public sealed class ProductOffsetPagedResult : OffsetPagedResult<GetPageListProductsResponse> { }

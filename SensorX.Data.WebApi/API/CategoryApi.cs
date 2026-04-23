@@ -24,14 +24,14 @@ public static class CategoryApi
                 - Description: Optional description
                 """);
 
-        api.MapPut("/categories/set-parent", SetParent)
+        api.MapPut("/categories/{id:guid}/parent", SetParent)
             .WithOpenApi()
             .WithSummary("Set parent category")
             .WithDescription("""
                 - ParentId: Null to move category to root
                 """);
 
-        api.MapDelete("/categories/delete/{id:guid}", DeleteCategory)
+        api.MapDelete("/categories/{id:guid}", DeleteCategory)
             .WithOpenApi()
             .WithSummary("Delete category");
 
@@ -59,10 +59,12 @@ public static class CategoryApi
     }
 
     private static async Task<Results<Ok<Result>, BadRequest<string>>> SetParent(
+        [FromRoute] Guid id,
         [FromBody] SetParentCategoryCommand command,
         [FromServices] IMediator mediator
     )
     {
+        command = command with { Id = id };
         Result result = await mediator.Send(command);
         return result.IsSuccess
             ? TypedResults.Ok(result)
@@ -70,11 +72,11 @@ public static class CategoryApi
     }
 
     private static async Task<Results<Ok<Result>, BadRequest<string>>> DeleteCategory(
-        [AsParameters] DeleteCategoryCommand command,
+        [FromRoute] Guid id,
         [FromServices] IMediator mediator
     )
     {
-        Result result = await mediator.Send(command);
+        Result result = await mediator.Send(new DeleteCategoryCommand(id));
         return result.IsSuccess
             ? TypedResults.Ok(result)
             : TypedResults.BadRequest(result.Message ?? "Unknown error");

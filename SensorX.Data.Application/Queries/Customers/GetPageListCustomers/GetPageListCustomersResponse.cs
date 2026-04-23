@@ -2,7 +2,7 @@ using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 
 namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
-public record GetPageListCustomersResponse(
+public sealed record GetPageListCustomersResponse(
     Guid Id,
     string Name,
     string Code,
@@ -13,4 +13,4 @@ public record GetPageListCustomersResponse(
     DateTimeOffset CreatedAt
 );
 
-public class CustomerOffsetPagedResult : OffsetPagedResult<GetPageListCustomersResponse> { }
+public sealed class CustomerOffsetPagedResult : OffsetPagedResult<GetPageListCustomersResponse> { }

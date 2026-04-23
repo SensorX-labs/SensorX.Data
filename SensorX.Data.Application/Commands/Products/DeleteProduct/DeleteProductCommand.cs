@@ -1,5 +1,7 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using SensorX.Data.Application.Common.ResponseClient;
+
 namespace SensorX.Data.Application.Commands.Products.DeleteProduct;
 
-public record DeleteProductCommand(Guid ProductId) : IRequest<Result>;
+public sealed record DeleteProductCommand([property: JsonIgnore] Guid Id) : IRequest<Result>;

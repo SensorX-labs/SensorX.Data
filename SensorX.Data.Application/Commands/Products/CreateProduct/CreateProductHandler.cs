@@ -32,14 +32,20 @@ public class CreateProductHandler(
         );
         product.SetShowcase(request.Showcase);
 
-        foreach (var imageDto in request.ImageUrls)
+        if (request.ImageUrls != null)
         {
-            product.AddImage(new ProductImage(imageDto));
+            foreach (var imageDto in request.ImageUrls)
+            {
+                product.AddImage(new ProductImage(imageDto));
+            }
         }
 
-        foreach (var attrDto in request.Attributes)
+        if (request.Attributes != null)
         {
-            product.AddProductAttribute(new ProductAttribute(attrDto.AttributeName, attrDto.AttributeValue));
+            foreach (var attrDto in request.Attributes)
+            {
+                product.AddProductAttribute(new ProductAttribute(attrDto.AttributeName, attrDto.AttributeValue));
+            }
         }
 
         await _productRepository.AddAsync(product, cancellationToken);

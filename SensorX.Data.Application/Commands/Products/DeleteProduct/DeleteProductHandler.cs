@@ -12,7 +12,7 @@ public class DeleteProductHandler(
 {
     public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
-        var productId = new ProductId(request.ProductId);
+        var productId = new ProductId(request.Id);
         var product = await _productRepository.GetByIdAsync(productId, cancellationToken);
         if (product is null)
             return Result.Failure("Không tìm thấy sản phẩm");

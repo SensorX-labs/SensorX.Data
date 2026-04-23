@@ -1,12 +1,12 @@
 namespace SensorX.Data.Application.Common.ResponseClient
 {
-    public class Result<T>
+    public sealed class Result<T>
     {
         public bool IsSuccess { get; }
         public T? Value { get; }
         public string? Message { get; }
 
-        protected Result(bool isSuccess, T? value, string? message)
+        private Result(bool isSuccess, T? value, string? message)
         {
             if (!isSuccess && value != null && !value.Equals(default(T)))
                 throw new InvalidOperationException();
@@ -23,12 +23,12 @@ namespace SensorX.Data.Application.Common.ResponseClient
         public static implicit operator bool(Result<T>? result) => result is not null && result.IsSuccess;
     }
 
-    public class Result
+    public sealed class Result
     {
         public bool IsSuccess { get; }
         public string? Message { get; }
 
-        protected Result(bool isSuccess, string? message)
+        private Result(bool isSuccess, string? message)
         {
             if (!isSuccess && message == null)
                 throw new InvalidOperationException();

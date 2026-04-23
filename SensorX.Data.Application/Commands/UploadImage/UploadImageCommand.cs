@@ -3,7 +3,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Commands.UploadImage;
 
-public record UploadImageCommand(
+public sealed record UploadImageCommand(
     byte[] FileData,
     string FileName,
     string ContentType,

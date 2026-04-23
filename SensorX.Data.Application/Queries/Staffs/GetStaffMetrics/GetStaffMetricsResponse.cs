@@ -1,6 +1,6 @@
 namespace SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 
-public record GetStaffMetricsResponse(
+public sealed record GetStaffMetricsResponse(
     Guid StaffId,
     string StaffCode,
     string StaffName,

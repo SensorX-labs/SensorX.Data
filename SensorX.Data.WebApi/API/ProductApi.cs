@@ -39,7 +39,7 @@ public static class ProductApi
                 - Attributes: Optional list of product attributes
                 """);
 
-        api.MapPost("/products/delete/{id:guid}", DeleteProduct)
+        api.MapDelete("/products/{id:guid}", DeleteProduct)
             .WithOpenApi()
             .WithSummary("Delete product")
             .WithDescription("""

@@ -27,17 +27,16 @@ public class GetPageListStaffsHandler(
                 .ThenByDescending(x => x.Id)
                 .ApplyOffsetPagination(request);
 
-            var dtoQuery = pagedQuery.Select(x => new GetPageListStaffsResponse
-            {
-                Id = x.Id.Value,
-                Code = x.Code.Value,
-                Name = x.Name,
-                Phone = x.Phone.Value,
-                Email = x.Email.Value,
-                CitizenId = x.CitizenId.Value,
-                Department = x.Department.ToString(),
-                CreatedAt = x.CreatedAt
-            });
+            var dtoQuery = pagedQuery.Select(x => new GetPageListStaffsResponse(
+                x.Id.Value,
+                x.Code.Value,
+                x.Name,
+                x.Email.Value,
+                x.Phone.Value,
+                x.CitizenId.Value,
+                x.Department.ToString(),
+                x.CreatedAt
+            ));
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
