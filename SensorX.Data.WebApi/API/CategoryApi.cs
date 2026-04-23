@@ -7,7 +7,7 @@ using SensorX.Data.Application.Commands.Categories.SetParentCategory;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Categories.GetPageListCategories;
 
-namespace SensorX.Data.WebApi.API.CategoryApi;
+namespace SensorX.Data.WebApi.API;
 
 public static class CategoryApi
 {

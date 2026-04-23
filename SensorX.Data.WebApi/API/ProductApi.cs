@@ -9,7 +9,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 
-namespace SensorX.Data.WebApi.API.ProductApi;
+namespace SensorX.Data.WebApi.API;
 
 public static class ProductApi
 {

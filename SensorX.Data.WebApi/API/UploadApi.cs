@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.UploadImage;
 
-namespace SensorX.Data.WebApi.API.UploadApi;
+namespace SensorX.Data.WebApi.API;
 
 public static class UploadApi
 {

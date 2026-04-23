@@ -6,7 +6,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
-namespace SensorX.Data.WebApi.API.CustomerApi;
+namespace SensorX.Data.WebApi.API;
 
 public static class CustomerApi
 {

@@ -7,7 +7,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 
-namespace SensorX.Data.WebApi.API.StaffApi;
+namespace SensorX.Data.WebApi.API;
 
 public static class StaffApi
 {
