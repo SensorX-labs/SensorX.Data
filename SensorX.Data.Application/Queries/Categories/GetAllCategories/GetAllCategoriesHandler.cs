@@ -14,14 +14,16 @@ public sealed class GetAllCategoriesHandler(
     {
         var query = _categoryQueryBuilder.QueryAsNoTracking;
 
-        var dtoQuery = query.Select(x => new GetAllCategoriesResponse(
-            x.Id.Value,
-            x.Name,
-            x.Description,
-            x.ParentId == null ? null : x.ParentId.Value,
-            x.Parent != null ? x.Parent.Name : null,
-            x.CreatedAt
-        ));
+        var dtoQuery = query
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => new GetAllCategoriesResponse(
+                x.Id.Value,
+                x.Name,
+                x.Description,
+                x.ParentId == null ? null : x.ParentId.Value,
+                x.Parent != null ? x.Parent.Name : null,
+                x.CreatedAt
+            ));
 
         var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
