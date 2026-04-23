@@ -55,6 +55,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 var autoApplyMigration = builder.Configuration.GetValue("Migration:AutoApply", true);
 if (autoApplyMigration)
 {
