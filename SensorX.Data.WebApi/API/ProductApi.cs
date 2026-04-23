@@ -15,15 +15,47 @@ public static class ProductApi
     {
         var api = app.MapGroup("catalog").WithTags("Products");
 
-        api.MapGet("/products", GetPageListProducts).WithOpenApi();
-        api.MapPost("/products", CreateProduct).WithOpenApi();
-        api.MapDelete("/products/{id:guid}", DeleteProduct).WithOpenApi();
-        api.MapPost("/products/pricing-policy/batch", GetProductPricingPolicy).WithOpenApi();
+        api.MapGet("/products/list", GetPageListProducts)
+            .WithOpenApi()
+            .WithSummary("Get page list products")
+            .WithDescription("""
+                - SearchTerm: Filter by name/description
+                - PageSize: Number of items per page
+                - LastCreatedAt + LastId: Next page cursor
+                - FirstCreatedAt + FirstId: Previous page cursor
+                - IsPrevious: if your previous page is null, set this to false
+                """);
+
+        api.MapPost("/products/create", CreateProduct)
+            .WithOpenApi()
+            .WithSummary("Create product")
+            .WithDescription("""
+                - Name: Product name (must be unique)
+                - Description: Optional description
+                - Price: Product price
+                - UnitOfMeasure: Product unit of measure
+                - ImageUrl: Optional product image URL
+                - CreatedBy: Product creator
+                """);
+
+        api.MapPost("/products/delete/{id:guid}", DeleteProduct)
+            .WithOpenApi()
+            .WithSummary("Delete product")
+            .WithDescription("""
+                - Id: Product ID
+                """);
+
+        api.MapPost("/products/pricing-policy/batch", GetProductPricingPolicy)
+            .WithOpenApi()
+            .WithSummary("Get product pricing policy")
+            .WithDescription("""
+                - ProductIds: List of product IDs
+                """);
 
         return api;
     }
 
-    private static async Task<Results<Ok<Result<ProductCursorPagedResult>>, BadRequest<string>>> GetPageListProducts(
+    private static async Task<Results<Ok<Result<ProductOffsetPagedResult>>, BadRequest<string>>> GetPageListProducts(
         [FromServices] IMediator mediator,
         [AsParameters] GetPageListProductsQuery query
     )

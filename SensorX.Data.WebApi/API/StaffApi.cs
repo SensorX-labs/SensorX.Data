@@ -31,7 +31,7 @@ namespace SensorX.Data.WebApi.API
         }
 
         private static async
-            Task<Results<Ok<Result<StaffCursorPagedResult>>, BadRequest<string>>>
+            Task<Results<Ok<Result<StaffOffsetPagedResult>>, BadRequest<string>>>
             GetPageListStaffs(
                 [FromServices] IMediator mediator,
                 [AsParameters] GetPageListStaffsQuery query

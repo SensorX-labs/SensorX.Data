@@ -82,12 +82,12 @@ public static class CategoryApi
             : TypedResults.BadRequest(result.Message ?? "Unknown error");
     }
 
-    private static async Task<Results<Ok<Result<CategoryCursorPagedResult>>, BadRequest<string>>> GetPageListCategories(
+    private static async Task<Results<Ok<Result<CategoryOffsetPagedResult>>, BadRequest<string>>> GetPageListCategories(
         [AsParameters] GetPageListCategoriesQuery query,
         [FromServices] IMediator mediator
     )
     {
-        Result<CategoryCursorPagedResult> result = await mediator.Send(query);
+        var result = await mediator.Send(query);
         return result.IsSuccess
             ? TypedResults.Ok(result)
             : TypedResults.BadRequest(result.Message ?? "Unknown error");

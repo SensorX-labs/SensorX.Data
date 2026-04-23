@@ -1,6 +1,6 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
-using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
@@ -14,9 +14,9 @@ public class GetPageListProductsHandler(
     IQueryBuilder<Category> _categoryBuilder,
     IQueryBuilder<InternalPrice> _internalPriceBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListProductsQuery, Result<ProductCursorPagedResult>>
+) : IRequestHandler<GetPageListProductsQuery, Result<ProductOffsetPagedResult>>
 {
-    public async Task<Result<ProductCursorPagedResult>> Handle(
+    public async Task<Result<ProductOffsetPagedResult>> Handle(
         GetPageListProductsQuery request,
         CancellationToken cancellationToken)
     {
@@ -24,16 +24,16 @@ public class GetPageListProductsHandler(
         {
             var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-            // Phân trang và sắp xếp trên Product trước để tránh lỗi dịch LINQ phức tạp
-            var pagedProductBaseQuery = productQuery.ApplyCursorPagination(
-                request,
-                x => x.CreatedAt,
-                x => x.Id
-            )
-            .OrderByDescending(x => x.CreatedAt)
-            .ThenByDescending(x => x.Id);
+            // Get total count before pagination
+            var totalCount = await _queryExecutor.CountAsync(productQuery, cancellationToken);
 
-            // Sau đó mới Join để lấy thông tin bổ sung (Left Join)
+            // Apply ordering and pagination
+            var pagedProductBaseQuery = productQuery
+                .OrderByDescending(x => x.CreatedAt)
+                .ThenByDescending(x => x.Id)
+                .ApplyOffsetPagination(request);
+
+            // Join to get additional info
             var sourceQuery = from product in pagedProductBaseQuery
                               join category in _categoryBuilder.QueryAsNoTracking
                                   on product.CategoryId equals category.Id into cs
@@ -55,28 +55,21 @@ public class GetPageListProductsHandler(
                 x.product.Images.Select(i => i.ImageUrl).ToList()
             ));
 
-            var items = await _queryExecutor.ToListAsync(dtoQuery
-                .Take(request.PageSize + 1), cancellationToken);
+            var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var hasNext = items.Count > request.PageSize;
-            if (hasNext) items.RemoveAt(request.PageSize);
-
-            var result = new ProductCursorPagedResult
+            var result = new ProductOffsetPagedResult
             {
                 Items = items,
-                HasNext = hasNext,
-                HasPrevious = request.IsPrevious,
-                FirstCreatedAt = items.FirstOrDefault()?.CreatedAt,
-                FirstId = items.FirstOrDefault()?.Id,
-                LastCreatedAt = items.LastOrDefault()?.CreatedAt,
-                LastId = items.LastOrDefault()?.Id
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = totalCount
             };
 
-            return Result<ProductCursorPagedResult>.Success(result);
+            return Result<ProductOffsetPagedResult>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<ProductCursorPagedResult>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
+            return Result<ProductOffsetPagedResult>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
         }
     }
 }

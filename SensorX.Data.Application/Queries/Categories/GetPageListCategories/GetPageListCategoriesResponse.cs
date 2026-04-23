@@ -1,4 +1,4 @@
-using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 
 namespace SensorX.Data.Application.Queries.Categories.GetPageListCategories;
 
@@ -10,4 +10,4 @@ public record GetPageListCategoriesResponse(
     DateTimeOffset CreatedAt
 );
 
-public class CategoryCursorPagedResult : CursorPagedResult<GetPageListCategoriesResponse> { }
+public class CategoryOffsetPagedResult : OffsetPagedResult<GetPageListCategoriesResponse> { }

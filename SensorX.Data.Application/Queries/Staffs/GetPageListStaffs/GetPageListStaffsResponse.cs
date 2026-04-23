@@ -1,4 +1,4 @@
-using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 
 namespace SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 
@@ -14,4 +14,4 @@ public class GetPageListStaffsResponse
     public DateTimeOffset CreatedAt { get; set; }
 }
 
-public class StaffCursorPagedResult : CursorPagedResult<GetPageListStaffsResponse> { }
+public class StaffOffsetPagedResult : OffsetPagedResult<GetPageListStaffsResponse> { }

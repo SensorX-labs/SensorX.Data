@@ -30,7 +30,7 @@ namespace SensorX.Data.WebApi.API
         }
 
         private static async
-            Task<Results<Ok<Result<CustomerCursorPagedResult>>, BadRequest<string>>>
+            Task<Results<Ok<Result<CustomerOffsetPagedResult>>, BadRequest<string>>>
             GetPageListCustomers(
                 [FromServices] IMediator mediator,
                 [AsParameters] GetPageListCustomersQuery query
