@@ -1,13 +1,15 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Data.Application.Commands.Products.CreateProductCommand;
-using SensorX.Data.Application.Commands.Products.DeleteProductCommand;
+using SensorX.Data.Application.Commands.Products.ChangeProductStatus;
+using SensorX.Data.Application.Commands.Products.CreateProduct;
+using SensorX.Data.Application.Commands.Products.DeleteProduct;
+using SensorX.Data.Application.Commands.Products.UpdateProduct;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 
-namespace SensorX.Data.WebApi.API;
+namespace SensorX.Data.WebApi.API.ProductApi;
 
 public static class ProductApi
 {
@@ -20,29 +22,28 @@ public static class ProductApi
             .WithSummary("Get page list products")
             .WithDescription("""
                 - SearchTerm: Filter by name/description
-                - PageSize: Number of items per page
-                - LastCreatedAt + LastId: Next page cursor
-                - FirstCreatedAt + FirstId: Previous page cursor
-                - IsPrevious: if your previous page is null, set this to false
+                - PageNumber: The page number to retrieve (default: 1)
+                - PageSize: Number of items per page (default: 10)
                 """);
 
         api.MapPost("/products/create", CreateProduct)
             .WithOpenApi()
             .WithSummary("Create product")
             .WithDescription("""
-                - Name: Product name (must be unique)
-                - Description: Optional description
-                - Price: Product price
-                - UnitOfMeasure: Product unit of measure
-                - ImageUrl: Optional product image URL
-                - CreatedBy: Product creator
+                - Name: Product name
+                - Manufacture: Product manufacturer
+                - CategoryId: Category unique identifier
+                - Unit: Unit of measure (e.g., Kg, Pcs)
+                - Showcase: Optional showcase link or name
+                - ImageUrls: Optional list of image URLs
+                - Attributes: Optional list of product attributes
                 """);
 
         api.MapPost("/products/delete/{id:guid}", DeleteProduct)
             .WithOpenApi()
             .WithSummary("Delete product")
             .WithDescription("""
-                - Id: Product ID
+                - Id: Product ID from route to delete
                 """);
 
         api.MapPost("/products/pricing-policy/batch", GetProductPricingPolicy)
@@ -50,6 +51,28 @@ public static class ProductApi
             .WithSummary("Get product pricing policy")
             .WithDescription("""
                 - ProductIds: List of product IDs
+                """);
+
+        api.MapPut("/products/{id:guid}", UpdateProduct)
+            .WithOpenApi()
+            .WithSummary("Update product")
+            .WithDescription("""
+                - Id: Product ID from route
+                - Name: New product name
+                - Manufacture: New manufacturer
+                - CategoryId: New category ID
+                - Unit: New unit of measure
+                - Showcase: Optional new showcase info
+                - ImageUrls: Optional new image list
+                - Attributes: Optional new attribute list
+                """);
+
+        api.MapPatch("/products/{id:guid}/status", ChangeProductStatus)
+            .WithOpenApi()
+            .WithSummary("Change product status")
+            .WithDescription("""
+                - Id: Product ID from route
+                - Status: New status (0: Active, 1: Inactive)
                 """);
 
         return api;
@@ -89,19 +112,37 @@ public static class ProductApi
             : TypedResults.NotFound(result.Message ?? "Product not found");
     }
     private static async Task<Results<Ok<Result<List<GetProductPricingPolicyResponse>>>, BadRequest<string>>> GetProductPricingPolicy(
-        [FromBody] GetProductPricingPolicyRequest request,
+        [FromBody] GetProductPricingPolicyQuery query,
         [FromServices] IMediator mediator
     )
     {
-        var query = new GetProductPricingPolicyQuery(request.ProductIds);
         var result = await mediator.Send(query);
         return result.IsSuccess
             ? TypedResults.Ok(result)
             : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy chính sách định giá");
     }
-}
-
-public class GetProductPricingPolicyRequest
-{
-    public List<Guid> ProductIds { get; set; } = [];
+    private static async Task<Results<Ok<Result>, NotFound<string>>> UpdateProduct(
+        [FromRoute] Guid id,
+        [FromBody] UpdateProductCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        command = command with { Id = id };
+        Result result = await mediator.Send(command);
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
+            : TypedResults.NotFound(result.Message ?? "Product not found");
+    }
+    private static async Task<Results<Ok<Result>, NotFound<string>>> ChangeProductStatus(
+        [FromRoute] Guid id,
+        [FromBody] ChangeProductStatusCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        command = command with { Id = id };
+        Result result = await mediator.Send(command);
+        return result.IsSuccess
+            ? TypedResults.Ok(result)
+            : TypedResults.NotFound(result.Message ?? "Product not found");
+    }
 }

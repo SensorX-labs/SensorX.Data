@@ -6,7 +6,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.ValueObjects;
 
-namespace SensorX.Data.Application.Commands.Products.CreateProductCommand;
+namespace SensorX.Data.Application.Commands.Products.CreateProduct;
 
 public class CreateProductHandler(
     IRepository<Product> _productRepository,
@@ -27,7 +27,7 @@ public class CreateProductHandler(
             request.Name.Trim(),
             request.Manufacture.Trim(),
             categoryId,
-            request.Status,
+            ProductStatus.Active,
             request.Unit.Trim()
         );
         product.SetShowcase(request.Showcase);

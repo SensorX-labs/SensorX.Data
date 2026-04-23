@@ -1,14 +1,12 @@
 using MediatR;
 using SensorX.Data.Application.Common.ResponseClient;
-using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
-namespace SensorX.Data.Application.Commands.Products.CreateProductCommand;
+namespace SensorX.Data.Application.Commands.Products.CreateProduct;
 
 public record CreateProductCommand(
     string Name,
     string Manufacture,
     Guid CategoryId,
     string Unit,
-    ProductStatus Status = ProductStatus.Active,
     string? Showcase = null,
     List<string>? ImageUrls = null,
     List<ProductAttributeRequest>? Attributes = null

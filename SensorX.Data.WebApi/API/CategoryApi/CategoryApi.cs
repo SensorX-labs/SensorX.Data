@@ -7,7 +7,7 @@ using SensorX.Data.Application.Commands.Categories.SetParentCategory;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Categories.GetPageListCategories;
 
-namespace SensorX.Data.WebApi.API;
+namespace SensorX.Data.WebApi.API.CategoryApi;
 
 public static class CategoryApi
 {
@@ -40,10 +40,8 @@ public static class CategoryApi
             .WithSummary("Get page list categories")
             .WithDescription("""
                 - SearchTerm: Filter by name/description
-                - PageSize: Number of items per page
-                - LastCreatedAt + LastId: Next page cursor
-                - FirstCreatedAt + FirstId: Previous page cursor
-                - IsPrevious: if your previous page is null, set this to false
+                - PageNumber: The page number to retrieve (default: 1)
+                - PageSize: Number of items per page (default: 10)
                 """);
 
         return api;

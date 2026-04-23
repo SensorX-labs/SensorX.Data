@@ -4,7 +4,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 using SensorX.Data.Domain.SeedWork;
 
-namespace SensorX.Data.Application.Commands.Products.DeleteProductCommand;
+namespace SensorX.Data.Application.Commands.Products.DeleteProduct;
 
 public class DeleteProductHandler(
     IRepository<Product> _productRepository
@@ -18,6 +18,6 @@ public class DeleteProductHandler(
             return Result.Failure("Không tìm thấy sản phẩm");
 
         await _productRepository.DeleteAsync(product, cancellationToken);
-        return Result.Success();
+        return Result.Success("Xóa sản phẩm thành công");
     }
 }

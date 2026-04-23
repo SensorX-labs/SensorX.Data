@@ -6,7 +6,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 
 
-namespace SensorX.Data.WebApi.API;
+namespace SensorX.Data.WebApi.API.InternalPriceApi;
 
 public static class InternalPriceApi
 {
