@@ -30,6 +30,7 @@ public class GetPageListCategoriesHandler(
             x.Name,
             x.Description,
             x.ParentId == null ? null : x.ParentId.Value,
+            x.Parent != null ? x.Parent.Name : null,
             x.CreatedAt
         ));
 

@@ -1,11 +1,12 @@
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Categories.CreateCategory;
 using SensorX.Data.Application.Commands.Categories.DeleteCategory;
 using SensorX.Data.Application.Commands.Categories.SetParentCategory;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Queries.Categories.GetAllCategories;
 using SensorX.Data.Application.Queries.Categories.GetPageListCategories;
+using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -44,21 +45,23 @@ public static class CategoryApi
                 - PageSize: Number of items per page (default: 10)
                 """);
 
+        api.MapGet("/categories/list-all", GetAllCategories)
+            .WithOpenApi()
+            .WithSummary("Get all categories without pagination");
+
         return api;
     }
 
-    private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateCategory(
+    private static async Task<IResult> CreateCategory(
         [FromBody] CreateCategoryCommand command,
         [FromServices] IMediator mediator
     )
     {
         Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Unknown error");
+        return result.ToResult();
     }
 
-    private static async Task<Results<Ok<Result>, BadRequest<string>>> SetParent(
+    private static async Task<IResult> SetParent(
         [FromRoute] Guid id,
         [FromBody] SetParentCategoryCommand command,
         [FromServices] IMediator mediator
@@ -66,30 +69,32 @@ public static class CategoryApi
     {
         command = command with { Id = id };
         Result result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Unknown error");
+        return result.ToResult();
     }
 
-    private static async Task<Results<Ok<Result>, BadRequest<string>>> DeleteCategory(
+    private static async Task<IResult> DeleteCategory(
         [FromRoute] Guid id,
         [FromServices] IMediator mediator
     )
     {
         Result result = await mediator.Send(new DeleteCategoryCommand(id));
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Unknown error");
+        return result.ToResult();
     }
 
-    private static async Task<Results<Ok<Result<CategoryOffsetPagedResult>>, BadRequest<string>>> GetPageListCategories(
+    private static async Task<IResult> GetPageListCategories(
         [AsParameters] GetPageListCategoriesQuery query,
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(query);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Unknown error");
+        Result<CategoryOffsetPagedResult> result = await mediator.Send(query);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetAllCategories(
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<List<GetAllCategoriesResponse>> result = await mediator.Send(new GetAllCategoriesQuery());
+        return result.ToResult();
     }
 }

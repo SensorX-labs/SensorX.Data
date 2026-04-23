@@ -1,10 +1,8 @@
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
-using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
-
+using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -19,26 +17,21 @@ public static class InternalPriceApi
         return api;
     }
 
-    public static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateInternalPrice(
+    public static async Task<IResult> CreateInternalPrice(
         [FromBody] CreateInternalPriceCommand command,
         [FromServices] IMediator mediator
     )
     {
-        Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Unknown error");
+        var result = await mediator.Send(command);
+        return result.ToResult();
     }
 
-    private static async Task<Results<Ok<Result<GetInternalPricesByProductIdResponse>>, BadRequest<string>>> GetInternalPricesByProductId(
+    private static async Task<IResult> GetInternalPricesByProductId(
         [FromRoute] Guid productId,
         [FromServices] IMediator mediator
     )
     {
-        var query = new GetInternalPricesByProductIdQuery(productId);
-        Result<GetInternalPricesByProductIdResponse> result = await mediator.Send(query);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Unknown error");
+        var result = await mediator.Send(new GetInternalPricesByProductIdQuery(productId));
+        return result.ToResult();
     }
 }

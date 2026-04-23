@@ -1,13 +1,12 @@
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Products.ChangeProductStatus;
 using SensorX.Data.Application.Commands.Products.CreateProduct;
 using SensorX.Data.Application.Commands.Products.DeleteProduct;
 using SensorX.Data.Application.Commands.Products.UpdateProduct;
-using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
+using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -78,71 +77,61 @@ public static class ProductApi
         return api;
     }
 
-    private static async Task<Results<Ok<Result<ProductOffsetPagedResult>>, BadRequest<string>>> GetPageListProducts(
+    private static async Task<IResult> GetPageListProducts(
         [FromServices] IMediator mediator,
         [AsParameters] GetPageListProductsQuery query
     )
     {
         var result = await mediator.Send(query);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy danh sách sản phẩm");
+        return result.ToResult();
     }
 
-    private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateProduct(
+    private static async Task<IResult> CreateProduct(
         [FromBody] CreateProductCommand command,
         [FromServices] IMediator mediator
     )
     {
-        Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Unknown error");
+        var result = await mediator.Send(command);
+        return result.ToResult();
     }
 
-    private static async Task<Results<Ok<Result>, NotFound<string>>> DeleteProduct(
+    private static async Task<IResult> DeleteProduct(
         [FromRoute] Guid id,
         [FromServices] IMediator mediator
     )
     {
-        var command = new DeleteProductCommand(id);
-        Result result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.NotFound(result.Message ?? "Product not found");
+        var result = await mediator.Send(new DeleteProductCommand(id));
+        return result.ToResult();
     }
-    private static async Task<Results<Ok<Result<List<GetProductPricingPolicyResponse>>>, BadRequest<string>>> GetProductPricingPolicy(
+
+    private static async Task<IResult> GetProductPricingPolicy(
         [FromBody] GetProductPricingPolicyQuery query,
         [FromServices] IMediator mediator
     )
     {
         var result = await mediator.Send(query);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy chính sách định giá");
+        return result.ToResult();
     }
-    private static async Task<Results<Ok<Result>, NotFound<string>>> UpdateProduct(
+
+    private static async Task<IResult> UpdateProduct(
         [FromRoute] Guid id,
         [FromBody] UpdateProductCommand command,
         [FromServices] IMediator mediator
     )
     {
         command = command with { Id = id };
-        Result result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.NotFound(result.Message ?? "Product not found");
+        var result = await mediator.Send(command);
+        return result.ToResult();
     }
-    private static async Task<Results<Ok<Result>, NotFound<string>>> ChangeProductStatus(
+
+    private static async Task<IResult> ChangeProductStatus(
         [FromRoute] Guid id,
         [FromBody] ChangeProductStatusCommand command,
         [FromServices] IMediator mediator
     )
     {
         command = command with { Id = id };
-        Result result = await mediator.Send(command);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.NotFound(result.Message ?? "Product not found");
+        var result = await mediator.Send(command);
+        return result.ToResult();
     }
 }

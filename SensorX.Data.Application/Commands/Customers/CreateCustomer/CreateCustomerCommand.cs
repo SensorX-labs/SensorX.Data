@@ -1,7 +1,7 @@
 using MediatR;
 using SensorX.Data.Application.Common.ResponseClient;
 
-namespace SensorX.Data.Application.Commands;
+namespace SensorX.Data.Application.Commands.Customers.CreateCustomer;
 
 public sealed record CreateCustomerCommand(
     Guid AccountId,

@@ -7,6 +7,7 @@ public sealed record GetPageListCategoriesResponse(
     string Name,
     string Description,
     Guid? ParentId,
+    string? ParentName,
     DateTimeOffset CreatedAt
 );
 

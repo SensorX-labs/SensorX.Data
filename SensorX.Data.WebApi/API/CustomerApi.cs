@@ -1,10 +1,9 @@
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Data.Application.Commands;
-using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Commands.Customers.CreateCustomer;
 using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
+using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -20,37 +19,30 @@ public static class CustomerApi
         return api;
     }
 
-    private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> CreateCustomer(
+    private static async Task<IResult> CreateCustomer(
         [FromBody] CreateCustomerCommand command,
         [FromServices] IMediator mediator
     )
     {
-        Result<Guid> result = await mediator.Send(command);
-        return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
+        var result = await mediator.Send(command);
+        return result.ToResult();
     }
 
-    private static async
-        Task<Results<Ok<Result<CustomerOffsetPagedResult>>, BadRequest<string>>>
-        GetPageListCustomers(
-            [FromServices] IMediator mediator,
-            [AsParameters] GetPageListCustomersQuery query
+    private static async Task<IResult> GetPageListCustomers(
+        [AsParameters] GetPageListCustomersQuery query,
+        [FromServices] IMediator mediator
     )
     {
         var result = await mediator.Send(query);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy danh sách khách hàng");
+        return result.ToResult();
     }
 
-    private static async Task<Results<Ok<Result<GetCustomerBuyingHistoryResponse>>, BadRequest<string>>> GetCustomerBuyingHistory(
+    private static async Task<IResult> GetCustomerBuyingHistory(
         [FromRoute] Guid customerId,
         [FromServices] IMediator mediator
     )
     {
-        var query = new GetCustomerBuyingHistoryQuery(customerId);
-        var result = await mediator.Send(query);
-        return result.IsSuccess
-            ? TypedResults.Ok(result)
-            : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy lịch sử mua hàng");
+        var result = await mediator.Send(new GetCustomerBuyingHistoryQuery(customerId));
+        return result.ToResult();
     }
 }

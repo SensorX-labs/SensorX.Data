@@ -7,23 +7,49 @@ using SensorX.Data.Domain.SeedWork;
 namespace SensorX.Data.Application.Commands.Categories.SetParentCategory;
 
 public class SetParentCategoryHandler(
-    IRepository<Category> _categoryRepository
+    IRepository<Category> _categoryRepository,
+    IQueryBuilder<Category> _categoryQueryBuilder,
+    IQueryExecutor _queryExecutor
 ) : IRequestHandler<SetParentCategoryCommand, Result>
 {
     public async Task<Result> Handle(SetParentCategoryCommand request, CancellationToken cancellationToken)
     {
-        // Kiểm tra danh mục tồn tại
         var id = new CategoryId(request.Id);
         var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
         if (category is null)
             return Result.Failure("Không tìm thấy danh mục sản phẩm");
 
-        // Set parent nếu có
         Category? parent = null;
+
         if (request.ParentId.HasValue)
         {
-            var parentId = new CategoryId(request.ParentId.Value);
-            parent = await _categoryRepository.GetByIdAsync(parentId, cancellationToken);
+            var newParentId = new CategoryId(request.ParentId.Value);
+
+            if (newParentId == id)
+                return Result.Failure("Danh mục cha không thể là chính nó.");
+
+            var query = _categoryQueryBuilder.QueryAsNoTracking.Select(x => new { x.Id, x.ParentId });
+            var categoryTree = await _queryExecutor.ToListAsync(query, cancellationToken);
+            var parentMap = categoryTree.ToDictionary(x => x.Id, x => x.ParentId);
+
+            CategoryId? currentIdToCheck = newParentId;
+            while (currentIdToCheck != null)
+            {
+                if (parentMap.TryGetValue(currentIdToCheck, out var parentIdOfCurrent))
+                {
+                    if (parentIdOfCurrent == id)
+                    {
+                        return Result.Failure("Danh mục cha không thể là danh mục con của danh mục này.");
+                    }
+                    currentIdToCheck = parentIdOfCurrent;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            parent = await _categoryRepository.GetByIdAsync(newParentId, cancellationToken);
             if (parent is null)
                 return Result.Failure("Không tìm thấy danh mục cha");
         }
