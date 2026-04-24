@@ -18,6 +18,7 @@ namespace SensorX.Data.WebApi.API
             api.MapGet("/list", GetPageListCustomers).WithOpenApi();
             api.MapGet("/{customerId:guid}/buying-history", GetCustomerBuyingHistory).WithOpenApi();
             api.MapPut("", UpdateCustomer).WithOpenApi();
+            api.MapDelete("/{customerId:guid}", DeleteCustomer).WithOpenApi();
             return api;
         }
 
@@ -61,6 +62,16 @@ namespace SensorX.Data.WebApi.API
         )
         {
             Result<Guid> result = await mediator.Send(command);
+            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
+        }
+
+        private static async Task<Results<Ok<Result<bool>>, BadRequest<string>>> DeleteCustomer(
+            [FromRoute] Guid customerId,
+            [FromServices] IMediator mediator
+        )
+        {
+            var command = new SensorX.Data.Application.Commands.Customers.DeleteCustomer.DeleteCustomerCommand(customerId);
+            Result<bool> result = await mediator.Send(command);
             return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
         }
     }
