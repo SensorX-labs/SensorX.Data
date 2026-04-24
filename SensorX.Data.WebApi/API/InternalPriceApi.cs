@@ -16,14 +16,14 @@ public static class InternalPriceApi
     public static RouteGroupBuilder MapInternalPriceApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("catalog").WithTags("Internal Prices");
-        api.MapPost("/internalPrices", CreateInternalPrice)
+        api.MapPost("/internalPrices/create", CreateInternalPrice)
             .WithOpenApi()
-            .WithSummary("Create internal price policy")
+            .WithSummary("Create new internal price")
             .WithDescription("Creates a new internal price policy for a product, including suggested price, floor price, and tiered volume discounts.");
 
         api.MapGet("/internalPrices/product/{productId:guid}", GetInternalPricesByProductId)
             .WithOpenApi()
-            .WithSummary("Get internal prices by product")
+            .WithSummary("Get all internal prices for a product")
             .WithDescription("Retrieves all internal price policies associated with a specific product ID.");
 
         api.MapPatch("/internalPrices/{id:guid}/deactivate", DeactivateInternalPrice)

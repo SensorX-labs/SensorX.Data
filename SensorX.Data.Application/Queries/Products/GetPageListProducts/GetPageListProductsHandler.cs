@@ -55,8 +55,8 @@ public class GetPageListProductsHandler(
             var result = new ProductOffsetPagedResult
             {
                 Items = items,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
+                PageNumber = request.PageNumber ?? 1,
+                PageSize = request.PageSize ?? 10,
                 TotalCount = totalCount
             };
 

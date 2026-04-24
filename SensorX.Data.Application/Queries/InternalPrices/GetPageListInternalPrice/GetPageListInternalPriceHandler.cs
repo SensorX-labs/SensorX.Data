@@ -23,8 +23,10 @@ public sealed class GetPageListInternalPriceHandler(
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
-            query = query.Where(i => i.product.Name.Contains(request.SearchTerm));
-            query = query.Where(i => i.product.Code.Value.Contains(request.SearchTerm));
+            query = query.Where(i =>
+                i.product.Name.Contains(request.SearchTerm)
+                || ((string)i.product.Code).Contains(request.SearchTerm)
+            );
         }
 
         var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
@@ -58,8 +60,8 @@ public sealed class GetPageListInternalPriceHandler(
         var result = new InternalPriceOffsetPagedResult
         {
             Items = items,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize,
+            PageNumber = request.PageNumber ?? 1,
+            PageSize = request.PageSize ?? 10,
             TotalCount = totalCount
         };
 

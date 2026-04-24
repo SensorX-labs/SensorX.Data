@@ -43,8 +43,8 @@ public sealed class GetPageListCustomersHandler(
             var result = new CustomerOffsetPagedResult
             {
                 Items = items,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
+                PageNumber = request.PageNumber ?? 1,
+                PageSize = request.PageSize ?? 10,
                 TotalCount = totalCount
             };
 
