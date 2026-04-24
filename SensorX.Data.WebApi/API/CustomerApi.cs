@@ -17,6 +17,7 @@ namespace SensorX.Data.WebApi.API
             api.MapPost("/create", CreateCustomer).WithOpenApi();
             api.MapGet("/list", GetPageListCustomers).WithOpenApi();
             api.MapGet("/{customerId:guid}/buying-history", GetCustomerBuyingHistory).WithOpenApi();
+            api.MapPut("", UpdateCustomer).WithOpenApi();
             return api;
         }
 
@@ -52,6 +53,15 @@ namespace SensorX.Data.WebApi.API
             return result.IsSuccess
                 ? TypedResults.Ok(result)
                 : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy lịch sử mua hàng");
+        }
+
+        private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> UpdateCustomer(
+            [FromBody] SensorX.Data.Application.Commands.Customers.UpdateCustomer.UpdateCustomerCommand command,
+            [FromServices] IMediator mediator
+        )
+        {
+            Result<Guid> result = await mediator.Send(command);
+            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
         }
     }
 }

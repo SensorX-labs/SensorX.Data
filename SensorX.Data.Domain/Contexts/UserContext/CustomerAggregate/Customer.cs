@@ -48,5 +48,5 @@ public class Customer : User<CustomerId>
         Address = address;
     }
 
-    public void UpdateShippingInfo(ShippingInfo shippingInfo) => ShippingInfo = shippingInfo;
+    public void UpdateShippingInfo(ShippingInfo? shippingInfo) => ShippingInfo = shippingInfo;
 }
