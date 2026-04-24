@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands;
 using SensorX.Data.Application.Commands.Staffs.CreateStaff;
+using SensorX.Data.Application.Commands.Staffs.UpdateStaff;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
@@ -18,6 +19,7 @@ namespace SensorX.Data.WebApi.API
             api.MapPost("/create", CreateStaff).WithOpenApi();
             api.MapGet("/list", GetPageListStaffs).WithOpenApi();
             api.MapGet("/{staffId:guid}/metrics", GetEmployeeMetrics).WithOpenApi();
+            api.MapPut("", UpdateStaff).WithOpenApi();
             return api;
         }
 
@@ -54,5 +56,15 @@ namespace SensorX.Data.WebApi.API
                 ? TypedResults.Ok(result)
                 : TypedResults.BadRequest(result.Message ?? "Lỗi khi lấy chỉ số hiệu suất");
         }
+
+        private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> UpdateStaff(
+            [FromBody] UpdateStaffCommand command,
+            [FromServices] IMediator mediator
+        )
+        {
+            Result<Guid> result = await mediator.Send(command);
+            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
+        }
+
     }
 }
