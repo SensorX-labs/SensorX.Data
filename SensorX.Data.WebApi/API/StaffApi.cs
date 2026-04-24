@@ -20,6 +20,7 @@ namespace SensorX.Data.WebApi.API
             api.MapGet("/list", GetPageListStaffs).WithOpenApi();
             api.MapGet("/{staffId:guid}/metrics", GetEmployeeMetrics).WithOpenApi();
             api.MapPut("", UpdateStaff).WithOpenApi();
+            api.MapDelete("/{staffId:guid}", DeleteStaff).WithOpenApi();
             return api;
         }
 
@@ -66,5 +67,14 @@ namespace SensorX.Data.WebApi.API
             return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
         }
 
+        private static async Task<Results<Ok<Result<bool>>, BadRequest<string>>> DeleteStaff(
+            [FromRoute] Guid staffId,
+            [FromServices] IMediator mediator
+        )
+        {
+            var command = new SensorX.Data.Application.Commands.Staffs.DeleteStaff.DeleteStaffCommand(staffId);
+            Result<bool> result = await mediator.Send(command);
+            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
+        }
     }
 }
