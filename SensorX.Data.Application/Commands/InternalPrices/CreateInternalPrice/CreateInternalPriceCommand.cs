@@ -7,7 +7,9 @@ public sealed record CreateInternalPriceCommand(
     Guid ProductId,
     decimal SuggestedPrice,
     decimal FloorPrice,
-    List<PriceTierDto> PriceTiers
+    List<PriceTierDto> PriceTiers,
+    bool IsInfinite = false,
+    DateTimeOffset? ExpiresAt = null
 ) : IRequest<Result<Guid>>;
 
 public sealed record PriceTierDto(int Quantity, decimal Price);
