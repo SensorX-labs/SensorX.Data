@@ -1,6 +1,4 @@
-using SensorX.Data.WebApi.API;
-
-namespace SensorX.Data.WebApi;
+namespace SensorX.Data.WebApi.API;
 
 public static class Api
 {
