@@ -4,7 +4,9 @@ using SensorX.Data.Application.Commands.Products.ChangeProductStatus;
 using SensorX.Data.Application.Commands.Products.CreateProduct;
 using SensorX.Data.Application.Commands.Products.DeleteProduct;
 using SensorX.Data.Application.Commands.Products.UpdateProduct;
+using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
+using SensorX.Data.Application.Queries.Products.GetProductDetail;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 using SensorX.Data.WebApi.Extensions;
 
@@ -15,15 +17,6 @@ public static class ProductApi
     public static RouteGroupBuilder MapProductApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("catalog").WithTags("Products");
-
-        api.MapGet("/products/list", GetPageListProducts)
-            .WithOpenApi()
-            .WithSummary("Get page list products")
-            .WithDescription("""
-                - SearchTerm: Filter by name/description
-                - PageNumber: The page number to retrieve (default: 1)
-                - PageSize: Number of items per page (default: 10)
-                """);
 
         api.MapPost("/products/create", CreateProduct)
             .WithOpenApi()
@@ -43,13 +36,6 @@ public static class ProductApi
             .WithSummary("Delete product")
             .WithDescription("""
                 - Id: Product ID from route to delete
-                """);
-
-        api.MapPost("/products/pricing-policy/batch", GetProductPricingPolicy)
-            .WithOpenApi()
-            .WithSummary("Get product pricing policy")
-            .WithDescription("""
-                - ProductIds: List of product IDs
                 """);
 
         api.MapPut("/products/{id:guid}", UpdateProduct)
@@ -74,6 +60,26 @@ public static class ProductApi
                 - Status: New status (0: Active, 1: Inactive)
                 """);
 
+        api.MapGet("/products/list", GetPageListProducts)
+            .WithOpenApi()
+            .WithSummary("Get page list products")
+            .WithDescription("""
+                - SearchTerm: Filter by name/description
+                - PageNumber: The page number to retrieve (default: 1)
+                - PageSize: Number of items per page (default: 10)
+                """);
+
+        api.MapPost("/products/pricing-policy/batch", GetProductPricingPolicy)
+            .WithOpenApi()
+            .WithSummary("Get product pricing policy")
+            .WithDescription("""
+                - ProductIds: List of product IDs
+                """);
+
+        api.MapGet("/products/{id:guid}", GetProductDetail)
+            .WithOpenApi()
+            .WithSummary("Get product detail");
+
         return api;
     }
 
@@ -83,6 +89,15 @@ public static class ProductApi
     )
     {
         var result = await mediator.Send(query);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetProductDetail(
+        [FromRoute] Guid id,
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<GetProductDetailResponse> result = await mediator.Send(new GetProductDetailQuery(id));
         return result.ToResult();
     }
 

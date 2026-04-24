@@ -6,7 +6,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 
 namespace SensorX.Data.Application.Queries.Categories.GetPageListCategories;
 
-public class GetPageListCategoriesHandler(
+public sealed class GetPageListCategoriesHandler(
     IQueryBuilder<Category> categoryQueryBuilder,
     IQueryExecutor queryExecutor
 ) : IRequestHandler<GetPageListCategoriesQuery, Result<CategoryOffsetPagedResult>>

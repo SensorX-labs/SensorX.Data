@@ -7,7 +7,7 @@ using SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate;
 
 namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 
-public class GetPageListCustomersHandler(
+public sealed class GetPageListCustomersHandler(
     IQueryBuilder<Customer> _customerBuilder,
     IQueryExecutor _queryExecutor
 ) : IRequestHandler<GetPageListCustomersQuery, Result<CustomerOffsetPagedResult>>
@@ -19,7 +19,6 @@ public class GetPageListCustomersHandler(
         try
         {
             var sourceQuery = _customerBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
-
 
             var totalCount = await _queryExecutor.CountAsync(sourceQuery, cancellationToken);
 
