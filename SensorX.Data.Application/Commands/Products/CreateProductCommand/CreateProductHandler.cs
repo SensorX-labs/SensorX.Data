@@ -30,8 +30,7 @@ public class CreateProductHandler(
             request.Status,
             request.Unit.Trim()
         );
-
-        product.SetShowcase(new ProductShowcase(request.ShowcaseSummary ?? "", request.ShowcaseBody ?? ""));
+        product.SetShowcase(request.Showcase);
 
         foreach (var imageDto in request.ImageUrls)
         {

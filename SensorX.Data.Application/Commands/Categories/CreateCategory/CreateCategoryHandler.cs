@@ -33,6 +33,6 @@ public class CreateCategoryHandler(
         }
 
         await _categoryRepository.AddAsync(category, cancellationToken);
-        return Result<Guid>.Success(category.Id.Value);
+        return Result<Guid>.Success(category.Id.Value, "Tạo danh mục sản phẩm thành công.");
     }
 }
