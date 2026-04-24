@@ -4,7 +4,9 @@ using SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
 using SensorX.Data.Application.Commands.InternalPrices.DeactivateInternalPrice;
 using SensorX.Data.Application.Commands.InternalPrices.ExtendInternalPrice;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Queries.InternalPrices.GetHistoryPriceForProduct;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
+using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
@@ -33,6 +35,16 @@ public static class InternalPriceApi
             .WithOpenApi()
             .WithSummary("Extend internal price validity")
             .WithDescription("Extends the expiration date of an internal price policy by providing a new end date or a duration.");
+
+        api.MapGet("/internalPrices/list", GetPageListInternalPrice)
+            .WithOpenApi()
+            .WithSummary("Get paged list of internal prices")
+            .WithDescription("Retrieves a paged list of all internal price policies with search functionality.");
+
+        api.MapGet("/internalPrices/product/{productId:guid}/history", GetHistoryPriceForProduct)
+            .WithOpenApi()
+            .WithSummary("Get price history for a product")
+            .WithDescription("Retrieves a paged history of all price policies (active and expired) for a specific product.");
 
         return api;
     }
@@ -72,6 +84,24 @@ public static class InternalPriceApi
     {
         command = command with { Id = id };
         Result result = await mediator.Send(command);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetPageListInternalPrice(
+        [AsParameters] GetPageListInternalPriceQuery query,
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<InternalPriceOffsetPagedResult> result = await mediator.Send(query);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetHistoryPriceForProduct(
+        [FromRoute] Guid productId,
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<GetHistoryPriceForProductResponse> result = await mediator.Send(new GetHistoryPriceForProductQuery(productId));
         return result.ToResult();
     }
 }
