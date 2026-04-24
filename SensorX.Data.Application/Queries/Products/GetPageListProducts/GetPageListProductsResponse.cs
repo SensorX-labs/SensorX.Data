@@ -9,7 +9,6 @@ public sealed record GetPageListProductsResponse(
     string Name,
     string Manufacture,
     string CategoryName,
-    decimal Price,
     ProductStatus Status,
     DateTimeOffset CreatedAt,
     List<string> Images

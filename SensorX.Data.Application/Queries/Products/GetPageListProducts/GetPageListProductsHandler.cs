@@ -12,7 +12,6 @@ namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 public class GetPageListProductsHandler(
     IQueryBuilder<Product> _productBuilder,
     IQueryBuilder<Category> _categoryBuilder,
-    IQueryBuilder<InternalPrice> _internalPriceBuilder,
     IQueryExecutor _queryExecutor
 ) : IRequestHandler<GetPageListProductsQuery, Result<ProductOffsetPagedResult>>
 {
@@ -38,10 +37,7 @@ public class GetPageListProductsHandler(
                               join category in _categoryBuilder.QueryAsNoTracking
                                   on product.CategoryId equals category.Id into cs
                               from c in cs.DefaultIfEmpty()
-                              join internalPrice in _internalPriceBuilder.QueryAsNoTracking
-                                  on product.Id equals internalPrice.ProductId into ips
-                              from i in ips.DefaultIfEmpty()
-                              select new { product, category = c, internalPrice = i };
+                              select new { product, category = c };
 
             var dtoQuery = sourceQuery.Select(x => new GetPageListProductsResponse(
                 x.product.Id.Value,
@@ -49,7 +45,6 @@ public class GetPageListProductsHandler(
                 x.product.Name,
                 x.product.Manufacture,
                 x.category != null ? x.category.Name : "",
-                x.internalPrice != null ? x.internalPrice.SuggestedPrice.Amount : 0,
                 x.product.Status,
                 x.product.CreatedAt,
                 x.product.Images.Select(i => i.ImageUrl).ToList()
