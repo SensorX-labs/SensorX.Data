@@ -23,7 +23,21 @@ The project now supports two types of pagination in `SensorX.Data.Application.Co
 - `GetPageListStaffs`
 - `GetPageListCustomers`
 
+## Internal Price Management (Updated 2026-04-24)
+
+### Commands & API
+- **CreateInternalPrice**: Creates a new price policy. Supports "Infinite" (no expiry) or fixed duration.
+- **DeactivateInternalPrice**: `PATCH /api/catalog/internalPrices/{id}/deactivate`. Marks a price list as expired immediately.
+- **ExtendInternalPrice**: `PATCH /api/catalog/internalPrices/{id}/extend`. Allows extending the expiration date or adding a duration.
+
+### Validation Rules
+- `SuggestedPrice` (Price for Qty 1) must be greater than or equal to `FloorPrice`.
+- `PriceTiers` must have `Quantity > 1`.
+- Price must decrease as Quantity increases across tiers.
+- Only one active "Infinite" price list can exist per product at any time.
+
 ## Technical Patterns
 - Use `IQueryBuilder<T>` to build the base query.
 - Use `IQueryExecutor` for materialization (`ToListAsync`, `CountAsync`).
 - Always apply `OrderBy` before or as part of pagination logic to ensure deterministic results.
+- **REST Actions**: Use `PATCH` for specific state changes (Deactivate, Extend) to follow semantic REST practices.

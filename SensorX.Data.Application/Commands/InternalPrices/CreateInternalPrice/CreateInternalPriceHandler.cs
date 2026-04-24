@@ -10,7 +10,7 @@ using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
 
-public class CreateInternalPriceHandler(
+public sealed class CreateInternalPriceHandler(
     IRepository<InternalPrice> _internalPriceRepository,
     IRepository<Product> _productRepository
 ) : IRequestHandler<CreateInternalPriceCommand, Result<Guid>>
@@ -20,7 +20,7 @@ public class CreateInternalPriceHandler(
         var productId = new ProductId(request.ProductId);
         var product = await _productRepository.GetByIdAsync(productId, cancellationToken);
         if (product is null)
-            return Result<Guid>.Failure("Product not found.");
+            return Result<Guid>.Failure("Không tìm thấy sản phẩm.");
 
         // Check if there's already an active infinite price for this product
         if (request.IsInfinite)
@@ -30,12 +30,9 @@ public class CreateInternalPriceHandler(
 
             if (existingInfinitePrice != null)
             {
-                // If the existing one is already expired (though MaxValue usually isn't), we might allow it.
-                // But according to the rule: "trừ khi bảng giá đầu tiên bị đánh dấu hết hạn"
-                // Let's check if it's expired.
                 if (!existingInfinitePrice.IsExpired())
                 {
-                    return Result<Guid>.Failure("An active infinite price list already exists for this product. Please expire the existing one before creating a new infinite list.");
+                    return Result<Guid>.Failure("Đã tồn tại bảng giá vô hạn cho sản phẩm này. Vui lòng xử lý bảng giá hiện tại trước.");
                 }
             }
         }

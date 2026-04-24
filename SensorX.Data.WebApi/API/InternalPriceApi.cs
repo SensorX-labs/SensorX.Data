@@ -1,6 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
+using SensorX.Data.Application.Commands.InternalPrices.DeactivateInternalPrice;
+using SensorX.Data.Application.Commands.InternalPrices.ExtendInternalPrice;
+using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 using SensorX.Data.WebApi.Extensions;
 
@@ -11,8 +14,25 @@ public static class InternalPriceApi
     public static RouteGroupBuilder MapInternalPriceApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("catalog").WithTags("Internal Prices");
-        api.MapPost("/internalPrices", CreateInternalPrice).WithOpenApi();
-        api.MapGet("/internalPrices/product/{productId:guid}", GetInternalPricesByProductId).WithOpenApi();
+        api.MapPost("/internalPrices", CreateInternalPrice)
+            .WithOpenApi()
+            .WithSummary("Create internal price policy")
+            .WithDescription("Creates a new internal price policy for a product, including suggested price, floor price, and tiered volume discounts.");
+
+        api.MapGet("/internalPrices/product/{productId:guid}", GetInternalPricesByProductId)
+            .WithOpenApi()
+            .WithSummary("Get internal prices by product")
+            .WithDescription("Retrieves all internal price policies associated with a specific product ID.");
+
+        api.MapPatch("/internalPrices/{id:guid}/deactivate", DeactivateInternalPrice)
+            .WithOpenApi()
+            .WithSummary("Deactivate internal price")
+            .WithDescription("Immediately expires an active internal price policy by setting its expiration date to current time.");
+
+        api.MapPatch("/internalPrices/{id:guid}/extend", ExtendInternalPrice)
+            .WithOpenApi()
+            .WithSummary("Extend internal price validity")
+            .WithDescription("Extends the expiration date of an internal price policy by providing a new end date or a duration.");
 
         return api;
     }
@@ -22,7 +42,7 @@ public static class InternalPriceApi
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(command);
+        Result<Guid> result = await mediator.Send(command);
         return result.ToResult();
     }
 
@@ -31,7 +51,27 @@ public static class InternalPriceApi
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(new GetInternalPricesByProductIdQuery(productId));
+        Result<GetInternalPricesByProductIdResponse> result = await mediator.Send(new GetInternalPricesByProductIdQuery(productId));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> DeactivateInternalPrice(
+        [FromRoute] Guid id,
+        [FromServices] IMediator mediator
+    )
+    {
+        Result result = await mediator.Send(new DeactivateInternalPriceCommand(id));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> ExtendInternalPrice(
+        [FromRoute] Guid id,
+        [FromBody] ExtendInternalPriceCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        command = command with { Id = id };
+        Result result = await mediator.Send(command);
         return result.ToResult();
     }
 }
