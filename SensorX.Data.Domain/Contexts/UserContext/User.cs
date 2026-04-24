@@ -7,7 +7,7 @@ namespace SensorX.Data.Domain.Contexts.UserContext;
 
 public abstract class User<UserId> : Entity<UserId>, IAggregateRoot, ICreationTrackable, IUpdateTrackable where UserId : VoId
 {
-    protected User(UserId id, AccountId accountId, Code code, string name, Phone phone, Email email) : base(id)
+    protected User(UserId id, AccountId accountId, Code code, string name, Phone? phone, Email email) : base(id)
     {
         AccountId = accountId;
         Code = code;
@@ -24,14 +24,14 @@ public abstract class User<UserId> : Entity<UserId>, IAggregateRoot, ICreationTr
     public AccountId AccountId { get; private set; }
     public Code Code { get; private set; }
     public string Name { get; private set; }
-    public Phone Phone { get; private set; }
+    public Phone? Phone { get; private set; }
     public Email Email { get; private set; }
     public string AvatarUrl { get; private set; } = string.Empty;
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
 
-    protected void UpdateProfile(string name, Phone phone, Email email)
+    protected void UpdateProfile(string name, Phone? phone, Email email)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Tên không được để trống.");

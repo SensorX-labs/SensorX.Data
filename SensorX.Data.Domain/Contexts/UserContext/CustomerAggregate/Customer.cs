@@ -11,36 +11,38 @@ public class Customer : User<CustomerId>
         AccountId accountId,
         Code code,
         string name,
-        Phone phone,
+        Phone? phone,
         Email email,
-        string taxCode,
-        string address
+        string? taxCode,
+        string? address
     ) : base(id, accountId, code, name, phone, email)
     {
-        if (string.IsNullOrWhiteSpace(taxCode))
-            throw new DomainException("Mã số thuế không được để trống.");
-        if (string.IsNullOrWhiteSpace(address))
-            throw new DomainException("Địa chỉ không được để trống.");
+        // Bỏ validate null cho phép trống
+        // if (string.IsNullOrWhiteSpace(taxCode))
+        //     throw new DomainException("Mã số thuế không được để trống.");
+        // if (string.IsNullOrWhiteSpace(address))
+        //     throw new DomainException("Địa chỉ không được để trống.");
         TaxCode = taxCode;
         Address = address;
     }
 
-    public string TaxCode { get; private set; }
-    public string Address { get; private set; }
+    public string? TaxCode { get; private set; }
+    public string? Address { get; private set; }
     public ShippingInfo? ShippingInfo { get; private set; }
 
     public void UpdateProfile(
         string name,
-        Phone phone,
+        Phone? phone,
         Email email,
-        string taxCode,
-        string address
+        string? taxCode,
+        string? address
     )
     {
-        if (string.IsNullOrWhiteSpace(taxCode))
-            throw new DomainException("Mã số thuế không được để trống.");
-        if (string.IsNullOrWhiteSpace(address))
-            throw new DomainException("Địa chỉ không được để trống.");
+        // Bỏ validate null
+        // if (string.IsNullOrWhiteSpace(taxCode))
+        //     throw new DomainException("Mã số thuế không được để trống.");
+        // if (string.IsNullOrWhiteSpace(address))
+        //     throw new DomainException("Địa chỉ không được để trống.");
         base.UpdateProfile(name, phone, email);
         TaxCode = taxCode;
         Address = address;
