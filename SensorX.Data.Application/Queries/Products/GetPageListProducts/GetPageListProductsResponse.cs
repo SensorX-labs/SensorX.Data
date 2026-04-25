@@ -11,7 +11,8 @@ public sealed record GetPageListProductsResponse(
     string CategoryName,
     ProductStatus Status,
     DateTimeOffset CreatedAt,
-    List<string> Images
+    List<string> Images,
+    string Unit
 );
 
 public sealed class ProductOffsetPagedResult : OffsetPagedResult<GetPageListProductsResponse> { }
