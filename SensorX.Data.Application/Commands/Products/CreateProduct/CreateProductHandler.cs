@@ -6,7 +6,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.ValueObjects;
 
-namespace SensorX.Data.Application.Commands.Products.CreateProductCommand;
+namespace SensorX.Data.Application.Commands.Products.CreateProduct;
 
 public class CreateProductHandler(
     IRepository<Product> _productRepository,
@@ -27,20 +27,25 @@ public class CreateProductHandler(
             request.Name.Trim(),
             request.Manufacture.Trim(),
             categoryId,
-            request.Status,
+            ProductStatus.Active,
             request.Unit.Trim()
         );
+        product.SetShowcase(request.Showcase);
 
-        product.SetShowcase(new ProductShowcase(request.ShowcaseSummary ?? "", request.ShowcaseBody ?? ""));
-
-        foreach (var imageDto in request.ImageUrls)
+        if (request.ImageUrls != null)
         {
-            product.AddImage(new ProductImage(imageDto));
+            foreach (var imageDto in request.ImageUrls)
+            {
+                product.AddImage(new ProductImage(imageDto));
+            }
         }
 
-        foreach (var attrDto in request.Attributes)
+        if (request.Attributes != null)
         {
-            product.AddProductAttribute(new ProductAttribute(attrDto.AttributeName, attrDto.AttributeValue));
+            foreach (var attrDto in request.Attributes)
+            {
+                product.AddProductAttribute(new ProductAttribute(attrDto.AttributeName, attrDto.AttributeValue));
+            }
         }
 
         await _productRepository.AddAsync(product, cancellationToken);

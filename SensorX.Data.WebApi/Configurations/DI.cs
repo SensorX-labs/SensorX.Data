@@ -6,7 +6,9 @@ namespace SensorX.Data.WebApi.Configurations
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Register your services here
+            // Register Exception Handler
+            services.AddExceptionHandler<GlobalExceptionHandler>();
+            services.AddProblemDetails();
 
             // MediatR - scan từ Assembly Application
             services.AddMediatR(cfg =>

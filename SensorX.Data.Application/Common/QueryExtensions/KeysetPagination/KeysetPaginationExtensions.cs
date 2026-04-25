@@ -1,18 +1,18 @@
 using System.Linq.Expressions;
 
-namespace SensorX.Data.Application.Common.Pagination;
+namespace SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
 
-public static class CursorPaginationExtensions
+public static class KeysetPaginationExtensions
 {
     /// <summary>
-    /// Apply cursor-based pagination (keyset pagination).
+    /// Apply keyset-based pagination.
     /// Uses CreatedAt + Id as composite cursor.
     ///
     /// Usage:
     /// var query = dbContext.Products.AsQueryable();
     ///
     /// query = query
-    ///     .ApplyCursorPagination(
+    ///     .ApplyKeysetPagination(
     ///         request,
     ///         p => p.CreatedAt,
     ///         p => p.Id)
@@ -26,9 +26,9 @@ public static class CursorPaginationExtensions
     /// - Use CreatedAt + Id to avoid duplicate records
     /// - Take(PageSize + 1) to determine HasNext
     /// </summary>
-    public static IQueryable<T> ApplyCursorPagination<T, TId>(
+    public static IQueryable<T> ApplyKeysetPagination<T, TId>(
         this IQueryable<T> query,
-        CursorPagedQuery request,
+        KeysetPagedQuery request,
         Expression<Func<T, DateTimeOffset>> createdAtSelector,
         Expression<Func<T, TId>> idSelector)
     {
@@ -68,7 +68,7 @@ public static class CursorPaginationExtensions
             return query.Where(predicate);
         }
 
-        // First page (no cursor)
+        // First page (no keyset)
         return query;
     }
 

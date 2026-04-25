@@ -3,13 +3,13 @@ using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
 
-public record CreateInternalPriceCommand(
+public sealed record CreateInternalPriceCommand(
     Guid ProductId,
     decimal SuggestedPrice,
     decimal FloorPrice,
-    List<PriceTierDto> PriceTiers
-) : IRequest<Result<Guid>>
-{
-    public List<PriceTierDto> PriceTiers { get; init; } = PriceTiers ?? [];
-}
-public record PriceTierDto(int Quantity, decimal Price);
+    List<PriceTierDto> PriceTiers,
+    bool IsInfinite = false,
+    DateTimeOffset? ExpiresAt = null
+) : IRequest<Result<Guid>>;
+
+public sealed record PriceTierDto(int Quantity, decimal Price);

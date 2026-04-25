@@ -224,6 +224,9 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
@@ -256,6 +259,9 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Showcase")
                         .HasColumnType("text");
 
                     b.Property<int>("Status")
@@ -601,34 +607,9 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
-                    b.OwnsOne("SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate.ProductShowcase", "Showcase", b1 =>
-                        {
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<string>("Body")
-                                .IsRequired()
-                                .HasMaxLength(4000)
-                                .HasColumnType("character varying(4000)");
-
-                            b1.Property<string>("Summary")
-                                .IsRequired()
-                                .HasMaxLength(255)
-                                .HasColumnType("character varying(255)");
-
-                            b1.HasKey("ProductId");
-
-                            b1.ToTable("Products");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
-                        });
-
                     b.Navigation("Attributes");
 
                     b.Navigation("Images");
-
-                    b.Navigation("Showcase");
                 });
 
             modelBuilder.Entity("SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate.Customer", b =>

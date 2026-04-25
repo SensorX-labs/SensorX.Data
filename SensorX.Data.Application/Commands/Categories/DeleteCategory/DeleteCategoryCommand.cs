@@ -1,9 +1,7 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Commands.Categories.DeleteCategory;
 
-public class DeleteCategoryCommand : IRequest<Result<Guid>>
-{
-    public Guid Id { get; set; }
-}
+public sealed record DeleteCategoryCommand([property: JsonIgnore] Guid Id) : IRequest<Result>;
