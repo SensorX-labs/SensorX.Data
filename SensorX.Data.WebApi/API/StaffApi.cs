@@ -47,24 +47,24 @@ public static class StaffApi
     {
         var result = await mediator.Send(new GetStaffMetricsQuery(staffId));
         return result.ToResult();
+    }
 
-        private static async Task<Results<Ok<Result<Guid>>, BadRequest<string>>> UpdateStaff(
-            [FromBody] UpdateStaffCommand command,
-            [FromServices] IMediator mediator
-        )
-        {
-            Result<Guid> result = await mediator.Send(command);
-            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
-        }
+    private static async Task<IResult> UpdateStaff(
+        [FromBody] UpdateStaffCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(command);
+        return result.ToResult();
+    }
 
-        private static async Task<Results<Ok<Result<bool>>, BadRequest<string>>> DeleteStaff(
-            [FromRoute] Guid staffId,
-            [FromServices] IMediator mediator
-        )
-        {
-            var command = new SensorX.Data.Application.Commands.Staffs.DeleteStaff.DeleteStaffCommand(staffId);
-            Result<bool> result = await mediator.Send(command);
-            return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result.Message);
-        }
+    private static async Task<IResult> DeleteStaff(
+        [FromRoute] Guid staffId,
+        [FromServices] IMediator mediator
+    )
+    {
+        var command = new SensorX.Data.Application.Commands.Staffs.DeleteStaff.DeleteStaffCommand(staffId);
+        var result = await mediator.Send(command);
+        return result.ToResult();
     }
 }
