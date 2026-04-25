@@ -28,6 +28,23 @@ public sealed class GetPageListInternalPriceHandler(
                 || ((string)i.product.Code).Contains(request.SearchTerm)
             );
         }
+        if (request.Status.HasValue)
+        {
+            var now = DateTimeOffset.UtcNow;
+            query = request.Status.Value switch
+            {
+                InternalPriceStatus.Expired =>
+                    query.Where(i => i.internalPrice.ExpiresAt <= now),
+
+                InternalPriceStatus.ExpiringSoon =>
+                    query.Where(i => i.internalPrice.ExpiresAt <= now.AddDays(7) && i.internalPrice.ExpiresAt > now),
+
+                InternalPriceStatus.Active =>
+                    query.Where(i => i.internalPrice.ExpiresAt > now),
+
+                _ => query
+            };
+        }
         var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
         var pagedQuery = query
