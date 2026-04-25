@@ -27,7 +27,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 LogLevel.Warning),
             _ => (
                 StatusCodes.Status500InternalServerError,
-                "Đã có lỗi hệ thống xảy ra. Vui lòng thử lại sau.",
+                exception.Message,
                 LogLevel.Error),
         };
 

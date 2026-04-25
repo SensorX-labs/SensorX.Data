@@ -23,7 +23,7 @@ public sealed class LoadMoreProductsHandler(
 
         // Apply ordering and pagination
         var pagedProductBaseQuery = productQuery
-            .ApplyKeysetPagination(request, x => x.CreatedAt, x => x.Id)
+            .ApplyKeysetPagination(request, x => x.CreatedAt, x => (Guid)x.Id)
             .OrderByDescending(x => x.CreatedAt)
             .ThenByDescending(x => x.Id);
 
@@ -44,10 +44,10 @@ public sealed class LoadMoreProductsHandler(
             x.product.Images.Select(i => i.ImageUrl).ToList()
         ));
 
-        var items = await _queryExecutor.ToListAsync(dtoQuery.Take(request.PageSize + 1), cancellationToken);
+        var items = await _queryExecutor.ToListAsync(dtoQuery.Take((request.PageSize ?? 10) + 1), cancellationToken);
 
         // Nếu số lượng lấy ra > PageSize, nghĩa là còn dữ liệu ở hướng đang query
-        bool hasMore = items.Count > request.PageSize;
+        bool hasMore = items.Count > (request.PageSize ?? 10);
         if (hasMore) items.RemoveAt(items.Count - 1);
 
         var result = new LoadMoreProductsResult
