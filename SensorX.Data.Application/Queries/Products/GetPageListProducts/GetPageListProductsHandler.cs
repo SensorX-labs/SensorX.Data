@@ -47,7 +47,8 @@ public class GetPageListProductsHandler(
                 x.category != null ? x.category.Name : "",
                 x.product.Status,
                 x.product.CreatedAt,
-                x.product.Images.Select(i => i.ImageUrl).ToList()
+                x.product.Images.Select(i => i.ImageUrl).ToList(),
+                x.product.Unit
             ));
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
