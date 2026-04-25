@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using SensorX.Data.Domain.SeedWork;
 
 namespace SensorX.Data.Domain.Common.Extensions;
@@ -37,5 +38,19 @@ public static class ExpiryExtensions
     // Checks if the entity has expired
     public static bool IsExpired(this IExpirable entity)
         => entity.ExpiresAt <= DateTimeOffset.UtcNow;
+
+    // Checks if the entity is close to expiry (within a week)
+    public static bool IsExpiringSoon(this IExpirable entity, int thresholdDays = 7)
+        => entity.ExpiresAt <= DateTimeOffset.UtcNow.AddDays(thresholdDays) && entity.ExpiresAt > DateTimeOffset.UtcNow;
+
+    // Suppport EF core query
+    public static IQueryable<T> IsExpired<T>(this IQueryable<T> query)
+        where T : IExpirable => query.Where(entity => entity.ExpiresAt <= DateTimeOffset.UtcNow);
+
+    public static IQueryable<T> IsActive<T>(this IQueryable<T> query)
+        where T : IExpirable => query.Where(entity => entity.ExpiresAt > DateTimeOffset.UtcNow);
+
+    public static IQueryable<T> IsExpiringSoon<T>(this IQueryable<T> query, int thresholdDays = 7)
+        where T : IExpirable => query.Where(entity => entity.ExpiresAt <= DateTimeOffset.UtcNow.AddDays(thresholdDays) && entity.ExpiresAt > DateTimeOffset.UtcNow);
 }
 

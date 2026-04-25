@@ -11,7 +11,7 @@ public sealed record GetPageListInternalPriceResponse(
     string SuggestedPriceCurrency,
     decimal FloorPrice,
     string FloorPriceCurrency,
-    bool IsActive,
+    InternalPriceStatus Status,
     DateTimeOffset CreatedAt,
     DateTimeOffset ExpiresAt,
     List<PriceTierDto> PriceTiers
@@ -23,4 +23,16 @@ public sealed record PriceTierDto(
     string Currency
 );
 
-public sealed class InternalPriceOffsetPagedResult : OffsetPagedResult<GetPageListInternalPriceResponse> { }
+public enum InternalPriceStatus
+{
+    Active,
+    ExpiringSoon,
+    Expired,
+}
+
+public sealed class InternalPriceOffsetPagedResult : OffsetPagedResult<GetPageListInternalPriceResponse>
+{
+    public int ActiveCount { get; set; }
+    public int ExpiringSoonCount { get; set; }
+    public int ExpiredCount { get; set; }
+}

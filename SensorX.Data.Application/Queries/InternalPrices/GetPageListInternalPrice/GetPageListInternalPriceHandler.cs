@@ -16,7 +16,13 @@ public sealed class GetPageListInternalPriceHandler(
 {
     public async Task<Result<InternalPriceOffsetPagedResult>> Handle(GetPageListInternalPriceQuery request, CancellationToken cancellationToken)
     {
-        var query = from internalPrice in _internalPriceQueryBuilder.QueryAsNoTracking
+        var baseQuery = _internalPriceQueryBuilder.QueryAsNoTracking;
+        var totalCount = await _queryExecutor.CountAsync(baseQuery, cancellationToken);
+        var activeCount = await _queryExecutor.CountAsync(baseQuery.IsActive(), cancellationToken);
+        var expiringSoonCount = await _queryExecutor.CountAsync(baseQuery.IsExpiringSoon(7), cancellationToken);
+        var expiredCount = await _queryExecutor.CountAsync(baseQuery.IsExpired(), cancellationToken);
+
+        var query = from internalPrice in baseQuery
                     join product in _productQueryBuilder.QueryAsNoTracking
                         on internalPrice.ProductId equals product.Id
                     select new { product, internalPrice };
@@ -28,8 +34,6 @@ public sealed class GetPageListInternalPriceHandler(
                 || ((string)i.product.Code).Contains(request.SearchTerm)
             );
         }
-
-        var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
         var pagedQuery = query
             .OrderByDescending(x => x.internalPrice.CreatedAt)
@@ -45,7 +49,7 @@ public sealed class GetPageListInternalPriceHandler(
             x.internalPrice.SuggestedPrice.Currency,
             x.internalPrice.FloorPrice.Amount,
             x.internalPrice.FloorPrice.Currency,
-            !x.internalPrice.IsExpired(),
+            x.internalPrice.IsExpired() ? InternalPriceStatus.Expired : x.internalPrice.IsExpiringSoon(7) ? InternalPriceStatus.ExpiringSoon : InternalPriceStatus.Active,
             x.internalPrice.CreatedAt,
             x.internalPrice.ExpiresAt,
             x.internalPrice.PriceTiers.Select(x => new PriceTierDto(
@@ -55,6 +59,8 @@ public sealed class GetPageListInternalPriceHandler(
             )).ToList()
         ));
 
+
+
         var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
         var result = new InternalPriceOffsetPagedResult
@@ -62,7 +68,10 @@ public sealed class GetPageListInternalPriceHandler(
             Items = items,
             PageNumber = request.PageNumber ?? 1,
             PageSize = request.PageSize ?? 10,
-            TotalCount = totalCount
+            TotalCount = totalCount,
+            ActiveCount = activeCount,
+            ExpiringSoonCount = expiringSoonCount,
+            ExpiredCount = expiredCount
         };
 
         return Result<InternalPriceOffsetPagedResult>.Success(result);
