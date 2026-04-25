@@ -4,6 +4,8 @@ using SensorX.Data.Application.Commands.Staffs.CreateStaff;
 using SensorX.Data.Application.Commands.Staffs.UpdateStaff;
 using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
+using SensorX.Data.Application.Queries.Staffs.GetDetailStaffById;
+using SensorX.Data.Application.Queries.Staffs.GetStaffByAccountId;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
@@ -17,8 +19,10 @@ public static class StaffApi
         api.MapPost("/create", CreateStaff).WithOpenApi();
         api.MapGet("/list", GetPageListStaffs).WithOpenApi();
         api.MapGet("/{staffId:guid}/metrics", GetEmployeeMetrics).WithOpenApi();
-            api.MapPut("", UpdateStaff).WithOpenApi();
-            api.MapDelete("/{staffId:guid}", DeleteStaff).WithOpenApi();
+        api.MapGet("/{staffId:guid}", GetStaffById).WithOpenApi();
+        api.MapGet("/account/{accountId:guid}", GetStaffByAccountId).WithOpenApi();
+        api.MapPut("", UpdateStaff).WithOpenApi();
+        api.MapDelete("/{staffId:guid}", DeleteStaff).WithOpenApi();
         return api;
     }
 
@@ -65,6 +69,24 @@ public static class StaffApi
     {
         var command = new SensorX.Data.Application.Commands.Staffs.DeleteStaff.DeleteStaffCommand(staffId);
         var result = await mediator.Send(command);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetStaffById(
+        [FromRoute] Guid staffId,
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(new GetDetailStaffByIdQuery(staffId));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetStaffByAccountId(
+        [FromRoute] Guid accountId,
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(new GetStaffByAccountIdQuery(accountId));
         return result.ToResult();
     }
 }
