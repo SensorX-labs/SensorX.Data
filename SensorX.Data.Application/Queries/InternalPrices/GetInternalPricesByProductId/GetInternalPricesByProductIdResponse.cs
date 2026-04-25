@@ -1,6 +1,6 @@
 namespace SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 
-public record GetInternalPricesByProductIdResponse(
+public sealed record GetInternalPricesByProductIdResponse(
     Guid Id,
     Guid ProductId,
     decimal SuggestedPriceAmount,
@@ -11,7 +11,7 @@ public record GetInternalPricesByProductIdResponse(
     DateTimeOffset CreatedAt
 );
 
-public record PriceTierResponse(
+public sealed record PriceTierResponse(
     int Quantity,
     decimal PriceAmount,
     string PriceCurrency

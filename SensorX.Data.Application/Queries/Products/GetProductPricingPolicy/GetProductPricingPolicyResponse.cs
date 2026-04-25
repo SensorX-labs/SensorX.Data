@@ -2,7 +2,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 
-public record GetProductPricingPolicyResponse(
+public sealed record GetProductPricingPolicyResponse(
     // Domain properties - Product
     Guid ProductId,
     string ProductCode,
@@ -21,7 +21,7 @@ public record GetProductPricingPolicyResponse(
     DateTimeOffset? UpdatedAt
 );
 
-public record ProductPriceTier(
+public sealed record ProductPriceTier(
     int Quantity,
     decimal Price
 );

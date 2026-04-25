@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SensorX.Data.Infrastructure.DI;
 using SensorX.Data.Infrastructure.Persistences;
-using SensorX.Data.WebApi;
+using SensorX.Data.WebApi.API;
 using SensorX.Data.WebApi.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,13 +51,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 var autoApplyMigration = builder.Configuration.GetValue("Migration:AutoApply", true);
 if (autoApplyMigration)
@@ -70,10 +72,10 @@ if (autoApplyMigration)
             using var scope = app.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await dbContext.Database.MigrateAsync();
-            
+
             // Seed fake data using Bogus
             await BogusSeeder.SeedData(dbContext);
-            
+
             break;
         }
         catch (Exception ex) when (attempt < maxMigrationRetries)
