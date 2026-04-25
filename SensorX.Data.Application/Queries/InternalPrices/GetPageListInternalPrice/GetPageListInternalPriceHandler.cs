@@ -16,13 +16,7 @@ public sealed class GetPageListInternalPriceHandler(
 {
     public async Task<Result<InternalPriceOffsetPagedResult>> Handle(GetPageListInternalPriceQuery request, CancellationToken cancellationToken)
     {
-        var baseQuery = _internalPriceQueryBuilder.QueryAsNoTracking;
-        var totalCount = await _queryExecutor.CountAsync(baseQuery, cancellationToken);
-        var activeCount = await _queryExecutor.CountAsync(baseQuery.IsActive(), cancellationToken);
-        var expiringSoonCount = await _queryExecutor.CountAsync(baseQuery.IsExpiringSoon(7), cancellationToken);
-        var expiredCount = await _queryExecutor.CountAsync(baseQuery.IsExpired(), cancellationToken);
-
-        var query = from internalPrice in baseQuery
+        var query = from internalPrice in _internalPriceQueryBuilder.QueryAsNoTracking
                     join product in _productQueryBuilder.QueryAsNoTracking
                         on internalPrice.ProductId equals product.Id
                     select new { product, internalPrice };
@@ -34,6 +28,7 @@ public sealed class GetPageListInternalPriceHandler(
                 || ((string)i.product.Code).Contains(request.SearchTerm)
             );
         }
+        var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
         var pagedQuery = query
             .OrderByDescending(x => x.internalPrice.CreatedAt)
@@ -59,8 +54,6 @@ public sealed class GetPageListInternalPriceHandler(
             )).ToList()
         ));
 
-
-
         var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
         var result = new InternalPriceOffsetPagedResult
@@ -68,10 +61,7 @@ public sealed class GetPageListInternalPriceHandler(
             Items = items,
             PageNumber = request.PageNumber ?? 1,
             PageSize = request.PageSize ?? 10,
-            TotalCount = totalCount,
-            ActiveCount = activeCount,
-            ExpiringSoonCount = expiringSoonCount,
-            ExpiredCount = expiredCount
+            TotalCount = totalCount
         };
 
         return Result<InternalPriceOffsetPagedResult>.Success(result);

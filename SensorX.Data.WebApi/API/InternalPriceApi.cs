@@ -5,6 +5,7 @@ using SensorX.Data.Application.Commands.InternalPrices.DeactivateInternalPrice;
 using SensorX.Data.Application.Commands.InternalPrices.ExtendInternalPrice;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.InternalPrices.GetHistoryPriceForProduct;
+using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
 using SensorX.Data.WebApi.Extensions;
@@ -45,6 +46,11 @@ public static class InternalPriceApi
             .WithOpenApi()
             .WithSummary("Get price history for a product")
             .WithDescription("Retrieves a paged history of all price policies (active and expired) for a specific product.");
+
+        api.MapGet("/internalPrices/stats", GetInternalPriceStats)
+            .WithOpenApi()
+            .WithSummary("Get internal price stats")
+            .WithDescription("Retrieves statistics about internal prices.");
 
         return api;
     }
@@ -102,6 +108,14 @@ public static class InternalPriceApi
     )
     {
         Result<GetHistoryPriceForProductResponse> result = await mediator.Send(new GetHistoryPriceForProductQuery(productId));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetInternalPriceStats(
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<GetInternalPriceListStatsResponse> result = await mediator.Send(new GetInternalPriceListStatsQuery());
         return result.ToResult();
     }
 }

@@ -30,9 +30,4 @@ public enum InternalPriceStatus
     Expired,
 }
 
-public sealed class InternalPriceOffsetPagedResult : OffsetPagedResult<GetPageListInternalPriceResponse>
-{
-    public int ActiveCount { get; set; }
-    public int ExpiringSoonCount { get; set; }
-    public int ExpiredCount { get; set; }
-}
+public sealed class InternalPriceOffsetPagedResult : OffsetPagedResult<GetPageListInternalPriceResponse>;
