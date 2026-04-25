@@ -7,4 +7,5 @@ namespace SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPri
 public sealed record GetPageListInternalPriceQuery : OffsetPagedQuery, IRequest<Result<InternalPriceOffsetPagedResult>>
 {
     public string? SearchTerm { get; init; }
+    public InternalPriceStatus? Status { get; init; }
 }

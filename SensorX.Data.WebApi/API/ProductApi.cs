@@ -8,6 +8,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductDetail;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
+using SensorX.Data.Application.Queries.Products.LoadMoreProducts;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
@@ -22,63 +23,75 @@ public static class ProductApi
             .WithOpenApi()
             .WithSummary("Create product")
             .WithDescription("""
-                - Name: Product name
-                - Manufacture: Product manufacturer
-                - CategoryId: Category unique identifier
-                - Unit: Unit of measure (e.g., Kg, Pcs)
-                - Showcase: Optional showcase link or name
-                - ImageUrls: Optional list of image URLs
-                - Attributes: Optional list of product attributes
+                - Name: Tên sản phẩm
+                - Manufacture: Nhà sản xuất sản phẩm
+                - CategoryId: ID danh mục
+                - Unit: Đơn vị tính (vd: Kg, Cái)
+                - Showcase: Liên kết hoặc tên trưng bày tùy chọn
+                - ImageUrls: Danh sách URL hình ảnh tùy chọn
+                - Attributes: Danh sách thuộc tính sản phẩm tùy chọn
                 """);
 
         api.MapDelete("/products/{id:guid}", DeleteProduct)
             .WithOpenApi()
             .WithSummary("Delete product")
             .WithDescription("""
-                - Id: Product ID from route to delete
+                - Id: ID sản phẩm cần xóa từ route
                 """);
 
         api.MapPut("/products/{id:guid}", UpdateProduct)
             .WithOpenApi()
             .WithSummary("Update product")
             .WithDescription("""
-                - Id: Product ID from route
-                - Name: New product name
-                - Manufacture: New manufacturer
-                - CategoryId: New category ID
-                - Unit: New unit of measure
-                - Showcase: Optional new showcase info
-                - ImageUrls: Optional new image list
-                - Attributes: Optional new attribute list
+                - Id: ID sản phẩm từ route
+                - Name: Tên sản phẩm mới
+                - Manufacture: Nhà sản xuất mới
+                - CategoryId: ID danh mục mới
+                - Unit: Đơn vị tính mới
+                - Showcase: Thông tin trưng bày mới tùy chọn
+                - ImageUrls: Danh sách hình ảnh mới tùy chọn
+                - Attributes: Danh sách thuộc tính mới tùy chọn
                 """);
 
         api.MapPatch("/products/{id:guid}/status", ChangeProductStatus)
             .WithOpenApi()
             .WithSummary("Change product status")
             .WithDescription("""
-                - Id: Product ID from route
-                - Status: New status (0: Active, 1: Inactive)
+                - Id: ID sản phẩm từ route
+                - Status: Trạng thái mới (0: Đang hoạt động, 1: Ngừng hoạt động)
                 """);
 
         api.MapGet("/products/list", GetPageListProducts)
             .WithOpenApi()
             .WithSummary("Get page list products")
             .WithDescription("""
-                - SearchTerm: Filter by name/description
-                - PageNumber: The page number to retrieve (default: 1)
-                - PageSize: Number of items per page (default: 10)
+                - SearchTerm: Lọc theo tên/mô tả
+                - PageNumber: Số trang để lấy (mặc định: 1)
+                - PageSize: Số lượng mục trên mỗi trang (mặc định: 10)
                 """);
 
         api.MapPost("/products/pricing-policy/batch", GetProductPricingPolicy)
             .WithOpenApi()
             .WithSummary("Get product pricing policy")
             .WithDescription("""
-                - ProductIds: List of product IDs
+                - ProductIds: Danh sách ID sản phẩm
                 """);
 
         api.MapGet("/products/{id:guid}", GetProductDetail)
             .WithOpenApi()
             .WithSummary("Get product detail");
+
+        api.MapGet("/products/load-more", LoadMoreProducts)
+            .WithOpenApi()
+            .WithSummary("Load more products")
+            .WithDescription("""
+                - PageSize: Số lượng mục trên mỗi trang (mặc định: 10)
+                - LastCreatedAt: Thời gian tạo của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
+                - LastId: ID của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
+                - FirstCreatedAt: Thời gian tạo của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
+                - FirstId: ID của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
+                - IsPrevious: true để lấy trang trước đó, false để lấy trang tiếp theo
+                """);
 
         return api;
     }
@@ -147,6 +160,15 @@ public static class ProductApi
     {
         command = command with { Id = id };
         var result = await mediator.Send(command);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> LoadMoreProducts(
+        [FromServices] IMediator mediator,
+        [AsParameters] LoadMoreProductsQuery query
+    )
+    {
+        Result<LoadMoreProductsResult> result = await mediator.Send(query);
         return result.ToResult();
     }
 }

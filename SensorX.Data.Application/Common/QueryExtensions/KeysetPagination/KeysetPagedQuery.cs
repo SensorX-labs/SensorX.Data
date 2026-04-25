@@ -5,7 +5,7 @@ public abstract record KeysetPagedQuery
     /// <summary>
     /// The number of items to return per page. Max value is typically limited by the server (e.g., 100).
     /// </summary>
-    public int PageSize { get; init; } = 10;
+    public int? PageSize { get; init; } = 10;
 
     /// <summary>
     /// The creation timestamp of the last item in the current page. Used as a cursor for forward navigation (Next Page).
@@ -30,5 +30,5 @@ public abstract record KeysetPagedQuery
     /// <summary>
     /// Set to true to navigate to the previous page relative to the provided cursors.
     /// </summary>
-    public bool IsPrevious { get; init; }
+    public bool IsPrevious { get; init; } = false;
 }

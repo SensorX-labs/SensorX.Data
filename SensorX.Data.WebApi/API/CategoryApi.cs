@@ -20,16 +20,16 @@ public static class CategoryApi
             .WithOpenApi()
             .WithSummary("Create category")
             .WithDescription("""
-                - Name: Category name (must be unique)
-                - ParentId: Optional, set parent category
-                - Description: Optional description
+                - Name: Tên danh mục (phải là duy nhất)
+                - ParentId: Tùy chọn, đặt danh mục cha
+                - Description: Tùy chọn mô tả
                 """);
 
         api.MapPut("/categories/{id:guid}/parent", SetParent)
             .WithOpenApi()
             .WithSummary("Set parent category")
             .WithDescription("""
-                - ParentId: Null to move category to root
+                - ParentId: Null để di chuyển danh mục về thư mục gốc
                 """);
 
         api.MapDelete("/categories/{id:guid}", DeleteCategory)
@@ -40,9 +40,9 @@ public static class CategoryApi
             .WithOpenApi()
             .WithSummary("Get page list categories")
             .WithDescription("""
-                - SearchTerm: Filter by name/description
-                - PageNumber: The page number to retrieve (default: 1)
-                - PageSize: Number of items per page (default: 10)
+                - SearchTerm: Lọc theo tên/mô tả
+                - PageNumber: Số trang để lấy (mặc định: 1)
+                - PageSize: Số lượng mục trên mỗi trang (mặc định: 10)
                 """);
 
         api.MapGet("/categories/list-all", GetAllCategories)

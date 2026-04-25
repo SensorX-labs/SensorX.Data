@@ -39,8 +39,8 @@ public sealed class GetPageListCategoriesHandler(
         var result = new CategoryOffsetPagedResult
         {
             Items = items,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize,
+            PageNumber = request.PageNumber ?? 1,
+            PageSize = request.PageSize ?? 10,
             TotalCount = totalCount
         };
 

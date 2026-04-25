@@ -23,10 +23,28 @@ public sealed class GetPageListInternalPriceHandler(
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
-            query = query.Where(i => i.product.Name.Contains(request.SearchTerm));
-            query = query.Where(i => i.product.Code.Value.Contains(request.SearchTerm));
+            query = query.Where(i =>
+                i.product.Name.Contains(request.SearchTerm)
+                || ((string)i.product.Code).Contains(request.SearchTerm)
+            );
         }
+        if (request.Status.HasValue)
+        {
+            var now = DateTimeOffset.UtcNow;
+            query = request.Status.Value switch
+            {
+                InternalPriceStatus.Expired =>
+                    query.Where(i => i.internalPrice.ExpiresAt <= now),
 
+                InternalPriceStatus.ExpiringSoon =>
+                    query.Where(i => i.internalPrice.ExpiresAt <= now.AddDays(7) && i.internalPrice.ExpiresAt > now),
+
+                InternalPriceStatus.Active =>
+                    query.Where(i => i.internalPrice.ExpiresAt > now),
+
+                _ => query
+            };
+        }
         var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
         var pagedQuery = query
@@ -43,7 +61,7 @@ public sealed class GetPageListInternalPriceHandler(
             x.internalPrice.SuggestedPrice.Currency,
             x.internalPrice.FloorPrice.Amount,
             x.internalPrice.FloorPrice.Currency,
-            !x.internalPrice.IsExpired(),
+            x.internalPrice.IsExpired() ? InternalPriceStatus.Expired : x.internalPrice.IsExpiringSoon(7) ? InternalPriceStatus.ExpiringSoon : InternalPriceStatus.Active,
             x.internalPrice.CreatedAt,
             x.internalPrice.ExpiresAt,
             x.internalPrice.PriceTiers.Select(x => new PriceTierDto(
@@ -58,8 +76,8 @@ public sealed class GetPageListInternalPriceHandler(
         var result = new InternalPriceOffsetPagedResult
         {
             Items = items,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize,
+            PageNumber = request.PageNumber ?? 1,
+            PageSize = request.PageSize ?? 10,
             TotalCount = totalCount
         };
 

@@ -5,6 +5,7 @@ using SensorX.Data.Application.Commands.InternalPrices.DeactivateInternalPrice;
 using SensorX.Data.Application.Commands.InternalPrices.ExtendInternalPrice;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.InternalPrices.GetHistoryPriceForProduct;
+using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
 using SensorX.Data.WebApi.Extensions;
@@ -16,35 +17,40 @@ public static class InternalPriceApi
     public static RouteGroupBuilder MapInternalPriceApi(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("catalog").WithTags("Internal Prices");
-        api.MapPost("/internalPrices", CreateInternalPrice)
+        api.MapPost("/internalPrices/create", CreateInternalPrice)
             .WithOpenApi()
-            .WithSummary("Create internal price policy")
-            .WithDescription("Creates a new internal price policy for a product, including suggested price, floor price, and tiered volume discounts.");
+            .WithSummary("Create new internal price")
+            .WithDescription("Tạo chính sách giá nội bộ mới cho sản phẩm, bao gồm giá đề xuất, giá sàn và các mức chiết khấu theo số lượng.");
 
         api.MapGet("/internalPrices/product/{productId:guid}", GetInternalPricesByProductId)
             .WithOpenApi()
-            .WithSummary("Get internal prices by product")
-            .WithDescription("Retrieves all internal price policies associated with a specific product ID.");
+            .WithSummary("Get all internal prices for a product")
+            .WithDescription("Lấy tất cả các chính sách giá nội bộ liên kết với một ID sản phẩm cụ thể.");
 
         api.MapPatch("/internalPrices/{id:guid}/deactivate", DeactivateInternalPrice)
             .WithOpenApi()
             .WithSummary("Deactivate internal price")
-            .WithDescription("Immediately expires an active internal price policy by setting its expiration date to current time.");
+            .WithDescription("Làm hết hạn ngay lập tức một chính sách giá nội bộ đang hoạt động bằng cách đặt ngày hết hạn về thời điểm hiện tại.");
 
         api.MapPatch("/internalPrices/{id:guid}/extend", ExtendInternalPrice)
             .WithOpenApi()
             .WithSummary("Extend internal price validity")
-            .WithDescription("Extends the expiration date of an internal price policy by providing a new end date or a duration.");
+            .WithDescription("Gia hạn ngày hết hạn của một chính sách giá nội bộ bằng cách cung cấp ngày kết thúc mới hoặc khoảng thời gian.");
 
         api.MapGet("/internalPrices/list", GetPageListInternalPrice)
             .WithOpenApi()
             .WithSummary("Get paged list of internal prices")
-            .WithDescription("Retrieves a paged list of all internal price policies with search functionality.");
+            .WithDescription("Lấy danh sách phân trang của tất cả các chính sách giá nội bộ kèm chức năng tìm kiếm.");
 
         api.MapGet("/internalPrices/product/{productId:guid}/history", GetHistoryPriceForProduct)
             .WithOpenApi()
             .WithSummary("Get price history for a product")
-            .WithDescription("Retrieves a paged history of all price policies (active and expired) for a specific product.");
+            .WithDescription("Lấy lịch sử phân trang của tất cả các chính sách giá (đang hoạt động và đã hết hạn) cho một sản phẩm cụ thể.");
+
+        api.MapGet("/internalPrices/stats", GetInternalPriceStats)
+            .WithOpenApi()
+            .WithSummary("Get internal price stats")
+            .WithDescription("Lấy thống kê về các mức giá nội bộ.");
 
         return api;
     }
@@ -102,6 +108,14 @@ public static class InternalPriceApi
     )
     {
         Result<GetHistoryPriceForProductResponse> result = await mediator.Send(new GetHistoryPriceForProductQuery(productId));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetInternalPriceStats(
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<GetInternalPriceListStatsResponse> result = await mediator.Send(new GetInternalPriceListStatsQuery());
         return result.ToResult();
     }
 }
