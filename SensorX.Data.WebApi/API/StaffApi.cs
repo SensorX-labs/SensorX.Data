@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Staffs.CreateStaff;
+using SensorX.Data.Application.Commands.Staffs.UpdateStaff;
 using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 using SensorX.Data.WebApi.Extensions;
@@ -16,6 +17,8 @@ public static class StaffApi
         api.MapPost("/create", CreateStaff).WithOpenApi();
         api.MapGet("/list", GetPageListStaffs).WithOpenApi();
         api.MapGet("/{staffId:guid}/metrics", GetEmployeeMetrics).WithOpenApi();
+            api.MapPut("", UpdateStaff).WithOpenApi();
+            api.MapDelete("/{staffId:guid}", DeleteStaff).WithOpenApi();
         return api;
     }
 
@@ -43,6 +46,25 @@ public static class StaffApi
     )
     {
         var result = await mediator.Send(new GetStaffMetricsQuery(staffId));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> UpdateStaff(
+        [FromBody] UpdateStaffCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(command);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> DeleteStaff(
+        [FromRoute] Guid staffId,
+        [FromServices] IMediator mediator
+    )
+    {
+        var command = new SensorX.Data.Application.Commands.Staffs.DeleteStaff.DeleteStaffCommand(staffId);
+        var result = await mediator.Send(command);
         return result.ToResult();
     }
 }
