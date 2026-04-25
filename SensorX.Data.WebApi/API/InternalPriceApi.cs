@@ -20,37 +20,37 @@ public static class InternalPriceApi
         api.MapPost("/internalPrices/create", CreateInternalPrice)
             .WithOpenApi()
             .WithSummary("Create new internal price")
-            .WithDescription("Creates a new internal price policy for a product, including suggested price, floor price, and tiered volume discounts.");
+            .WithDescription("Tạo chính sách giá nội bộ mới cho sản phẩm, bao gồm giá đề xuất, giá sàn và các mức chiết khấu theo số lượng.");
 
         api.MapGet("/internalPrices/product/{productId:guid}", GetInternalPricesByProductId)
             .WithOpenApi()
             .WithSummary("Get all internal prices for a product")
-            .WithDescription("Retrieves all internal price policies associated with a specific product ID.");
+            .WithDescription("Lấy tất cả các chính sách giá nội bộ liên kết với một ID sản phẩm cụ thể.");
 
         api.MapPatch("/internalPrices/{id:guid}/deactivate", DeactivateInternalPrice)
             .WithOpenApi()
             .WithSummary("Deactivate internal price")
-            .WithDescription("Immediately expires an active internal price policy by setting its expiration date to current time.");
+            .WithDescription("Làm hết hạn ngay lập tức một chính sách giá nội bộ đang hoạt động bằng cách đặt ngày hết hạn về thời điểm hiện tại.");
 
         api.MapPatch("/internalPrices/{id:guid}/extend", ExtendInternalPrice)
             .WithOpenApi()
             .WithSummary("Extend internal price validity")
-            .WithDescription("Extends the expiration date of an internal price policy by providing a new end date or a duration.");
+            .WithDescription("Gia hạn ngày hết hạn của một chính sách giá nội bộ bằng cách cung cấp ngày kết thúc mới hoặc khoảng thời gian.");
 
         api.MapGet("/internalPrices/list", GetPageListInternalPrice)
             .WithOpenApi()
             .WithSummary("Get paged list of internal prices")
-            .WithDescription("Retrieves a paged list of all internal price policies with search functionality.");
+            .WithDescription("Lấy danh sách phân trang của tất cả các chính sách giá nội bộ kèm chức năng tìm kiếm.");
 
         api.MapGet("/internalPrices/product/{productId:guid}/history", GetHistoryPriceForProduct)
             .WithOpenApi()
             .WithSummary("Get price history for a product")
-            .WithDescription("Retrieves a paged history of all price policies (active and expired) for a specific product.");
+            .WithDescription("Lấy lịch sử phân trang của tất cả các chính sách giá (đang hoạt động và đã hết hạn) cho một sản phẩm cụ thể.");
 
         api.MapGet("/internalPrices/stats", GetInternalPriceStats)
             .WithOpenApi()
             .WithSummary("Get internal price stats")
-            .WithDescription("Retrieves statistics about internal prices.");
+            .WithDescription("Lấy thống kê về các mức giá nội bộ.");
 
         return api;
     }
