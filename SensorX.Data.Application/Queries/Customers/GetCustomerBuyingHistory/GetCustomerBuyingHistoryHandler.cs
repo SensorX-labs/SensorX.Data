@@ -6,7 +6,7 @@ using SensorX.Data.Domain.SeedWork;
 
 namespace SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 
-public class GetCustomerBuyingHistoryHandler(
+public sealed class GetCustomerBuyingHistoryHandler(
     IQueryBuilder<Customer> customerQueryBuilder,
     IQueryExecutor queryExecutor
 ) : IRequestHandler<GetCustomerBuyingHistoryQuery, Result<GetCustomerBuyingHistoryResponse>>

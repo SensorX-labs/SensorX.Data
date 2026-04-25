@@ -1,17 +1,16 @@
-using SensorX.Data.Application.Common.Pagination;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 
 namespace SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 
-public class GetPageListStaffsResponse
-{
-    public Guid Id { get; set; }
-    public string Code { get; set; } = null!;
-    public string Name { get; set; } = null!;
-    public string Email { get; set; } = null!;
-    public string Phone { get; set; } = null!;
-    public string CitizenId { get; set; } = null!;
-    public string Department { get; set; } = null!;
-    public DateTimeOffset CreatedAt { get; set; }
-}
+public sealed record GetPageListStaffsResponse(
+    Guid Id,
+    string Code,
+    string Name,
+    string Email,
+    string Phone,
+    string CitizenId,
+    string Department,
+    DateTimeOffset CreatedAt
+);
 
-public class StaffCursorPagedResult : CursorPagedResult<GetPageListStaffsResponse> { }
+public sealed class StaffOffsetPagedResult : OffsetPagedResult<GetPageListStaffsResponse> { }

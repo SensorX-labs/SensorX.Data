@@ -224,6 +224,9 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
@@ -287,7 +290,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("AvatarUrl")
@@ -310,11 +312,9 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TaxCode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
@@ -371,11 +371,9 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Biography")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CitizenId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Code")
@@ -385,7 +383,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Department")
+                    b.Property<int?>("Department")
                         .HasColumnType("integer");
 
                     b.Property<string>("Email")
@@ -400,7 +398,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")

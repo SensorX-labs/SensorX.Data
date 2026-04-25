@@ -1,6 +1,6 @@
 namespace SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 
-public record GetCustomerBuyingHistoryResponse(
+public sealed record GetCustomerBuyingHistoryResponse(
     Guid CustomerId,
     string CustomerCode,
     string CustomerName,

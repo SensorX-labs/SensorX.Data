@@ -1,6 +1,6 @@
-namespace SensorX.Data.Application.Common.Pagination;
+namespace SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
 
-public abstract record CursorPagedQuery
+public abstract record KeysetPagedQuery
 {
     /// <summary>
     /// The number of items to return per page. Max value is typically limited by the server (e.g., 100).

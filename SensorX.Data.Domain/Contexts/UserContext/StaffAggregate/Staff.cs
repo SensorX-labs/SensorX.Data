@@ -11,12 +11,12 @@ public class Staff : User<StaffId>
         AccountId accountId,
         Code code,
         string name,
-        Phone phone,
+        Phone? phone,
         Email email,
-        CitizenId citizenId,
-        string biography,
+        CitizenId? citizenId,
+        string? biography,
         DateTimeOffset joinDate,
-        Department department
+        Department? department
     ) : base(id, accountId, code, name, phone, email)
     {
         CitizenId = citizenId;
@@ -25,19 +25,19 @@ public class Staff : User<StaffId>
         Department = department;
     }
 
-    public CitizenId CitizenId { get; private set; }
-    public string Biography { get; private set; }
+    public CitizenId? CitizenId { get; private set; }
+    public string? Biography { get; private set; }
     public DateTimeOffset JoinDate { get; private set; }
-    public Department Department { get; private set; }
+    public Department? Department { get; private set; }
 
     public void UpdateProfile(
         string name,
-        Phone phone,
+        Phone? phone,
         Email email,
-        CitizenId citizenId,
-        string biography,
+        CitizenId? citizenId,
+        string? biography,
         DateTimeOffset joinDate,
-        Department department
+        Department? department
     )
     {
         base.UpdateProfile(name, phone, email);

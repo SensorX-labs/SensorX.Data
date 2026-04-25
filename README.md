@@ -80,9 +80,9 @@ dotnet ef database update --context AppDbContext -p ./SensorX.Data.Infrastructur
 
 ### 4. ▶️ Chạy ứng dụng
 ```bash
-dotnet watch run --project .\SensorX.Data.WebApi\
+dotnet run --project .\SensorX.Data.WebApi\ --launch-profile http
 ```
-Truy cập Swagger UI tại: `https://localhost:<port>/swagger`
+Truy cập Swagger UI tại: `http://localhost:5201/swagger`
 
 ---
 
