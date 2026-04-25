@@ -8,6 +8,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductDetail;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
+using SensorX.Data.Application.Queries.Products.LoadMoreProducts;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
@@ -80,6 +81,18 @@ public static class ProductApi
             .WithOpenApi()
             .WithSummary("Get product detail");
 
+        api.MapGet("/products/load-more", LoadMoreProducts)
+            .WithOpenApi()
+            .WithSummary("Load more products")
+            .WithDescription("""
+                - PageSize: Số lượng mục trên mỗi trang (mặc định: 10)
+                - LastCreatedAt: Thời gian tạo của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
+                - LastId: ID của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
+                - FirstCreatedAt: Thời gian tạo của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
+                - FirstId: ID của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
+                - IsPrevious: true để lấy trang trước đó, false để lấy trang tiếp theo
+                """);
+
         return api;
     }
 
@@ -147,6 +160,15 @@ public static class ProductApi
     {
         command = command with { Id = id };
         var result = await mediator.Send(command);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> LoadMoreProducts(
+        [FromServices] IMediator mediator,
+        [AsParameters] LoadMoreProductsQuery query
+    )
+    {
+        Result<LoadMoreProductsResult> result = await mediator.Send(query);
         return result.ToResult();
     }
 }

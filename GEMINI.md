@@ -16,6 +16,10 @@ The project now supports two types of pagination in `SensorX.Data.Application.Co
 - **Base Query**: `KeysetPagedQuery` (contains `LastCreatedAt`, `LastId`, etc.).
 - **Result Wrapper**: `KeysetPagedResult<T>` (contains cursors for next/previous).
 - **Extension**: `ApplyKeysetPagination(request, createdAtSelector, idSelector)`.
+- **Implementation Note**: 
+    - Use `Take(PageSize + 1)` to determine `hasMore`.
+    - `HasNext = IsPrevious ? true : hasMore`.
+    - `HasPrevious = IsPrevious ? hasMore : (LastCreatedAt.HasValue || LastId.HasValue)`.
 
 ## Features Updated to Offset Pagination
 - `GetPageListCategories`
