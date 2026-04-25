@@ -13,6 +13,9 @@ public class CreateCategoryHandler(
 {
     public async Task<Result<Guid>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return Result<Guid>.Failure("Tên danh mục không được để trống.");
+
         if (await _categoryRepository.AnyAsync(new DuplicateCategoryNameSpec(request.Name), cancellationToken))
             return Result<Guid>.Failure("Danh mục đã tồn tại");
 
