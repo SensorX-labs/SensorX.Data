@@ -14,7 +14,7 @@ public static class ImageApi
 
         api.MapPost("/upload", UploadImage).DisableAntiforgery().WithOpenApi();
         api.MapDelete("/delete", DeleteImage).WithOpenApi();
-        api.MapDelete("/delete-all", DeleteImages).WithOpenApi();
+        api.MapDelete("/delete-multiple", DeleteImages).WithOpenApi();
         return api;
     }
 
