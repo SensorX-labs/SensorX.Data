@@ -20,5 +20,5 @@ public abstract record LoadMoreQuery
     /// <summary>
     /// Set to true for descending order, false for ascending order.
     /// </summary>
-    public bool IsDescending { get; init; } = true;
+    public bool IsDescending { get; init; }
 }
