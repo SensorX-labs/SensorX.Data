@@ -20,14 +20,17 @@ public class UpdateProductHandler(
         if (product is null)
             return Result.Failure("Không tìm thấy sản phẩm");
 
-        var categoryId = new CategoryId(request.CategoryId);
-        var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
-        if (category is null)
-            return Result.Failure("Không tìm thấy danh mục sản phẩm");
+        if (request.CategoryId.HasValue)
+        {
+            var categoryId = new CategoryId(request.CategoryId.Value);
+            var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+            if (category is null)
+                return Result.Failure("Không tìm thấy danh mục sản phẩm");
+            product.ChangeCategory(categoryId);
+        }
 
         // Update basic information
         product.UpdateProduct(request.Name.Trim(), request.Manufacture.Trim(), request.Unit.Trim());
-        product.ChangeCategory(categoryId);
         product.SetShowcase(request.Showcase);
 
         // Update images

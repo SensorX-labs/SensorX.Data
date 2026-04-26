@@ -6,7 +6,7 @@ namespace SensorX.Data.Application.Commands.Products.CreateProduct;
 public sealed record CreateProductCommand(
     string Name,
     string Manufacture,
-    Guid CategoryId,
+    Guid? CategoryId,
     string Unit,
     string? Showcase = null,
     List<string>? ImageUrls = null,

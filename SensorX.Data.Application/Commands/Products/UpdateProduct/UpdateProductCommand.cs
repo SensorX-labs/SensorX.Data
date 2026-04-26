@@ -8,7 +8,7 @@ public sealed record UpdateProductCommand(
     [property: JsonIgnore] Guid Id,
     string Name,
     string Manufacture,
-    Guid CategoryId,
+    Guid? CategoryId,
     string Unit,
     string? Showcase = null,
     List<string>? ImageUrls = null,
