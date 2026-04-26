@@ -34,7 +34,7 @@ public class UpdateProductHandler(
         product.SetShowcase(request.Showcase);
 
         // Update images
-        var images = (request.ImageUrls ?? []).Select(url => new ProductImage(url)).ToList();
+        var images = (request.Images ?? []).Select(url => new ProductImage(url)).ToList();
         var imagesToRemove = product.Images.Where(oldImg => !images.Contains(oldImg)).ToList();
         foreach (var img in imagesToRemove)
         {
@@ -48,7 +48,7 @@ public class UpdateProductHandler(
         }
 
         // Update attributes
-        var attributes = (request.Attributes ?? []).Select(attr => new ProductAttribute(attr.AttributeName.Trim(), attr.AttributeValue.Trim())).ToList();
+        var attributes = (request.Attributes ?? []).Select(attr => new ProductAttribute(attr.Name.Trim(), attr.Value.Trim())).ToList();
         var attributesToRemove = product.Attributes.Where(oldAttr => !attributes.Contains(oldAttr)).ToList();
         foreach (var attr in attributesToRemove)
         {

@@ -11,8 +11,8 @@ public sealed record UpdateProductCommand(
     Guid? CategoryId,
     string Unit,
     string? Showcase = null,
-    List<string>? ImageUrls = null,
+    List<string>? Images = null,
     List<ProductAttributeCommand>? Attributes = null
 ) : IRequest<Result>;
 
-public sealed record ProductAttributeCommand(string AttributeName, string AttributeValue);
+public sealed record ProductAttributeCommand(string Name, string Value);
