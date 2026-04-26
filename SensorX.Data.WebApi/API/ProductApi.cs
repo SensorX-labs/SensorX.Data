@@ -87,11 +87,10 @@ public static class ProductApi
             .WithSummary("Load more products")
             .WithDescription("""
                 - PageSize: Số lượng mục trên mỗi trang (mặc định: 10)
-                - LastCreatedAt: Thời gian tạo của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
-                - LastId: ID của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
-                - FirstCreatedAt: Thời gian tạo của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
-                - FirstId: ID của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
-                - IsPrevious: true để lấy trang trước đó, false để lấy trang tiếp theo
+                - LastValue: Giá trị của trường được sort tại mục cuối cùng (dùng để load trang tiếp theo)
+                - LastId: ID của mục cuối cùng (dùng để load trang tiếp theo)
+                - OrderBy: Trường dùng để sort (CreatedAt, Name, Code)
+                - IsDescending: true để sort giảm dần, false để sort tăng dần (mặc định: true)
                 """);
 
         api.MapGet("/products/list-stats", GetProductListStats)

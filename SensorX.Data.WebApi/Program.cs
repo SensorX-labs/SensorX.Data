@@ -45,6 +45,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddSwaggerGen(options =>
 {
     options.UseInlineDefinitionsForEnums();
+    // Đăng ký Filter để hiển thị Enum dạng String trên Swagger UI
+    options.SchemaFilter<SensorX.Data.WebApi.Filters.EnumSchemaFilter>();
 });
 
 builder.Services.AddCors(options =>

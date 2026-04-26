@@ -1,6 +1,7 @@
+using System.ComponentModel;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
-using SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
+using SensorX.Data.Application.Common.QueryExtensions.LoadMore;
 using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
@@ -18,47 +19,59 @@ public sealed class LoadMoreProductsHandler(
     {
         var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-        // Get total count before pagination
-        var totalCount = await _queryExecutor.CountAsync(productQuery, cancellationToken);
+        IQueryable<Product> pagedProductBaseQuery = request.OrderBy switch
+        {
+            ProductSortBy.Name => productQuery
+                .ApplyLoadMoreWithOrder(request.LastValue, x => x.Name, request.LastId, x => (Guid)x.Id, request.IsDescending),
 
-        // Apply ordering and pagination
-        var pagedProductBaseQuery = productQuery
-            .ApplyKeysetPagination(request, x => x.CreatedAt, x => (Guid)x.Id)
-            .OrderByDescending(x => x.CreatedAt)
-            .ThenByDescending(x => x.Id);
+            ProductSortBy.Code => productQuery
+                .ApplyLoadMoreWithOrder(request.LastValue, x => (string)x.Code, request.LastId, x => (Guid)x.Id, request.IsDescending),
 
-        // Join to get additional info
+            ProductSortBy.CategoryId => productQuery
+                .Where(x => x.CategoryId != null)
+                .ApplyLoadMoreWithOrder(request.LastValue.ToCursor<Guid>(), x => (Guid)x.CategoryId!, request.LastId, x => (Guid)x.Id, request.IsDescending),
+
+            _ => productQuery
+                .ApplyLoadMoreWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending)
+        };
+
         var sourceQuery = from product in pagedProductBaseQuery
                           join category in _categoryBuilder.QueryAsNoTracking
                               on product.CategoryId equals category.Id into cs
                           from c in cs.DefaultIfEmpty()
-                          select new { product, category = c };
+                          select new { product, categoryName = c != null ? c.Name : "" };
 
-        var dtoQuery = sourceQuery.Select(x => new LoadMoreProductsResponse(
-            x.product.Id.Value,
-            x.product.Code.Value,
+        var pageSize = request.PageSize ?? 10;
+        var items = await _queryExecutor.ToListAsync(sourceQuery.Take(pageSize + 1), cancellationToken);
+
+        bool hasNext = items.Count > pageSize;
+        if (hasNext) items.RemoveAt(items.Count - 1);
+
+        var responseItems = items.Select(x => new LoadMoreProductsResponse(
+            (Guid)x.product.Id,
+            (string)x.product.Code,
             x.product.Name,
             x.product.Manufacture,
-            x.category != null ? x.category.Name : "",
+            x.product.CategoryId != null ? (Guid)x.product.CategoryId : null,
+            x.categoryName,
             x.product.CreatedAt,
             x.product.Images.Select(i => i.ImageUrl).ToList()
-        ));
+        )).ToList();
 
-        var items = await _queryExecutor.ToListAsync(dtoQuery.Take((request.PageSize ?? 10) + 1), cancellationToken);
-
-        // Nếu số lượng lấy ra > PageSize, nghĩa là còn dữ liệu ở hướng đang query
-        bool hasMore = items.Count > (request.PageSize ?? 10);
-        if (hasMore) items.RemoveAt(items.Count - 1);
+        var lastItem = responseItems.LastOrDefault();
 
         var result = new LoadMoreProductsResult
         {
-            Items = items,
-            FirstCreatedAt = items.FirstOrDefault()?.CreatedAt,
-            FirstId = items.FirstOrDefault()?.Id,
-            LastCreatedAt = items.LastOrDefault()?.CreatedAt,
-            LastId = items.LastOrDefault()?.Id,
-            HasNext = request.IsPrevious || hasMore,
-            HasPrevious = request.IsPrevious ? hasMore : (request.LastCreatedAt.HasValue || request.LastId.HasValue)
+            Items = responseItems,
+            LastId = lastItem?.Id,
+            LastValue = request.OrderBy switch
+            {
+                ProductSortBy.Name => lastItem?.Name,
+                ProductSortBy.Code => lastItem?.Code,
+                ProductSortBy.CategoryId => lastItem?.CategoryId?.ToString(),
+                _ => lastItem?.CreatedAt.ToString("O")
+            },
+            HasNext = hasNext
         };
 
         return Result<LoadMoreProductsResult>.Success(result);
