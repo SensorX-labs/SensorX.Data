@@ -7,6 +7,7 @@ using SensorX.Data.Application.Commands.Products.UpdateProduct;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductDetail;
+using SensorX.Data.Application.Queries.Products.GetProductListStats;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 using SensorX.Data.Application.Queries.Products.LoadMoreProducts;
 using SensorX.Data.WebApi.Extensions;
@@ -93,6 +94,13 @@ public static class ProductApi
                 - IsPrevious: true để lấy trang trước đó, false để lấy trang tiếp theo
                 """);
 
+        api.MapGet("/products/list-stats", GetProductListStats)
+            .WithOpenApi()
+            .WithSummary("Get product list stats")
+            .WithDescription("""
+                - 
+                """);
+
         return api;
     }
 
@@ -169,6 +177,15 @@ public static class ProductApi
     )
     {
         Result<LoadMoreProductsResult> result = await mediator.Send(query);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetProductListStats(
+        [FromServices] IMediator mediator,
+        [AsParameters] GetProductListStatsQuery query
+    )
+    {
+        Result<ProductListStatsResponse> result = await mediator.Send(query);
         return result.ToResult();
     }
 }
