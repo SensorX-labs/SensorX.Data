@@ -77,6 +77,122 @@ public class CloudinaryService : ICloudinaryService
             return Result<string>.Failure(ex.Message);
         }
     }
+    public async Task<Result<bool>> DeleteImageAsync(string imageUrl, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(imageUrl))
+        {
+            return Result<bool>.Failure("Image URL is required");
+        }
+
+        try
+        {
+            var publicId = ExtractPublicIdFromUrl(imageUrl);
+            if (string.IsNullOrEmpty(publicId))
+            {
+                _logger.LogWarning("Could not extract public ID from URL: {Url}", imageUrl);
+                // If we can't extract, maybe it's not a Cloudinary URL or already deleted/invalid format
+                // But we should return success if we want to ignore errors for non-existent images
+                return Result<bool>.Failure("Could not extract public ID from URL");
+            }
+
+            var deleteParams = new DeletionParams(publicId);
+            var result = await _cloudinary.DestroyAsync(deleteParams);
+
+            if (result.Error != null)
+            {
+                _logger.LogError("Cloudinary delete error: {Error}", result.Error.Message);
+                return Result<bool>.Failure(result.Error.Message);
+            }
+
+            bool isDeleted = result.Result == "ok";
+            if (isDeleted)
+            {
+                _logger.LogInformation("Image deleted successfully: {PublicId}", publicId);
+            }
+            else
+            {
+                _logger.LogWarning("Image deletion result was not 'ok': {Result} for {PublicId}", result.Result, publicId);
+            }
+
+            return Result<bool>.Success(isDeleted);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred during Cloudinary deletion");
+            return Result<bool>.Failure(ex.Message);
+        }
+    }
+
+    public async Task<Result<bool>> DeleteImagesAsync(List<string> imageUrls, CancellationToken cancellationToken = default)
+    {
+        if (imageUrls == null || imageUrls.Count == 0)
+        {
+            return Result<bool>.Success(true);
+        }
+
+        try
+        {
+            var publicIds = imageUrls
+                .Select(ExtractPublicIdFromUrl)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Cast<string>()
+                .ToList();
+
+            if (publicIds.Count == 0)
+            {
+                return Result<bool>.Success(true); // Nothing to delete
+            }
+
+            var delResParams = new DelResParams
+            {
+                PublicIds = publicIds,
+                Type = "upload",
+                ResourceType = ResourceType.Image
+            };
+
+            var result = await _cloudinary.DeleteResourcesAsync(delResParams, cancellationToken);
+
+            if (result.Error != null)
+            {
+                _logger.LogError("Cloudinary bulk delete error: {Error}", result.Error.Message);
+                return Result<bool>.Failure(result.Error.Message);
+            }
+
+            _logger.LogInformation("Successfully processed bulk deletion for {Count} images", publicIds.Count);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred during Cloudinary bulk deletion");
+            return Result<bool>.Failure(ex.Message);
+        }
+    }
+
+    private string? ExtractPublicIdFromUrl(string url)
+    {
+        try
+        {
+            var uri = new Uri(url);
+            var segments = uri.AbsolutePath.Split('/');
+            var uploadIndex = Array.IndexOf(segments, "upload");
+            if (uploadIndex == -1) return null;
+
+            var startIndex = uploadIndex + 1;
+            // Skip version segment if present (e.g., v12345678)
+            if (segments.Length > startIndex && segments[startIndex].StartsWith("v") && segments[startIndex].Length > 1 && char.IsDigit(segments[startIndex][1]))
+            {
+                startIndex++;
+            }
+
+            var publicIdWithExtension = string.Join("/", segments.Skip(startIndex));
+            var lastDotIndex = publicIdWithExtension.LastIndexOf('.');
+            return lastDotIndex != -1 ? publicIdWithExtension.Substring(0, lastDotIndex) : publicIdWithExtension;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
 
 public class CloudinarySettings

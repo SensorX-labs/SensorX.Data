@@ -11,7 +11,7 @@ public static class Api
         api.MapProductApi();
         api.MapCustomerApi();
         api.MapStaffApi();
-        api.MapUploadApi();
+        api.MapImageApi();
         return api;
     }
 }
