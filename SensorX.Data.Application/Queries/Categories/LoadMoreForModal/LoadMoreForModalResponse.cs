@@ -5,6 +5,7 @@ namespace SensorX.Data.Application.Queries.Categories.LoadMoreForModal;
 public sealed record LoadMoreForModalResponse(
     Guid Id,
     string Name,
+    string Description,
     DateTimeOffset CreatedAt
 );
 

@@ -29,6 +29,7 @@ public sealed class LoadMoreForModalHandler(
         var responseItems = items.Select(x => new LoadMoreForModalResponse(
             (Guid)x.Id,
             x.Name,
+            x.Description,
             x.CreatedAt
         )).ToList();
 
