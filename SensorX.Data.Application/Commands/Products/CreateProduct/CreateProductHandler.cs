@@ -36,9 +36,9 @@ public class CreateProductHandler(
         );
         product.SetShowcase(request.Showcase);
 
-        if (request.ImageUrls != null)
+        if (request.Images != null)
         {
-            foreach (var imageDto in request.ImageUrls)
+            foreach (var imageDto in request.Images)
             {
                 product.AddImage(new ProductImage(imageDto));
             }
@@ -48,7 +48,7 @@ public class CreateProductHandler(
         {
             foreach (var attrDto in request.Attributes)
             {
-                product.AddProductAttribute(new ProductAttribute(attrDto.AttributeName, attrDto.AttributeValue));
+                product.AddProductAttribute(new ProductAttribute(attrDto.Name, attrDto.Value));
             }
         }
 
