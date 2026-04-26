@@ -1,4 +1,3 @@
-using SensorX.Data.Application.Commands.UploadImage;
 using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Common.Interfaces;
