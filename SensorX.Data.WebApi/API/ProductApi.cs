@@ -82,14 +82,14 @@ public static class ProductApi
             .WithOpenApi()
             .WithSummary("Get product detail");
 
-        api.MapGet("/products/load-more", LoadMoreProducts)
+        api.MapGet("/products/load-more-products-for-modal", LoadMoreProducts)
             .WithOpenApi()
             .WithSummary("Load more products")
             .WithDescription("""
                 - PageSize: Số lượng mục trên mỗi trang (mặc định: 10)
+                - SearchTerm: Tìm kiếm theo tên/mã sản phẩm/Hãng
                 - LastValue: Giá trị của trường được sort tại mục cuối cùng (dùng để load trang tiếp theo)
                 - LastId: ID của mục cuối cùng (dùng để load trang tiếp theo)
-                - OrderBy: Trường dùng để sort (CreatedAt, Name, Code)
                 - IsDescending: true để sort giảm dần, false để sort tăng dần (mặc định: true)
                 """);
 

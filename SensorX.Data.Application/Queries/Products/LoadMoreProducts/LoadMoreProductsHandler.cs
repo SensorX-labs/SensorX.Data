@@ -19,21 +19,7 @@ public sealed class LoadMoreProductsHandler(
     {
         var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-        IQueryable<Product> pagedProductBaseQuery = request.OrderBy switch
-        {
-            ProductSortBy.Name => productQuery
-                .ApplyLoadMoreWithOrder(request.LastValue, x => x.Name, request.LastId, x => (Guid)x.Id, request.IsDescending),
-
-            ProductSortBy.Code => productQuery
-                .ApplyLoadMoreWithOrder(request.LastValue, x => (string)x.Code, request.LastId, x => (Guid)x.Id, request.IsDescending),
-
-            ProductSortBy.CategoryId => productQuery
-                .Where(x => x.CategoryId != null)
-                .ApplyLoadMoreWithOrder(request.LastValue.ToCursor<Guid>(), x => (Guid)x.CategoryId!, request.LastId, x => (Guid)x.Id, request.IsDescending),
-
-            _ => productQuery
-                .ApplyLoadMoreWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending)
-        };
+        var pagedProductBaseQuery = productQuery.ApplyLoadMoreWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending);
 
         var sourceQuery = from product in pagedProductBaseQuery
                           join category in _categoryBuilder.QueryAsNoTracking
@@ -64,13 +50,7 @@ public sealed class LoadMoreProductsHandler(
         {
             Items = responseItems,
             LastId = lastItem?.Id,
-            LastValue = request.OrderBy switch
-            {
-                ProductSortBy.Name => lastItem?.Name,
-                ProductSortBy.Code => lastItem?.Code,
-                ProductSortBy.CategoryId => lastItem?.CategoryId?.ToString(),
-                _ => lastItem?.CreatedAt.ToString("O")
-            },
+            LastValue = lastItem?.CreatedAt.ToString("O"),
             HasNext = hasNext
         };
 
