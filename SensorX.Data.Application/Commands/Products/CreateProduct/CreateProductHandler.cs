@@ -15,10 +15,14 @@ public class CreateProductHandler(
 {
     public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var categoryId = new CategoryId(request.CategoryId);
-        var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
-        if (category is null)
-            return Result<Guid>.Failure("Danh mục sản phẩm không tồn tại");
+        CategoryId? categoryId = null;
+        if (request.CategoryId.HasValue)
+        {
+            categoryId = new CategoryId(request.CategoryId.Value);
+            var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+            if (category is null)
+                return Result<Guid>.Failure("Danh mục sản phẩm không tồn tại");
+        }
 
         var code = Code.Create("PRD");
 

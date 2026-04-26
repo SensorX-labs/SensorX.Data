@@ -4,7 +4,6 @@ using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
-using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
@@ -21,18 +20,19 @@ public class GetPageListProductsHandler(
     {
         try
         {
-            var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
+            IQueryable<Product> query = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-            // Get total count before pagination
-            var totalCount = await _queryExecutor.CountAsync(productQuery, cancellationToken);
+            if (request.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == request.Status);
+            }
+            var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
-            // Apply ordering and pagination
-            var pagedProductBaseQuery = productQuery
-                .OrderByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id)
-                .ApplyOffsetPagination(request);
+            var pagedProductBaseQuery = query
+                            .OrderByDescending(x => x.CreatedAt)
+                            .ThenByDescending(x => x.Id)
+                            .ApplyOffsetPagination(request);
 
-            // Join to get additional info
             var sourceQuery = from product in pagedProductBaseQuery
                               join category in _categoryBuilder.QueryAsNoTracking
                                   on product.CategoryId equals category.Id into cs

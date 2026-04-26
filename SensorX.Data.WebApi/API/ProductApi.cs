@@ -7,6 +7,7 @@ using SensorX.Data.Application.Commands.Products.UpdateProduct;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductDetail;
+using SensorX.Data.Application.Queries.Products.GetProductListStats;
 using SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 using SensorX.Data.Application.Queries.Products.LoadMoreProducts;
 using SensorX.Data.WebApi.Extensions;
@@ -81,16 +82,22 @@ public static class ProductApi
             .WithOpenApi()
             .WithSummary("Get product detail");
 
-        api.MapGet("/products/load-more", LoadMoreProducts)
+        api.MapGet("/products/load-more-products-for-modal", LoadMoreProducts)
             .WithOpenApi()
             .WithSummary("Load more products")
             .WithDescription("""
                 - PageSize: Số lượng mục trên mỗi trang (mặc định: 10)
-                - LastCreatedAt: Thời gian tạo của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
-                - LastId: ID của mục cuối cùng trong trang hiện tại (dùng cho navigation tiếp theo)
-                - FirstCreatedAt: Thời gian tạo của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
-                - FirstId: ID của mục đầu tiên trong trang hiện tại (dùng cho navigation ngược lại)
-                - IsPrevious: true để lấy trang trước đó, false để lấy trang tiếp theo
+                - SearchTerm: Tìm kiếm theo tên/mã sản phẩm/Hãng
+                - LastValue: Giá trị của trường được sort tại mục cuối cùng (dùng để load trang tiếp theo)
+                - LastId: ID của mục cuối cùng (dùng để load trang tiếp theo)
+                - IsDescending: true để sort giảm dần, false để sort tăng dần (mặc định: true)
+                """);
+
+        api.MapGet("/products/list-stats", GetProductListStats)
+            .WithOpenApi()
+            .WithSummary("Get product list stats")
+            .WithDescription("""
+                - 
                 """);
 
         return api;
@@ -169,6 +176,15 @@ public static class ProductApi
     )
     {
         Result<LoadMoreProductsResult> result = await mediator.Send(query);
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetProductListStats(
+        [FromServices] IMediator mediator,
+        [AsParameters] GetProductListStatsQuery query
+    )
+    {
+        Result<ProductListStatsResponse> result = await mediator.Send(query);
         return result.ToResult();
     }
 }
