@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Customers.CreateCustomer;
 using SensorX.Data.Application.Commands.Customers.UpdateCustomer;
 using SensorX.Data.Application.Commands.Customers.DeleteCustomer;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
+using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Customers.GetCustomerById;
 using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
+using SensorX.Data.Application.Queries.Customers.GetDetailCustomerByAccountId;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
@@ -20,6 +23,7 @@ public static class CustomerApi
             api.MapGet("/list", GetPageListCustomers).WithOpenApi();
             api.MapGet("/{customerId:guid}/buying-history", GetCustomerBuyingHistory).WithOpenApi();
             api.MapGet("/{customerId:guid}", GetCustomerById).WithOpenApi();
+            api.MapGet("/account/{accountId:guid}", GetCustomerByAccountId).WithOpenApi();
             api.MapPut("", UpdateCustomer).WithOpenApi();
             api.MapDelete("/{customerId:guid}", DeleteCustomer).WithOpenApi();
             return api;
@@ -39,7 +43,7 @@ public static class CustomerApi
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(query);
+        Result<OffsetPagedResult<GetPageListCustomersResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 
@@ -76,6 +80,15 @@ public static class CustomerApi
     )
     {
         var result = await mediator.Send(new GetCustomerByIdQuery(customerId));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetCustomerByAccountId(
+        [FromRoute] Guid accountId,
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(new GetDetailCustomerByAccountIdQuery(accountId));
         return result.ToResult();
     }
 }

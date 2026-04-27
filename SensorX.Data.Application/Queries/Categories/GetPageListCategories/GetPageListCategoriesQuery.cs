@@ -4,7 +4,7 @@ using SensorX.Data.Application.Common.ResponseClient;
 
 namespace SensorX.Data.Application.Queries.Categories.GetPageListCategories;
 
-public sealed record GetPageListCategoriesQuery : OffsetPagedQuery, IRequest<Result<CategoryOffsetPagedResult>>
+public sealed record GetPageListCategoriesQuery : OffsetPagedQuery, IRequest<Result<OffsetPagedResult<GetPageListCategoriesResponse>>>
 {
     public string? SearchTerm { get; init; }
 }

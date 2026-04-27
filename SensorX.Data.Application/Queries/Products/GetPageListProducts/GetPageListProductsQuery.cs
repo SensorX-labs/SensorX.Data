@@ -5,7 +5,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
-public sealed record GetPageListProductsQuery : OffsetPagedQuery, IRequest<Result<ProductOffsetPagedResult>>
+public sealed record GetPageListProductsQuery : OffsetPagedQuery, IRequest<Result<OffsetPagedResult<GetPageListProductsResponse>>>
 {
     public string? SearchTerm { get; init; }
     public ProductStatus? Status { get; init; }

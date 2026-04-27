@@ -29,5 +29,4 @@ public enum InternalPriceStatus
     ExpiringSoon,
     Expired,
 }
-
-public sealed class InternalPriceOffsetPagedResult : OffsetPagedResult<GetPageListInternalPriceResponse>;
+

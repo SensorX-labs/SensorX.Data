@@ -4,6 +4,7 @@ using SensorX.Data.Application.Commands.Categories.CreateCategory;
 using SensorX.Data.Application.Commands.Categories.DeleteCategory;
 using SensorX.Data.Application.Commands.Categories.SetParentCategory;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Queries.Categories.GetAllCategories;
 using SensorX.Data.Application.Queries.Categories.GetPageListCategories;
 using SensorX.Data.Application.Queries.Categories.LoadMoreForModal;
@@ -97,7 +98,7 @@ public static class CategoryApi
         [FromServices] IMediator mediator
     )
     {
-        Result<CategoryOffsetPagedResult> result = await mediator.Send(query);
+        Result<OffsetPagedResult<GetPageListCategoriesResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 

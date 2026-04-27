@@ -4,6 +4,7 @@ using SensorX.Data.Application.Commands.InternalPrices.CreateInternalPrice;
 using SensorX.Data.Application.Commands.InternalPrices.DeactivateInternalPrice;
 using SensorX.Data.Application.Commands.InternalPrices.ExtendInternalPrice;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Queries.InternalPrices.GetHistoryPriceForProduct;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
@@ -98,7 +99,7 @@ public static class InternalPriceApi
         [FromServices] IMediator mediator
     )
     {
-        Result<InternalPriceOffsetPagedResult> result = await mediator.Send(query);
+        Result<OffsetPagedResult<GetPageListInternalPriceResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 

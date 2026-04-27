@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Staffs.CreateStaff;
 using SensorX.Data.Application.Commands.Staffs.UpdateStaff;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
+using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 using SensorX.Data.Application.Queries.Staffs.GetDetailStaffById;
@@ -40,7 +42,7 @@ public static class StaffApi
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(query);
+        Result<OffsetPagedResult<GetPageListStaffsResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 
