@@ -6,6 +6,7 @@ using SensorX.Data.Application.Commands.Customers.DeleteCustomer;
 using SensorX.Data.Application.Queries.Customers.GetCustomerById;
 using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
+using SensorX.Data.Application.Queries.Customers.GetDetailCustomerByAccountId;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API;
@@ -20,6 +21,7 @@ public static class CustomerApi
             api.MapGet("/list", GetPageListCustomers).WithOpenApi();
             api.MapGet("/{customerId:guid}/buying-history", GetCustomerBuyingHistory).WithOpenApi();
             api.MapGet("/{customerId:guid}", GetCustomerById).WithOpenApi();
+            api.MapGet("/account/{accountId:guid}", GetCustomerByAccountId).WithOpenApi();
             api.MapPut("", UpdateCustomer).WithOpenApi();
             api.MapDelete("/{customerId:guid}", DeleteCustomer).WithOpenApi();
             return api;
@@ -76,6 +78,15 @@ public static class CustomerApi
     )
     {
         var result = await mediator.Send(new GetCustomerByIdQuery(customerId));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetCustomerByAccountId(
+        [FromRoute] Guid accountId,
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(new GetDetailCustomerByAccountIdQuery(accountId));
         return result.ToResult();
     }
 }
