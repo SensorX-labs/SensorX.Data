@@ -10,5 +10,4 @@ public sealed record GetPageListCategoriesResponse(
     string? ParentName,
     DateTimeOffset CreatedAt
 );
-
-public sealed class CategoryOffsetPagedResult : OffsetPagedResult<GetPageListCategoriesResponse> { }
+

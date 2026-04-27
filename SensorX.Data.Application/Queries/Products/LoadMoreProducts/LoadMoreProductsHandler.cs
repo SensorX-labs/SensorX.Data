@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
-using SensorX.Data.Application.Common.QueryExtensions.LoadMore;
+using SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
 using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
@@ -13,13 +13,13 @@ public sealed class LoadMoreProductsHandler(
     IQueryBuilder<Product> _productBuilder,
     IQueryBuilder<Category> _categoryBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<LoadMoreProductsQuery, Result<LoadMoreProductsResult>>
+) : IRequestHandler<LoadMoreProductsQuery, Result<KeysetPagedResult<LoadMoreProductsResponse>>>
 {
-    public async Task<Result<LoadMoreProductsResult>> Handle(LoadMoreProductsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<KeysetPagedResult<LoadMoreProductsResponse>>> Handle(LoadMoreProductsQuery request, CancellationToken cancellationToken)
     {
         var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-        var pagedProductBaseQuery = productQuery.ApplyLoadMoreWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending);
+        var pagedProductBaseQuery = productQuery.ApplyKeysetPaginationWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending);
 
         var sourceQuery = from product in pagedProductBaseQuery
                           join category in _categoryBuilder.QueryAsNoTracking
@@ -46,7 +46,7 @@ public sealed class LoadMoreProductsHandler(
 
         var lastItem = responseItems.LastOrDefault();
 
-        var result = new LoadMoreProductsResult
+        var result = new KeysetPagedResult<LoadMoreProductsResponse>
         {
             Items = responseItems,
             LastId = lastItem?.Id,
@@ -54,6 +54,6 @@ public sealed class LoadMoreProductsHandler(
             HasNext = hasNext
         };
 
-        return Result<LoadMoreProductsResult>.Success(result);
+        return Result<KeysetPagedResult<LoadMoreProductsResponse>>.Success(result);
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Customers.CreateCustomer;
 using SensorX.Data.Application.Commands.Customers.UpdateCustomer;
 using SensorX.Data.Application.Commands.Customers.DeleteCustomer;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
+using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Customers.GetCustomerById;
 using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;
 using SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
@@ -41,7 +43,7 @@ public static class CustomerApi
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(query);
+        Result<OffsetPagedResult<GetPageListCustomersResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 

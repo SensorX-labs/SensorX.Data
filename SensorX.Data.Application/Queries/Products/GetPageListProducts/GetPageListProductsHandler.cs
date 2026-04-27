@@ -12,9 +12,9 @@ public class GetPageListProductsHandler(
     IQueryBuilder<Product> _productBuilder,
     IQueryBuilder<Category> _categoryBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListProductsQuery, Result<ProductOffsetPagedResult>>
+) : IRequestHandler<GetPageListProductsQuery, Result<OffsetPagedResult<GetPageListProductsResponse>>>
 {
-    public async Task<Result<ProductOffsetPagedResult>> Handle(
+    public async Task<Result<OffsetPagedResult<GetPageListProductsResponse>>> Handle(
         GetPageListProductsQuery request,
         CancellationToken cancellationToken)
     {
@@ -53,7 +53,7 @@ public class GetPageListProductsHandler(
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var result = new ProductOffsetPagedResult
+            var result = new OffsetPagedResult<GetPageListProductsResponse>
             {
                 Items = items,
                 PageNumber = request.PageNumber ?? 1,
@@ -61,11 +61,11 @@ public class GetPageListProductsHandler(
                 TotalCount = totalCount
             };
 
-            return Result<ProductOffsetPagedResult>.Success(result);
+            return Result<OffsetPagedResult<GetPageListProductsResponse>>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<ProductOffsetPagedResult>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
+            return Result<OffsetPagedResult<GetPageListProductsResponse>>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
         }
     }
 }

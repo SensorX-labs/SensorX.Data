@@ -5,6 +5,8 @@ using SensorX.Data.Application.Commands.Products.CreateProduct;
 using SensorX.Data.Application.Commands.Products.DeleteProduct;
 using SensorX.Data.Application.Commands.Products.UpdateProduct;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
+using SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
 using SensorX.Data.Application.Queries.Products.GetPageListProducts;
 using SensorX.Data.Application.Queries.Products.GetProductDetail;
 using SensorX.Data.Application.Queries.Products.GetProductListStats;
@@ -108,7 +110,7 @@ public static class ProductApi
         [AsParameters] GetPageListProductsQuery query
     )
     {
-        var result = await mediator.Send(query);
+        Result<OffsetPagedResult<GetPageListProductsResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 
@@ -175,7 +177,7 @@ public static class ProductApi
         [AsParameters] LoadMoreProductsQuery query
     )
     {
-        Result<LoadMoreProductsResult> result = await mediator.Send(query);
+        Result<KeysetPagedResult<LoadMoreProductsResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 

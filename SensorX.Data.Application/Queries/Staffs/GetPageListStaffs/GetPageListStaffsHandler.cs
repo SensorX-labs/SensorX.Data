@@ -10,9 +10,9 @@ namespace SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 public class GetPageListStaffsHandler(
     IQueryBuilder<Staff> _staffBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListStaffsQuery, Result<StaffOffsetPagedResult>>
+) : IRequestHandler<GetPageListStaffsQuery, Result<OffsetPagedResult<GetPageListStaffsResponse>>>
 {
-    public async Task<Result<StaffOffsetPagedResult>> Handle(
+    public async Task<Result<OffsetPagedResult<GetPageListStaffsResponse>>> Handle(
         GetPageListStaffsQuery request,
         CancellationToken cancellationToken)
     {
@@ -39,7 +39,7 @@ public class GetPageListStaffsHandler(
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var result = new StaffOffsetPagedResult
+            var result = new OffsetPagedResult<GetPageListStaffsResponse>
             {
                 Items = items,
                 PageNumber = request.PageNumber ?? 1,
@@ -47,11 +47,11 @@ public class GetPageListStaffsHandler(
                 TotalCount = totalCount
             };
 
-            return Result<StaffOffsetPagedResult>.Success(result);
+            return Result<OffsetPagedResult<GetPageListStaffsResponse>>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<StaffOffsetPagedResult>.Failure(
+            return Result<OffsetPagedResult<GetPageListStaffsResponse>>.Failure(
                 $"Lỗi khi lấy danh sách nhân viên: {ex.Message}");
         }
     }

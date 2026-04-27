@@ -1,4 +1,4 @@
-using SensorX.Data.Application.Common.QueryExtensions.LoadMore;
+using SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.LoadMoreProducts;
@@ -13,5 +13,4 @@ public sealed record LoadMoreProductsResponse(
     DateTimeOffset CreatedAt,
     List<string> Images
 );
-
-public sealed class LoadMoreProductsResult : LoadMoreResult<LoadMoreProductsResponse> { }
+

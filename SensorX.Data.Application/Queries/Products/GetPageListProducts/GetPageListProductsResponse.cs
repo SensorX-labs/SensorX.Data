@@ -14,5 +14,4 @@ public sealed record GetPageListProductsResponse(
     List<string> Images,
     string Unit
 );
-
-public sealed class ProductOffsetPagedResult : OffsetPagedResult<GetPageListProductsResponse> { }
+

@@ -12,5 +12,4 @@ public sealed record GetPageListCustomersResponse(
     string Address,
     DateTimeOffset CreatedAt
 );
-
-public sealed class CustomerOffsetPagedResult : OffsetPagedResult<GetPageListCustomersResponse> { }
+
