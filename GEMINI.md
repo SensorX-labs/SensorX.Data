@@ -38,10 +38,16 @@ The project now supports two types of pagination in `SensorX.Data.Application.Co
 - `SuggestedPrice` (Price for Qty 1) must be greater than or equal to `FloorPrice`.
 - `PriceTiers` must have `Quantity > 1`.
 - Price must decrease as Quantity increases across tiers.
-- Only one active "Infinite" price list can exist per product at any time.
+### Suggestion Logic (Updated 2026-04-27)
+- **Selection**: Returns the most "relevant" active price per product using `GroupBy(ProductId)` and `First()`.
+- **Priority Rules**:
+    1. `CreatedAt DESC`: Prefers more recently created price lists.
+    2. `(ExpiresAt - CreatedAt) ASC`: Prefers "short-term" (temporary/promotional) price lists over "infinite" ones if they share similar creation times.
+    3. `Id DESC`: Final deterministic fallback.
 
 ## Technical Patterns
 - Use `IQueryBuilder<T>` to build the base query.
 - Use `IQueryExecutor` for materialization (`ToListAsync`, `CountAsync`).
+- **Grouping in Query**: Use `GroupBy(x => x.ProductId).Select(g => g.OrderBy(...).First())` to efficiently pick the best candidate per group in the database (supported in EF Core 6+).
 - Always apply `OrderBy` before or as part of pagination logic to ensure deterministic results.
 - **REST Actions**: Use `PATCH` for specific state changes (Deactivate, Extend) to follow semantic REST practices.
