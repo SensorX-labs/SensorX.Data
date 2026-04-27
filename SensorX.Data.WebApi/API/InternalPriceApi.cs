@@ -8,6 +8,7 @@ using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Queries.InternalPrices.GetHistoryPriceForProduct;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
+using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceSuggest;
 using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
 using SensorX.Data.WebApi.Extensions;
 
@@ -52,6 +53,11 @@ public static class InternalPriceApi
             .WithOpenApi()
             .WithSummary("Get internal price stats")
             .WithDescription("Lấy thống kê về các mức giá nội bộ.");
+
+        api.MapPost("/internalPrices/suggest", GetInternalPriceSuggest)
+            .WithOpenApi()
+            .WithSummary("Get suggested internal prices for products")
+            .WithDescription("Lấy danh sách các bảng giá đề xuất ưu tiên cho một danh sách các sản phẩm.");
 
         return api;
     }
@@ -117,6 +123,15 @@ public static class InternalPriceApi
     )
     {
         Result<GetInternalPriceListStatsResponse> result = await mediator.Send(new GetInternalPriceListStatsQuery());
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetInternalPriceSuggest(
+        [FromBody] GetInternalPriceSuggestQuery query,
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<List<InternalPriceResponse>> result = await mediator.Send(query);
         return result.ToResult();
     }
 }
