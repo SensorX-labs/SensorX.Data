@@ -9,9 +9,9 @@ namespace SensorX.Data.Application.Queries.Categories.GetPageListCategories;
 public sealed class GetPageListCategoriesHandler(
     IQueryBuilder<Category> categoryQueryBuilder,
     IQueryExecutor queryExecutor
-) : IRequestHandler<GetPageListCategoriesQuery, Result<CategoryOffsetPagedResult>>
+) : IRequestHandler<GetPageListCategoriesQuery, Result<OffsetPagedResult<GetPageListCategoriesResponse>>>
 {
-    public async Task<Result<CategoryOffsetPagedResult>> Handle(GetPageListCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<OffsetPagedResult<GetPageListCategoriesResponse>>> Handle(GetPageListCategoriesQuery request, CancellationToken cancellationToken)
     {
         var query = categoryQueryBuilder.QueryAsNoTracking;
 
@@ -36,7 +36,7 @@ public sealed class GetPageListCategoriesHandler(
 
         var items = await queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-        var result = new CategoryOffsetPagedResult
+        var result = new OffsetPagedResult<GetPageListCategoriesResponse>
         {
             Items = items,
             PageNumber = request.PageNumber ?? 1,
@@ -44,6 +44,6 @@ public sealed class GetPageListCategoriesHandler(
             TotalCount = totalCount
         };
 
-        return Result<CategoryOffsetPagedResult>.Success(result);
+        return Result<OffsetPagedResult<GetPageListCategoriesResponse>>.Success(result);
     }
 }

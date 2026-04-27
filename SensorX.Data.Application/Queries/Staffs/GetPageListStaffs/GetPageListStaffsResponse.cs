@@ -12,5 +12,4 @@ public sealed record GetPageListStaffsResponse(
     string Department,
     DateTimeOffset CreatedAt
 );
-
-public sealed class StaffOffsetPagedResult : OffsetPagedResult<GetPageListStaffsResponse> { }
+

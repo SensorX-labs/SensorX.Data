@@ -12,9 +12,9 @@ public sealed class GetPageListInternalPriceHandler(
     IQueryBuilder<InternalPrice> _internalPriceQueryBuilder,
     IQueryBuilder<Product> _productQueryBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListInternalPriceQuery, Result<InternalPriceOffsetPagedResult>>
+) : IRequestHandler<GetPageListInternalPriceQuery, Result<OffsetPagedResult<GetPageListInternalPriceResponse>>>
 {
-    public async Task<Result<InternalPriceOffsetPagedResult>> Handle(GetPageListInternalPriceQuery request, CancellationToken cancellationToken)
+    public async Task<Result<OffsetPagedResult<GetPageListInternalPriceResponse>>> Handle(GetPageListInternalPriceQuery request, CancellationToken cancellationToken)
     {
         var query = from internalPrice in _internalPriceQueryBuilder.QueryAsNoTracking
                     join product in _productQueryBuilder.QueryAsNoTracking
@@ -73,7 +73,7 @@ public sealed class GetPageListInternalPriceHandler(
 
         var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-        var result = new InternalPriceOffsetPagedResult
+        var result = new OffsetPagedResult<GetPageListInternalPriceResponse>
         {
             Items = items,
             PageNumber = request.PageNumber ?? 1,
@@ -81,7 +81,7 @@ public sealed class GetPageListInternalPriceHandler(
             TotalCount = totalCount
         };
 
-        return Result<InternalPriceOffsetPagedResult>.Success(result);
+        return Result<OffsetPagedResult<GetPageListInternalPriceResponse>>.Success(result);
 
     }
 }

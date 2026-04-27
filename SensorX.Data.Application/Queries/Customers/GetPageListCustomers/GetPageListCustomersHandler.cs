@@ -10,9 +10,9 @@ namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 public sealed class GetPageListCustomersHandler(
     IQueryBuilder<Customer> _customerBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListCustomersQuery, Result<CustomerOffsetPagedResult>>
+) : IRequestHandler<GetPageListCustomersQuery, Result<OffsetPagedResult<GetPageListCustomersResponse>>>
 {
-    public async Task<Result<CustomerOffsetPagedResult>> Handle(
+    public async Task<Result<OffsetPagedResult<GetPageListCustomersResponse>>> Handle(
         GetPageListCustomersQuery request,
         CancellationToken cancellationToken)
     {
@@ -40,7 +40,7 @@ public sealed class GetPageListCustomersHandler(
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var result = new CustomerOffsetPagedResult
+            var result = new OffsetPagedResult<GetPageListCustomersResponse>
             {
                 Items = items,
                 PageNumber = request.PageNumber ?? 1,
@@ -48,11 +48,11 @@ public sealed class GetPageListCustomersHandler(
                 TotalCount = totalCount
             };
 
-            return Result<CustomerOffsetPagedResult>.Success(result);
+            return Result<OffsetPagedResult<GetPageListCustomersResponse>>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<CustomerOffsetPagedResult>.Failure(
+            return Result<OffsetPagedResult<GetPageListCustomersResponse>>.Failure(
                 $"Lỗi khi lấy danh sách khách hàng: {ex.Message}");
         }
     }
