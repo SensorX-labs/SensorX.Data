@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SensorX.Data.Domain\SensorX.Data.Domain.csproj" />
+    <ProjectReference Include="..\SensorX.Data.Application\SensorX.Data.Application.csproj" />
   </ItemGroup>
 
 </Project>
