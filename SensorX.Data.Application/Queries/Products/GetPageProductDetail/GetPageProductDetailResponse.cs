@@ -1,6 +1,6 @@
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
-namespace SensorX.Data.Application.Queries.Pages.GetPageProductDetail;
+namespace SensorX.Data.Application.Queries.Products.GetPageProductDetail;
 
 public sealed record GetPageProductDetailResponse
 (

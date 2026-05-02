@@ -7,7 +7,7 @@ using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
-namespace SensorX.Data.Application.Queries.Pages.GetPageProductDetail;
+namespace SensorX.Data.Application.Queries.Products.GetPageProductDetail;
 
 public sealed class GetPageProductDetailHandler(
     IQueryBuilder<Product> _productQueryBuilder,
