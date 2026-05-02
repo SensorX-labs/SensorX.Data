@@ -27,12 +27,12 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
         builder.Property(s => s.Name).IsRequired();
 
         builder.Property(s => s.Phone)
-            .HasConversion(p => p.Value, v => Phone.From(v));
+            .HasConversion(p => p != null ? p.Value : null, v => v != null ? Phone.From(v) : null);
 
         builder.Property(s => s.Email)
             .HasConversion(e => e.Value, v => Email.From(v));
 
         builder.Property(s => s.CitizenId)
-            .HasConversion(c => c.Value, v => CitizenId.From(v));
+            .HasConversion(c => c != null ? c.Value : null, v => v != null ? CitizenId.From(v) : null);
     }
 }

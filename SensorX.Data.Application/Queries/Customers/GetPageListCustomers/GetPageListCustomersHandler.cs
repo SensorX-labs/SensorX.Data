@@ -31,10 +31,10 @@ public sealed class GetPageListCustomersHandler(
                 x.Id.Value,
                 x.Name,
                 x.Code.Value,
-                x.TaxCode,
+                x.TaxCode ?? string.Empty,
                 x.Email.Value,
-                x.Phone.Value,
-                x.Address,
+                x.Phone != null ? x.Phone.Value : string.Empty,
+                x.Address ?? string.Empty,
                 x.CreatedAt
             ));
 
