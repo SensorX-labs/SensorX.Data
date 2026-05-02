@@ -19,7 +19,7 @@ public static class CustomerSearch
             (string)(object)p.Code != null && ((string)(object)p.Code).Contains(term) ||
             p.TaxCode != null && p.TaxCode.Contains(term) ||
             (string)(object)p.Email != null && ((string)(object)p.Email).Contains(term) ||
-            (string)(object)p.Phone != null && ((string)(object)p.Phone).Contains(term)
+            p.Phone != null && p.Phone.Value.Contains(term)
         );
     }
 }
