@@ -24,7 +24,7 @@ public sealed class GetCustomerByIdHandler(
                     x.Code.Value,
                     x.TaxCode,
                     x.Email.Value,
-                    x.Phone.Value,
+                    x.Phone != null ? x.Phone.Value : string.Empty,
                     x.Address,
                     x.CreatedAt
                 ));
