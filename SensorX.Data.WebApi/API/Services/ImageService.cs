@@ -4,13 +4,13 @@ using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.WebApi.Extensions;
 
-namespace SensorX.Data.WebApi.API;
+namespace SensorX.Data.WebApi.API.Services;
 
-public static class ImageApi
+public static class ImageService
 {
-    public static RouteGroupBuilder MapImageApi(this IEndpointRouteBuilder app)
+    public static RouteGroupBuilder MapImageService(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("image").WithTags("Image");
+        var api = app.MapGroup("image").WithTags("Image Services");
 
         api.MapPost("/upload", UploadImage).DisableAntiforgery().WithOpenApi();
         api.MapDelete("/delete", DeleteImage).WithOpenApi();

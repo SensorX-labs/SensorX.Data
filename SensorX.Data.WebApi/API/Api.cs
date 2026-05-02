@@ -1,5 +1,6 @@
 using SensorX.Data.WebApi.API.Commands;
 using SensorX.Data.WebApi.API.Queries;
+using SensorX.Data.WebApi.API.Services;
 
 namespace SensorX.Data.WebApi.API;
 
@@ -10,16 +11,21 @@ public static class Api
         var api = app.MapGroup("api");
 
         //Command apis
+        api.MapCustomerCommands();
+        api.MapStaffCommands();
+        api.MapCategoryCommands();
+        api.MapProductCommands();
         api.MapInternalPriceCommands();
 
         //Query apis
-        api.MapCategoryApi();
+        api.MapCustomerQueries();
+        api.MapStaffQueries();
+        api.MapCategoryQueries();
+        api.MapProductQueries();
         api.MapInternalPriceQueries();
-        api.MapProductApi();
-        api.MapCustomerApi();
-        api.MapStaffApi();
-        api.MapImageApi();
-        api.MapPageApi();
+
+        //Service apis
+        api.MapImageService();
         return api;
     }
 }
