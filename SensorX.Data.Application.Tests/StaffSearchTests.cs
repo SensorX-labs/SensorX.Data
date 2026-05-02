@@ -4,7 +4,7 @@ using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;
 
-namespace SensorX.Data.Domain.Tests;
+namespace SensorX.Data.Application.Tests;
 
 public class StaffSearchTests
 {
