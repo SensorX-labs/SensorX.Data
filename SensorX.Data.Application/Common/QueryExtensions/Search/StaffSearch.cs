@@ -18,8 +18,8 @@ public static class StaffSearch
             p.Name.Contains(term) ||
             p.Code.Value.Contains(term) ||
             p.Email.Value.Contains(term) ||
-            p.Phone.Value.Contains(term) ||
-            p.CitizenId.Value.Contains(term)
+            (p.Phone != null && p.Phone.Value.Contains(term)) ||
+            (p.CitizenId != null && p.CitizenId.Value.Contains(term))
         );
     }
 }
