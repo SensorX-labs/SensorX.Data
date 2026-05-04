@@ -4,27 +4,24 @@ using SensorX.Data.Application.Commands.Staffs.CreateStaff;
 using SensorX.Data.Application.Commands.Staffs.UpdateStaff;
 using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Common.ResponseClient;
-using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
-using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 using SensorX.Data.Application.Queries.Staffs.GetDetailStaffById;
+using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 using SensorX.Data.Application.Queries.Staffs.GetStaffByAccountId;
+using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 using SensorX.Data.WebApi.Extensions;
 
-namespace SensorX.Data.WebApi.API;
+namespace SensorX.Data.WebApi.API.Queries;
 
-public static class StaffApi
+public static class StaffQueries
 {
-    public static RouteGroupBuilder MapStaffApi(this IEndpointRouteBuilder app)
+    public static RouteGroupBuilder MapStaffQueries(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("staff").WithTags("Staff");
+        var api = app.MapGroup("staff").WithTags("Staff Queries");
 
-        api.MapPost("/create", CreateStaff).WithOpenApi();
         api.MapGet("/list", GetPageListStaffs).WithOpenApi();
         api.MapGet("/{staffId:guid}/metrics", GetEmployeeMetrics).WithOpenApi();
         api.MapGet("/{staffId:guid}", GetStaffById).WithOpenApi();
         api.MapGet("/account/{accountId:guid}", GetStaffByAccountId).WithOpenApi();
-        api.MapPut("", UpdateStaff).WithOpenApi();
-        api.MapDelete("/{staffId:guid}", DeleteStaff).WithOpenApi();
         return api;
     }
 
