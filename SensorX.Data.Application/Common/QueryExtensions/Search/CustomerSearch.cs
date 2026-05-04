@@ -16,10 +16,10 @@ public static class CustomerSearch
 
         return query.Where(p =>
             p.Name.Contains(term) ||
-            ((string)(object)p.Code).Contains(term) ||
+            ((string)p.Code).Contains(term) ||
             p.TaxCode != null && p.TaxCode.Contains(term) ||
-            ((string)(object)p.Email).Contains(term) ||
-            (p.Phone != null && ((string)(object)p.Phone).Contains(term))
+            ((string)p.Email).Contains(term) ||
+            (p.Phone != null && ((string)p.Phone).Contains(term))
         );
     }
 }

@@ -16,10 +16,10 @@ public static class StaffSearch
 
         return query.Where(p =>
             p.Name.Contains(term) ||
-            ((string)(object)p.Code).Contains(term) ||
-            ((string)(object)p.Email).Contains(term) ||
-            (p.Phone != null && ((string)(object)p.Phone).Contains(term)) ||
-            (p.CitizenId != null && ((string)(object)p.CitizenId).Contains(term))
+            ((string)p.Code).Contains(term) ||
+            ((string)p.Email).Contains(term) ||
+            (p.Phone != null && ((string)p.Phone).Contains(term)) ||
+            (p.CitizenId != null && ((string)p.CitizenId).Contains(term))
         );
     }
 }
