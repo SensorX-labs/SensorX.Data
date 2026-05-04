@@ -10,6 +10,7 @@ using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceSuggest;
 using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
+using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceById;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Queries;
@@ -19,6 +20,11 @@ public static class InternalPriceQueries
     public static RouteGroupBuilder MapInternalPriceQueries(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("catalog/internal-prices").WithTags("Internal Prices");
+
+        api.MapGet("/{id:guid}", GetInternalPriceById)
+            .WithOpenApi()
+            .WithSummary("Get internal price by ID")
+            .WithDescription("Lấy chi tiết chính sách giá nội bộ theo ID.");
 
         api.MapGet("/product/{productId:guid}", GetInternalPricesByProductId)
             .WithOpenApi()
@@ -46,6 +52,15 @@ public static class InternalPriceQueries
             .WithDescription("Lấy danh sách các bảng giá đề xuất ưu tiên cho một danh sách các sản phẩm.");
 
         return api;
+    }
+
+    private static async Task<IResult> GetInternalPriceById(
+        [FromRoute] Guid id,
+        [FromServices] IMediator mediator
+    )
+    {
+        Result<GetInternalPriceByIdResponse> result = await mediator.Send(new GetInternalPriceByIdQuery(id));
+        return result.ToResult();
     }
 
     private static async Task<IResult> GetInternalPricesByProductId(
