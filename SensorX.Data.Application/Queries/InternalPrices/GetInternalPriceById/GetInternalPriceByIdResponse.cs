@@ -17,6 +17,6 @@ public sealed record GetInternalPriceByIdResponse(
 
 public sealed record PriceTierDetailResponse(
     int Quantity,
-    decimal PriceAmount,
-    string PriceCurrency
+    decimal Price,
+    string Currency
 );
