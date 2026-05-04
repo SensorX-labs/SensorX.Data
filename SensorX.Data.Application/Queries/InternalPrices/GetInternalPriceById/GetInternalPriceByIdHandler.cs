@@ -1,6 +1,7 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Domain.Common.Extensions;
 using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
@@ -39,7 +40,8 @@ public sealed class GetInternalPriceByIdHandler(
                     t.Price.Currency
                 )).ToList(),
                 price.CreatedAt,
-                price.ExpiresAt
+                price.ExpiresAt,
+                price.IsExpired() ? InternalPriceStatus.Expired : price.IsExpiringSoon(7) ? InternalPriceStatus.ExpiringSoon : InternalPriceStatus.Active
             ));
 
         var response = await _queryExecutor.FirstOrDefaultAsync(resultQuery, cancellationToken);

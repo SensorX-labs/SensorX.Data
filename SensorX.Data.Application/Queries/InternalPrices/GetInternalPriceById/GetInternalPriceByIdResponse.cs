@@ -12,7 +12,8 @@ public sealed record GetInternalPriceByIdResponse(
     string FloorPriceCurrency,
     List<PriceTierDetailResponse> PriceTiers,
     DateTimeOffset CreatedAt,
-    DateTimeOffset ExpiresAt
+    DateTimeOffset ExpiresAt,
+    InternalPriceStatus Status
 );
 
 public sealed record PriceTierDetailResponse(
@@ -20,3 +21,10 @@ public sealed record PriceTierDetailResponse(
     decimal Price,
     string Currency
 );
+
+public enum InternalPriceStatus
+{
+    Active,
+    ExpiringSoon,
+    Expired,
+}
