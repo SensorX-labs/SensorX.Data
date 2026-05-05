@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Customers.CreateCustomer;
-using SensorX.Data.Application.Commands.Customers.DeleteCustomer;
 using SensorX.Data.Application.Commands.Customers.UpdateCustomer;
 using SensorX.Data.WebApi.Extensions;
 
