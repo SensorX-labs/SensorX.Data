@@ -1,3 +1,5 @@
+using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
+
 namespace SensorX.Data.Application.Queries.Staffs.GetDetailStaffById;
 
 public record GetDetailStaffByIdResponse(
@@ -6,7 +8,7 @@ public record GetDetailStaffByIdResponse(
     string StaffName,
     string Email,
     string Phone,
-    string Department,
+    Department Department,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt
 );

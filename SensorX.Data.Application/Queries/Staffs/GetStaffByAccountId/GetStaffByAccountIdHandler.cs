@@ -3,8 +3,8 @@ using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Staffs.GetDetailStaffById;
 using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
-using SensorX.Data.Domain.ValueObjects;
 using SensorX.Data.Domain.StrongIDs;
+using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Application.Queries.Staffs.GetStaffByAccountId;
 
@@ -25,7 +25,7 @@ public class GetStaffByAccountIdHandler(
                 x.Name,
                 x.Email.Value,
                 x.Phone != null ? x.Phone.Value : string.Empty,
-                x.Department.HasValue ? x.Department.Value.ToString() : string.Empty,
+                x.Department,
                 x.CreatedAt,
                 x.UpdatedAt
             ));

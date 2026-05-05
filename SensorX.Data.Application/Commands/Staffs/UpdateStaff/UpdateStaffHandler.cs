@@ -16,24 +16,11 @@ public class UpdateStaffHandler(
     public async Task<Result<Guid>> Handle(UpdateStaffCommand request, CancellationToken cancellationToken)
     {
         var staffId = new StaffId(request.Id);
-        
+
         var staff = await _staffRepository.GetByIdAsync(staffId, cancellationToken);
         if (staff == null)
         {
             return Result<Guid>.Failure("Không tìm thấy nhân viên với ID tương ứng.");
-        }
-
-        Department? department = null;
-        if (!string.IsNullOrWhiteSpace(request.Department))
-        {
-            if (Enum.TryParse<Department>(request.Department, true, out var parsedDept))
-            {
-                department = parsedDept;
-            }
-            else
-            {
-                return Result<Guid>.Failure("Phòng ban không hợp lệ.");
-            }
         }
 
         staff.UpdateProfile(
@@ -43,7 +30,7 @@ public class UpdateStaffHandler(
             string.IsNullOrWhiteSpace(request.CitizenId) ? null : CitizenId.From(request.CitizenId),
             request.Biography,
             request.JoinDate,
-            department
+            request.Department
         );
 
         await _staffRepository.Update(staff, cancellationToken);

@@ -6,7 +6,6 @@ using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.Infrastructure.Services;
-using SensorX.Data.Application.Consumers;
 
 namespace SensorX.Data.Infrastructure.DI
 {
@@ -20,7 +19,7 @@ namespace SensorX.Data.Infrastructure.DI
             services.AddMassTransit(x =>
             {
                 // Đăng ký Consumer
-                x.AddConsumer<AccountRegisteredEventConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
@@ -39,7 +38,7 @@ namespace SensorX.Data.Infrastructure.DI
                     var rabbitMqPortStr = configuration["RabbitMQ:Port"];
                     var rabbitMqPort = ushort.TryParse(rabbitMqPortStr, out var port) ? port : (ushort)5672;
                     var rabbitMqVHost = configuration["RabbitMQ:VirtualHost"] ?? "/";
-                    
+
                     cfg.Host(rabbitMqHost, rabbitMqPort, rabbitMqVHost, h =>
                     {
                         h.Username(configuration["RabbitMQ:Username"] ?? "guest");
@@ -47,13 +46,13 @@ namespace SensorX.Data.Infrastructure.DI
                     });
 
                     // Đổi tên Exchange giống với Gateway
-                    cfg.Message<SensorX.Gateway.Domain.Events.AccountRegisteredEvent>(e => 
-                        e.SetEntityName("sensorx.events.account-registered"));
+                    cfg.Message<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountEvent>(e =>
+                        e.SetEntityName("account-created"));
 
                     // Cấu hình Queue để consume event
-                    cfg.ReceiveEndpoint("sensorx.data.account-registered-queue", e =>
+                    cfg.ReceiveEndpoint("account-created-consumer", e =>
                     {
-                        e.ConfigureConsumer<AccountRegisteredEventConsumer>(context);
+                        e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>(context);
                     });
 
                     cfg.ConfigureEndpoints(context);

@@ -1,3 +1,5 @@
+using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
+
 namespace SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 
 public sealed record GetStaffMetricsResponse(
@@ -6,7 +8,7 @@ public sealed record GetStaffMetricsResponse(
     string StaffName,
     string Email,
     string Phone,
-    string Department,
+    Department Department,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt
 );
