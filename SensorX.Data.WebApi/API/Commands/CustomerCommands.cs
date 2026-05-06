@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Data.Application.Commands.Customers.CreateCustomer;
 using SensorX.Data.Application.Commands.Customers.UpdateCustomer;
 using SensorX.Data.WebApi.Extensions;
 
@@ -12,18 +11,8 @@ public static class CustomerCommands
     {
         var api = app.MapGroup("customer").WithTags("Customer Commands");
 
-        api.MapPost("/create", CreateCustomer).WithOpenApi();
         api.MapPut("", UpdateCustomer).WithOpenApi();
         return api;
-    }
-
-    private static async Task<IResult> CreateCustomer(
-        [FromBody] CreateCustomerCommand command,
-        [FromServices] IMediator mediator
-    )
-    {
-        var result = await mediator.Send(command);
-        return result.ToResult();
     }
 
     private static async Task<IResult> UpdateCustomer(

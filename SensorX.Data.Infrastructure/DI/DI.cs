@@ -20,6 +20,7 @@ namespace SensorX.Data.Infrastructure.DI
             {
                 // Đăng ký Consumer
                 x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
@@ -53,6 +54,16 @@ namespace SensorX.Data.Infrastructure.DI
                     cfg.ReceiveEndpoint("account-created-consumer", e =>
                     {
                         e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>(context);
+                    });
+
+                    // Đổi tên Exchange giống với Gateway
+                    cfg.Message<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountEvent>(e =>
+                        e.SetEntityName("customer-registered"));
+
+                    // Cấu hình Queue để consume event
+                    cfg.ReceiveEndpoint("customer-registered-consumer", e =>
+                    {
+                        e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountConsumer>(context);
                     });
 
                     cfg.ConfigureEndpoints(context);

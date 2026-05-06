@@ -7,9 +7,9 @@ public sealed record GetCustomerByIdResponse(
     Guid Id,
     string Name,
     string Code,
-    string? TaxCode,
+    string TaxCode,
     string Email,
-    string? PhoneNumber,
+    string? Phone,
     string? Address,
     DateTimeOffset CreatedAt
 );
