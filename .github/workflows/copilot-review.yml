@@ -12,6 +12,13 @@ jobs:
       pull-requests: write
     steps:
       - name: Add Copilot to PR
-        run: gh pr edit ${{ github.event.pull_request.number }} --add-reviewer @copilot
+        run: |
+          # Check if copilot is already a reviewer
+          REVIEWERS=$(gh pr view ${{ github.event.pull_request.number }} --json reviewers --jq '.reviewers[].login' | tr '[:upper:]' '[:lower:]')
+          if [[ ! "$REVIEWERS" =~ "copilot" ]]; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-reviewer github-copilot
+          else
+            echo "Copilot is already a reviewer."
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
