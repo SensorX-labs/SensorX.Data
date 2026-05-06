@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SensorX.Data.Infrastructure.Persistences;
@@ -11,9 +12,11 @@ using SensorX.Data.Infrastructure.Persistences;
 namespace SensorX.Data.Infrastructure.Persistences.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260506102516_UpdateAdministrativeHierarchy")]
+    partial class UpdateAdministrativeHierarchy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -597,10 +600,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         {
                             b1.Property<Guid>("CustomerId")
                                 .HasColumnType("uuid");
-
-                            b1.Property<Guid>("ProvinceId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("ProvinceId");
 
                             b1.Property<string>("ReceiverName")
                                 .IsRequired()

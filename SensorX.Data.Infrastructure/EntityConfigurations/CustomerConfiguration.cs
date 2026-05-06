@@ -35,6 +35,10 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.OwnsOne(c => c.ShippingInfo, s =>
         {
+            s.Property(p => p.ProvinceId)
+                .HasConversion(id => id.Value, v => new ProvinceId(v))
+                .HasColumnName("ProvinceId");
+
             s.Property(p => p.WardId)
                 .HasConversion(id => id.Value, v => new WardId(v))
                 .HasColumnName("WardId");

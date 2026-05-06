@@ -78,6 +78,9 @@ namespace SensorX.Data.Infrastructure.DI
             // Cloudinary
             services.AddScoped<ICloudinaryService, CloudinaryService>();
 
+            // Vietnam Administrative Data
+            services.AddHttpClient<IVietnamAdministrativeService, VietnamAdministrativeService>();
+
             return services;
         }
     }

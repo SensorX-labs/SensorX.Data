@@ -53,8 +53,11 @@ The project now supports two types of pagination in `SensorX.Data.Application.Co
 ## Database & Migrations
 
 ### Recent Fixes (2026-05-06)
+- **LINQ Translation Error in Administrative Queries**: Fixed an issue in `GetListProvinceHandler` and `GetListWardForProvinceHandler` where `.OrderBy(x => x.Code)` was called after `.Select(...)`.
+    - **Cause**: EF Core cannot translate ordering logic based on client-side DTO properties after projection.
+    - **Solution**: Moved `.OrderBy(x => x.Code)` before the `.Select(...)` projection to ensure the ordering happens at the database level using entity properties.
 - **PendingModelChangesWarning**: Fixed an issue where the API failed to start due to `Microsoft.EntityFrameworkCore.Migrations.PendingModelChangesWarning`.
-- **Cause**: The `Department` property in `Staff` entity was changed to non-nullable in code, but the database schema hadn't been updated with a migration.
-- **Solution**: Created and applied a new migration `UpdateModelChanges` to sync the database schema with the model.
-- **EF Core 9+ Note**: EF Core now strictly validates that the model matches migrations on startup if automatic migrations are enabled. Always run `dotnet ef migrations add` after changing entities.
+    - **Cause**: The `Department` property in `Staff` entity was changed to non-nullable in code, but the database schema hadn't been updated with a migration.
+    - **Solution**: Created and applied a new migration `UpdateModelChanges` to sync the database schema with the model.
+    - **EF Core 9+ Note**: EF Core now strictly validates that the model matches migrations on startup if automatic migrations are enabled. Always run `dotnet ef migrations add` after changing entities.
 
