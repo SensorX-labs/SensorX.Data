@@ -16,7 +16,7 @@ public class UpdateCustomerHandler(
     public async Task<Result<Guid>> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
         var customerId = new CustomerId(request.Id);
-        
+
         var customer = await _customerRepository.GetByIdAsync(customerId, cancellationToken);
         if (customer == null)
         {
@@ -25,13 +25,13 @@ public class UpdateCustomerHandler(
 
         customer.UpdateProfile(
             request.Name,
-            string.IsNullOrWhiteSpace(request.Phone) ? null : Phone.From(request.Phone),
+            Phone.From(request.Phone),
             Email.From(request.Email),
             request.TaxCode,
             request.Address
         );
 
-        if (request.WardId.HasValue && !string.IsNullOrWhiteSpace(request.ShippingAddress) && 
+        if (request.WardId.HasValue && !string.IsNullOrWhiteSpace(request.ShippingAddress) &&
             !string.IsNullOrWhiteSpace(request.ReceiverName) && !string.IsNullOrWhiteSpace(request.ReceiverPhone))
         {
             var shippingInfo = ShippingInfo.Create(
@@ -42,7 +42,7 @@ public class UpdateCustomerHandler(
             );
             customer.UpdateShippingInfo(shippingInfo);
         }
-        else if (!request.WardId.HasValue && string.IsNullOrWhiteSpace(request.ShippingAddress) && 
+        else if (!request.WardId.HasValue && string.IsNullOrWhiteSpace(request.ShippingAddress) &&
                  string.IsNullOrWhiteSpace(request.ReceiverName) && string.IsNullOrWhiteSpace(request.ReceiverPhone))
         {
             customer.UpdateShippingInfo(null);

@@ -13,20 +13,18 @@ public class Customer : User<CustomerId>
         string name,
         Phone? phone,
         Email email,
-        string? taxCode,
+        string taxCode,
         string? address
     ) : base(id, accountId, code, name, phone, email)
     {
         // Bỏ validate null cho phép trống
-        // if (string.IsNullOrWhiteSpace(taxCode))
-        //     throw new DomainException("Mã số thuế không được để trống.");
-        // if (string.IsNullOrWhiteSpace(address))
-        //     throw new DomainException("Địa chỉ không được để trống.");
+        if (string.IsNullOrWhiteSpace(taxCode))
+            throw new DomainException("Mã số thuế không được để trống.");
         TaxCode = taxCode;
         Address = address;
     }
 
-    public string? TaxCode { get; private set; }
+    public string TaxCode { get; private set; }
     public string? Address { get; private set; }
     public ShippingInfo? ShippingInfo { get; private set; }
 
@@ -34,15 +32,13 @@ public class Customer : User<CustomerId>
         string name,
         Phone? phone,
         Email email,
-        string? taxCode,
+        string taxCode,
         string? address
     )
     {
         // Bỏ validate null
-        // if (string.IsNullOrWhiteSpace(taxCode))
-        //     throw new DomainException("Mã số thuế không được để trống.");
-        // if (string.IsNullOrWhiteSpace(address))
-        //     throw new DomainException("Địa chỉ không được để trống.");
+        if (string.IsNullOrWhiteSpace(taxCode))
+            throw new DomainException("Mã số thuế không được để trống.");
         base.UpdateProfile(name, phone, email);
         TaxCode = taxCode;
         Address = address;

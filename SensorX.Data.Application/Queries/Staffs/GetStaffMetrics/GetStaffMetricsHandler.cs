@@ -23,7 +23,7 @@ public class GetStaffMetricsHandler(
                 x.Name,
                 x.Email.Value,
                 x.Phone != null ? x.Phone.Value : string.Empty,
-                x.Department.HasValue ? x.Department.Value.ToString() : string.Empty,
+                x.Department,
                 x.CreatedAt,
                 x.UpdatedAt
             ));

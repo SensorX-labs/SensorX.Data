@@ -50,4 +50,11 @@ The project now supports two types of pagination in `SensorX.Data.Application.Co
 - Use `IQueryExecutor` for materialization (`ToListAsync`, `CountAsync`).
 - **Grouping in Query**: Use `GroupBy(x => x.ProductId).Select(g => g.OrderBy(...).First())` to efficiently pick the best candidate per group in the database (supported in EF Core 6+).
 - Always apply `OrderBy` before or as part of pagination logic to ensure deterministic results.
-- **REST Actions**: Use `PATCH` for specific state changes (Deactivate, Extend) to follow semantic REST practices.
+## Database & Migrations
+
+### Recent Fixes (2026-05-06)
+- **PendingModelChangesWarning**: Fixed an issue where the API failed to start due to `Microsoft.EntityFrameworkCore.Migrations.PendingModelChangesWarning`.
+- **Cause**: The `Department` property in `Staff` entity was changed to non-nullable in code, but the database schema hadn't been updated with a migration.
+- **Solution**: Created and applied a new migration `UpdateModelChanges` to sync the database schema with the model.
+- **EF Core 9+ Note**: EF Core now strictly validates that the model matches migrations on startup if automatic migrations are enabled. Always run `dotnet ef migrations add` after changing entities.
+

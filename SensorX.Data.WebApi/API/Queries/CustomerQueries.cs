@@ -1,8 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Data.Application.Commands.Customers.CreateCustomer;
-using SensorX.Data.Application.Commands.Customers.DeleteCustomer;
-using SensorX.Data.Application.Commands.Customers.UpdateCustomer;
 using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Customers.GetCustomerBuyingHistory;

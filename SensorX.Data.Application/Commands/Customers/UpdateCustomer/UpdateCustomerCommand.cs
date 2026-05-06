@@ -7,11 +7,11 @@ public class UpdateCustomerCommand : IRequest<Result<Guid>>
 {
     public Guid Id { get; set; }
     public required string Name { get; set; }
-    public string? Phone { get; set; }
+    public required string Phone { get; set; }
     public required string Email { get; set; }
-    public string? TaxCode { get; set; }
-    public string? Address { get; set; }
-    
+    public required string TaxCode { get; set; }
+    public required string Address { get; set; }
+
     // Shipping Info
     public Guid? WardId { get; set; }
     public string? ShippingAddress { get; set; }
