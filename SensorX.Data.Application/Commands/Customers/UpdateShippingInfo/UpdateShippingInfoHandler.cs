@@ -45,6 +45,6 @@ public class UpdateShippingInfoHandler(
 
         await _customerRepository.SaveChangesAsync(cancellationToken);
 
-        return Result<Guid>.Success(customer.Id.Value);
+        return Result<Guid>.Success(customer.Id.Value, "Cập nhật thông tin giao hàng thành công");
     }
 }
