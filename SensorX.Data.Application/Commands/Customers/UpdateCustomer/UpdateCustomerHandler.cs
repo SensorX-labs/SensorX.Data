@@ -9,8 +9,7 @@ using SensorX.Data.Domain.ValueObjects;
 namespace SensorX.Data.Application.Commands.Customers.UpdateCustomer;
 
 public class UpdateCustomerHandler(
-    IRepository<Customer> _customerRepository,
-    IUnitOfWork _unitOfWork
+    IRepository<Customer> _customerRepository
 ) : IRequestHandler<UpdateCustomerCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
@@ -48,8 +47,7 @@ public class UpdateCustomerHandler(
             customer.UpdateShippingInfo(null);
         }
 
-        await _customerRepository.Update(customer, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _customerRepository.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(customer.Id.Value);
     }
