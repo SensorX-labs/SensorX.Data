@@ -19,7 +19,15 @@ public sealed class LoadMoreProductsHandler(
     {
         var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-        var pagedProductBaseQuery = productQuery.ApplyKeysetPaginationWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending);
+        if (request.CategoryId.HasValue)
+        {
+            var categoryId = new CategoryId(request.CategoryId.Value);
+            productQuery = productQuery.Where(x => x.CategoryId == categoryId);
+        }
+
+        var pagedProductBaseQuery = request.SortByName
+            ? productQuery.ApplyKeysetPaginationWithOrder(request.LastValue, x => x.Name, request.LastId, x => (Guid)x.Id, request.IsDescending)
+            : productQuery.ApplyKeysetPaginationWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending);
 
         var sourceQuery = from product in pagedProductBaseQuery
                           join category in _categoryBuilder.QueryAsNoTracking
@@ -50,7 +58,7 @@ public sealed class LoadMoreProductsHandler(
         {
             Items = responseItems,
             LastId = lastItem?.Id,
-            LastValue = lastItem?.CreatedAt.ToString("O"),
+            LastValue = request.SortByName ? lastItem?.Name : lastItem?.CreatedAt.ToString("O"),
             HasNext = hasNext
         };
 
