@@ -10,7 +10,8 @@ namespace SensorX.Data.Application.Commands.Products.UpdateProduct;
 
 public class UpdateProductHandler(
     IRepository<Product> _productRepository,
-    IRepository<Category> _categoryRepository
+    IRepository<Category> _categoryRepository,
+    ICloudinaryService _cloudinaryService
 ) : IRequestHandler<UpdateProductCommand, Result>
 {
     public async Task<Result> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -18,24 +19,23 @@ public class UpdateProductHandler(
         var productId = new ProductId(request.Id);
         var product = await _productRepository.GetByIdAsync(productId, cancellationToken);
         if (product is null)
+        {
+            if (request.Images != null && request.Images.Count > 0)
+                await _cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
             return Result.Failure("Không tìm thấy sản phẩm");
-
-        var categoryId = new CategoryId(request.CategoryId);
-        var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
-        if (category is null)
-            return Result.Failure("Không tìm thấy danh mục sản phẩm");
+        }
 
         // Update basic information
         product.UpdateProduct(request.Name.Trim(), request.Manufacture.Trim(), request.Unit.Trim());
-        product.ChangeCategory(categoryId);
         product.SetShowcase(request.Showcase);
 
         // Update images
-        var images = (request.ImageUrls ?? []).Select(url => new ProductImage(url)).ToList();
+        var images = (request.Images ?? []).Select(url => new ProductImage(url)).ToList();
         var imagesToRemove = product.Images.Where(oldImg => !images.Contains(oldImg)).ToList();
         foreach (var img in imagesToRemove)
         {
             product.RemoveImage(img);
+            await _cloudinaryService.DeleteImageAsync(img.ImageUrl, cancellationToken);
         }
 
         var imagesToAdd = images.Where(newImg => !product.Images.Contains(newImg)).ToList();
@@ -45,7 +45,7 @@ public class UpdateProductHandler(
         }
 
         // Update attributes
-        var attributes = (request.Attributes ?? []).Select(attr => new ProductAttribute(attr.AttributeName.Trim(), attr.AttributeValue.Trim())).ToList();
+        var attributes = (request.Attributes ?? []).Select(attr => new ProductAttribute(attr.Name.Trim(), attr.Value.Trim())).ToList();
         var attributesToRemove = product.Attributes.Where(oldAttr => !attributes.Contains(oldAttr)).ToList();
         foreach (var attr in attributesToRemove)
         {
@@ -56,6 +56,15 @@ public class UpdateProductHandler(
         foreach (var attr in attributesToAdd)
         {
             product.AddProductAttribute(attr);
+        }
+
+        if (request.CategoryId.HasValue)
+        {
+            var categoryId = new CategoryId(request.CategoryId.Value);
+            var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+            if (category is null)
+                return Result.Failure("Không tìm thấy danh mục sản phẩm");
+            product.ChangeCategory(categoryId);
         }
 
         await _productRepository.UpdateAsync(product, cancellationToken);

@@ -4,7 +4,6 @@ using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
-using SensorX.Data.Domain.Contexts.CatalogContext.InternalPriceAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
@@ -13,26 +12,27 @@ public class GetPageListProductsHandler(
     IQueryBuilder<Product> _productBuilder,
     IQueryBuilder<Category> _categoryBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListProductsQuery, Result<ProductOffsetPagedResult>>
+) : IRequestHandler<GetPageListProductsQuery, Result<OffsetPagedResult<GetPageListProductsResponse>>>
 {
-    public async Task<Result<ProductOffsetPagedResult>> Handle(
+    public async Task<Result<OffsetPagedResult<GetPageListProductsResponse>>> Handle(
         GetPageListProductsQuery request,
         CancellationToken cancellationToken)
     {
         try
         {
-            var productQuery = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
+            IQueryable<Product> query = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
-            // Get total count before pagination
-            var totalCount = await _queryExecutor.CountAsync(productQuery, cancellationToken);
+            if (request.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == request.Status);
+            }
+            var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
-            // Apply ordering and pagination
-            var pagedProductBaseQuery = productQuery
-                .OrderByDescending(x => x.CreatedAt)
-                .ThenByDescending(x => x.Id)
-                .ApplyOffsetPagination(request);
+            var pagedProductBaseQuery = query
+                            .OrderByDescending(x => x.CreatedAt)
+                            .ThenByDescending(x => x.Id)
+                            .ApplyOffsetPagination(request);
 
-            // Join to get additional info
             var sourceQuery = from product in pagedProductBaseQuery
                               join category in _categoryBuilder.QueryAsNoTracking
                                   on product.CategoryId equals category.Id into cs
@@ -47,24 +47,25 @@ public class GetPageListProductsHandler(
                 x.category != null ? x.category.Name : "",
                 x.product.Status,
                 x.product.CreatedAt,
-                x.product.Images.Select(i => i.ImageUrl).ToList()
+                x.product.Images.Select(i => i.ImageUrl).ToList(),
+                x.product.Unit
             ));
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var result = new ProductOffsetPagedResult
+            var result = new OffsetPagedResult<GetPageListProductsResponse>
             {
                 Items = items,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
+                PageNumber = request.PageNumber ?? 1,
+                PageSize = request.PageSize ?? 10,
                 TotalCount = totalCount
             };
 
-            return Result<ProductOffsetPagedResult>.Success(result);
+            return Result<OffsetPagedResult<GetPageListProductsResponse>>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<ProductOffsetPagedResult>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
+            return Result<OffsetPagedResult<GetPageListProductsResponse>>.Failure($"Lỗi khi lấy danh sách sản phẩm: {ex.Message}");
         }
     }
 }

@@ -10,49 +10,48 @@ namespace SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 public class GetPageListStaffsHandler(
     IQueryBuilder<Staff> _staffBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListStaffsQuery, Result<StaffOffsetPagedResult>>
+) : IRequestHandler<GetPageListStaffsQuery, Result<OffsetPagedResult<GetPageListStaffsResponse>>>
 {
-    public async Task<Result<StaffOffsetPagedResult>> Handle(
+    public async Task<Result<OffsetPagedResult<GetPageListStaffsResponse>>> Handle(
         GetPageListStaffsQuery request,
         CancellationToken cancellationToken)
     {
         try
         {
             var sourceQuery = _staffBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
-            
+
             var totalCount = await _queryExecutor.CountAsync(sourceQuery, cancellationToken);
 
-            var pagedQuery = sourceQuery
+            var dtoQuery = sourceQuery
                 .OrderByDescending(x => x.CreatedAt)
                 .ThenByDescending(x => x.Id)
-                .ApplyOffsetPagination(request);
-
-            var dtoQuery = pagedQuery.Select(x => new GetPageListStaffsResponse(
-                x.Id.Value,
-                x.Code.Value,
-                x.Name,
-                x.Email.Value,
-                x.Phone.Value,
-                x.CitizenId.Value,
-                x.Department.ToString(),
-                x.CreatedAt
-            ));
+                .ApplyOffsetPagination(request)
+                .Select(x => new GetPageListStaffsResponse(
+                    x.Id.Value,
+                    x.Code.Value,
+                    x.Name,
+                    x.Email.Value,
+                    x.Phone != null ? x.Phone.Value : string.Empty,
+                    x.CitizenId != null ? x.CitizenId.Value : string.Empty,
+                    x.Department,
+                    x.CreatedAt
+                ));
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var result = new StaffOffsetPagedResult
+            var result = new OffsetPagedResult<GetPageListStaffsResponse>
             {
                 Items = items,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
+                PageNumber = request.PageNumber ?? 1,
+                PageSize = request.PageSize ?? 10,
                 TotalCount = totalCount
             };
 
-            return Result<StaffOffsetPagedResult>.Success(result);
+            return Result<OffsetPagedResult<GetPageListStaffsResponse>>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<StaffOffsetPagedResult>.Failure(
+            return Result<OffsetPagedResult<GetPageListStaffsResponse>>.Failure(
                 $"Lỗi khi lấy danh sách nhân viên: {ex.Message}");
         }
     }

@@ -17,6 +17,9 @@ public class DeleteProductHandler(
         if (product is null)
             return Result.Failure("Không tìm thấy sản phẩm");
 
+        if (product.Status == ProductStatus.Active)
+            return Result.Failure("Sản phẩm đang hoạt động không thể xóa. Vui lòng cập nhật trạng thái sang ngừng kinh doanh trước khi xóa.");
+
         await _productRepository.DeleteAsync(product, cancellationToken);
         return Result.Success("Xóa sản phẩm thành công");
     }

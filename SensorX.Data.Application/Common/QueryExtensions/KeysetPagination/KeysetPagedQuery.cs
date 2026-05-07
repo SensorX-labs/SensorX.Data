@@ -3,14 +3,14 @@ namespace SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
 public abstract record KeysetPagedQuery
 {
     /// <summary>
-    /// The number of items to return per page. Max value is typically limited by the server (e.g., 100).
+    /// The number of items to return per page.
     /// </summary>
-    public int PageSize { get; init; } = 10;
+    public int? PageSize { get; init; }
 
     /// <summary>
-    /// The creation timestamp of the last item in the current page. Used as a cursor for forward navigation (Next Page).
+    /// The value of the sorted field for the last item. Used as a cursor for forward navigation.
     /// </summary>
-    public DateTimeOffset? LastCreatedAt { get; init; }
+    public string? LastValue { get; init; }
 
     /// <summary>
     /// The unique identifier of the last item in the current page. Used as a secondary cursor for forward navigation.
@@ -18,17 +18,7 @@ public abstract record KeysetPagedQuery
     public Guid? LastId { get; init; }
 
     /// <summary>
-    /// The creation timestamp of the first item in the current page. Used as a cursor for backward navigation (Previous Page).
+    /// Set to true for descending order, false for ascending order.
     /// </summary>
-    public DateTimeOffset? FirstCreatedAt { get; init; }
-
-    /// <summary>
-    /// The unique identifier of the first item in the current page. Used as a secondary cursor for backward navigation.
-    /// </summary>
-    public Guid? FirstId { get; init; }
-
-    /// <summary>
-    /// Set to true to navigate to the previous page relative to the provided cursors.
-    /// </summary>
-    public bool IsPrevious { get; init; }
+    public bool IsDescending { get; init; } = true;
 }

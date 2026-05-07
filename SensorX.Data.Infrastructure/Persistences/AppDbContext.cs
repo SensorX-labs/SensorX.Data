@@ -1,8 +1,9 @@
-using MediatR;
 using MassTransit;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SensorX.Data.Application.Common.DomainEvent;
 using SensorX.Data.Domain.SeedWork;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace SensorX.Data.Infrastructure.Persistences;
 
@@ -22,6 +23,31 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IMediator medi
         modelBuilder.AddInboxStateEntity();
         modelBuilder.AddOutboxMessageEntity();
         modelBuilder.AddOutboxStateEntity();
+
+        // Fix for PostgreSQL DateTimeOffset with offset issue
+        // Npgsql 6.0+ requires DateTimeOffset to be in UTC (offset 0) when saving to 'timestamp with time zone'
+        var dateTimeOffsetConverter = new ValueConverter<DateTimeOffset, DateTimeOffset>(
+            v => v.ToUniversalTime(),
+            v => v);
+
+        var nullableDateTimeOffsetConverter = new ValueConverter<DateTimeOffset?, DateTimeOffset?>(
+            v => v.HasValue ? v.Value.ToUniversalTime() : v,
+            v => v);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTimeOffset))
+                {
+                    property.SetValueConverter(dateTimeOffsetConverter);
+                }
+                else if (property.ClrType == typeof(DateTimeOffset?))
+                {
+                    property.SetValueConverter(nullableDateTimeOffsetConverter);
+                }
+            }
+        }
     }
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

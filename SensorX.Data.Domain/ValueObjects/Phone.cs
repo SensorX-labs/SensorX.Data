@@ -15,7 +15,7 @@ public partial record Phone
         Value = value;
     }
 
-    public static Phone From(string vlaue) => new(vlaue);
+    public static Phone From(string value) => new(value);
 
     public static Phone Create(string value)
     {
