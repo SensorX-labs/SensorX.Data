@@ -10,9 +10,9 @@ namespace SensorX.Data.Application.Queries.Customers.GetPageListCustomers;
 public sealed class GetPageListCustomersHandler(
     IQueryBuilder<Customer> _customerBuilder,
     IQueryExecutor _queryExecutor
-) : IRequestHandler<GetPageListCustomersQuery, Result<CustomerOffsetPagedResult>>
+) : IRequestHandler<GetPageListCustomersQuery, Result<OffsetPagedResult<GetPageListCustomersResponse>>>
 {
-    public async Task<Result<CustomerOffsetPagedResult>> Handle(
+    public async Task<Result<OffsetPagedResult<GetPageListCustomersResponse>>> Handle(
         GetPageListCustomersQuery request,
         CancellationToken cancellationToken)
     {
@@ -31,28 +31,28 @@ public sealed class GetPageListCustomersHandler(
                 x.Id.Value,
                 x.Name,
                 x.Code.Value,
-                x.TaxCode,
+                x.TaxCode ?? string.Empty,
                 x.Email.Value,
-                x.Phone.Value,
-                x.Address,
+                x.Phone != null ? x.Phone.Value : string.Empty,
+                x.Address ?? string.Empty,
                 x.CreatedAt
             ));
 
             var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var result = new CustomerOffsetPagedResult
+            var result = new OffsetPagedResult<GetPageListCustomersResponse>
             {
                 Items = items,
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
+                PageNumber = request.PageNumber ?? 1,
+                PageSize = request.PageSize ?? 10,
                 TotalCount = totalCount
             };
 
-            return Result<CustomerOffsetPagedResult>.Success(result);
+            return Result<OffsetPagedResult<GetPageListCustomersResponse>>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<CustomerOffsetPagedResult>.Failure(
+            return Result<OffsetPagedResult<GetPageListCustomersResponse>>.Failure(
                 $"Lỗi khi lấy danh sách khách hàng: {ex.Message}");
         }
     }

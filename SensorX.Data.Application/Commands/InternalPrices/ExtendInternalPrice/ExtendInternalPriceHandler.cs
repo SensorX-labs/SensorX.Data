@@ -21,13 +21,9 @@ public sealed class ExtendInternalPriceHandler(
         {
             internalPrice.ExtendExpiryAt(request.ExpiresAt.Value);
         }
-        else if (request.Duration.HasValue)
-        {
-            internalPrice.ExtendExpiry(request.Duration.Value);
-        }
         else
         {
-            return Result.Failure("Vui lòng cung cấp thời gian kết thúc hoặc thời gian gia hạn.");
+            return Result.Failure("Vui lòng cung cấp thời gian kết thúc hoặc số ngày gia hạn.");
         }
         await _internalPriceRepository.UpdateAsync(internalPrice, cancellationToken);
 

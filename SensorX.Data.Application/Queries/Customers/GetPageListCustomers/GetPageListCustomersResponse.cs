@@ -8,9 +8,8 @@ public sealed record GetPageListCustomersResponse(
     string Code,
     string TaxCode,
     string Email,
-    string PhoneNumber,
+    string Phone,
     string Address,
     DateTimeOffset CreatedAt
 );
 
-public sealed class CustomerOffsetPagedResult : OffsetPagedResult<GetPageListCustomersResponse> { }

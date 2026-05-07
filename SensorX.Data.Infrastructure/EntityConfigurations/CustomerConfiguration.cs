@@ -28,13 +28,17 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.Name).IsRequired();
 
         builder.Property(c => c.Phone)
-            .HasConversion(p => p.Value, v => Phone.From(v));
+            .HasConversion(p => p != null ? p.Value : null, v => v != null ? Phone.From(v) : null);
 
         builder.Property(c => c.Email)
             .HasConversion(e => e.Value, v => Email.From(v));
 
         builder.OwnsOne(c => c.ShippingInfo, s =>
         {
+            s.Property(p => p.ProvinceId)
+                .HasConversion(id => id.Value, v => new ProvinceId(v))
+                .HasColumnName("ProvinceId");
+
             s.Property(p => p.WardId)
                 .HasConversion(id => id.Value, v => new WardId(v))
                 .HasColumnName("WardId");

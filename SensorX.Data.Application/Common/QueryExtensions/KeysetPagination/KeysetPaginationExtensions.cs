@@ -5,127 +5,89 @@ namespace SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
 public static class KeysetPaginationExtensions
 {
     /// <summary>
-    /// Apply keyset-based pagination.
-    /// Uses CreatedAt + Id as composite cursor.
-    ///
-    /// Usage:
-    /// var query = dbContext.Products.AsQueryable();
-    ///
-    /// query = query
-    ///     .ApplyKeysetPagination(
-    ///         request,
-    ///         p => p.CreatedAt,
-    ///         p => p.Id)
-    ///     .OrderByDescending(p => p.CreatedAt)
-    ///     .ThenByDescending(p => p.Id);
-    ///
-    /// var items = await query.Take(request.PageSize + 1).ToListAsync();
-    ///
-    /// Notes:
-    /// - Always apply OrderBy AFTER this method
-    /// - Use CreatedAt + Id to avoid duplicate records
-    /// - Take(PageSize + 1) to determine HasNext
+    /// Apply keyset-based pagination using a generic key + Id (Guid).
     /// </summary>
-    public static IQueryable<T> ApplyKeysetPagination<T, TId>(
+    public static IQueryable<T> ApplyKeysetPagination<T, TKey>(
         this IQueryable<T> query,
-        KeysetPagedQuery request,
-        Expression<Func<T, DateTimeOffset>> createdAtSelector,
-        Expression<Func<T, TId>> idSelector)
+        TKey? currentLastValue,
+        Expression<Func<T, TKey>> keySelector,
+        Guid? lastId,
+        Expression<Func<T, Guid>> idSelector,
+        bool isDescending = true)
     {
-        var param = createdAtSelector.Parameters[0];
+        // Safety check: If cursors are missing, don't paginate (take first page)
+        if (currentLastValue == null || lastId == null)
+            return query;
 
-        // p.CreatedAt
-        var createdAt = createdAtSelector.Body;
+        var param = keySelector.Parameters[0];
+        var keyExpr = keySelector.Body;
+        var idExpr = ReplaceParameter(idSelector.Body, idSelector.Parameters[0], param);
 
-        // p.Id (normalize to same parameter "p")
-        var id = ReplaceParameter(idSelector.Body, idSelector.Parameters[0], param);
+        var lastValueConstant = Expression.Constant(currentLastValue, typeof(TKey));
+        var lastIdConstant = Expression.Constant(lastId.Value, typeof(Guid));
 
-        // Previous page
-        if (request.IsPrevious && request.FirstCreatedAt.HasValue && request.FirstId.HasValue)
+        Expression keyCompare;
+        Expression idCompare;
+
+        if (isDescending)
         {
-            var firstId = CreateId<TId>(request.FirstId.Value);
-            var predicate = BuildPrevious<T, TId>(
-                param,
-                createdAt,
-                id,
-                request.FirstCreatedAt.Value,
-                firstId);
-
-            return query.Where(predicate);
+            keyCompare = Expression.LessThan(keyExpr, lastValueConstant);
+            idCompare = Expression.LessThan(idExpr, lastIdConstant);
+        }
+        else
+        {
+            keyCompare = Expression.GreaterThan(keyExpr, lastValueConstant);
+            idCompare = Expression.GreaterThan(idExpr, lastIdConstant);
         }
 
-        // Next page
-        if (request.LastCreatedAt.HasValue && request.LastId.HasValue)
+        var body = Expression.OrElse(
+            keyCompare,
+            Expression.AndAlso(
+                Expression.Equal(keyExpr, lastValueConstant),
+                idCompare
+            )
+        );
+
+        var predicate = Expression.Lambda<Func<T, bool>>(body, param);
+        return query.Where(predicate);
+    }
+
+    /// <summary>
+    /// Applies both Keyset filtering and the corresponding OrderBy/ThenBy sorting.
+    /// </summary>
+    public static IQueryable<T> ApplyKeysetPaginationWithOrder<T, TKey>(
+        this IQueryable<T> query,
+        TKey? currentLastValue,
+        Expression<Func<T, TKey>> keySelector,
+        Guid? lastId,
+        Expression<Func<T, Guid>> idSelector,
+        bool isDescending = true)
+    {
+        var filteredQuery = query.ApplyKeysetPagination(currentLastValue, keySelector, lastId, idSelector, isDescending);
+
+        return isDescending
+            ? filteredQuery.OrderByDescending(keySelector).ThenByDescending(idSelector)
+            : filteredQuery.OrderBy(keySelector).ThenBy(idSelector);
+    }
+
+    /// <summary>
+    /// Converts a string cursor value to the specified type T.
+    /// </summary>
+    public static T? ToCursor<T>(this string? value) where T : struct
+    {
+        if (string.IsNullOrEmpty(value)) return null;
+
+        try
         {
-            var lastId = CreateId<TId>(request.LastId.Value);
-            var predicate = BuildNext<T, TId>(
-                param,
-                createdAt,
-                id,
-                request.LastCreatedAt.Value,
-                lastId);
-
-            return query.Where(predicate);
+            var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+            return (T?)converter.ConvertFromString(value);
         }
-
-        // First page (no keyset)
-        return query;
+        catch
+        {
+            return null;
+        }
     }
 
-    private static TId CreateId<TId>(Guid guid)
-    {
-        if (typeof(TId) == typeof(Guid)) return (TId)(object)guid;
-        // Hỗ trợ Strongly Typed ID kế thừa từ VoId(Guid Value)
-        return (TId)Activator.CreateInstance(typeof(TId), guid)!;
-    }
-
-    /// <summary>
-    /// Build predicate for previous page.
-    /// </summary>
-    private static Expression<Func<T, bool>> BuildPrevious<T, TId>(
-        ParameterExpression param,
-        Expression createdAt,
-        Expression id,
-        DateTimeOffset firstCreatedAt,
-        TId firstId)
-    {
-        var body =
-            Expression.OrElse(
-                Expression.GreaterThan(createdAt, Expression.Constant(firstCreatedAt)),
-                Expression.AndAlso(
-                    Expression.Equal(createdAt, Expression.Constant(firstCreatedAt)),
-                    Expression.GreaterThan(id, Expression.Constant(firstId, typeof(TId)))
-                )
-            );
-
-        return Expression.Lambda<Func<T, bool>>(body, param);
-    }
-
-    /// <summary>
-    /// Build predicate for next page.
-    /// </summary>
-    private static Expression<Func<T, bool>> BuildNext<T, TId>(
-        ParameterExpression param,
-        Expression createdAt,
-        Expression id,
-        DateTimeOffset lastCreatedAt,
-        TId lastId)
-    {
-        var body =
-            Expression.OrElse(
-                Expression.LessThan(createdAt, Expression.Constant(lastCreatedAt)),
-                Expression.AndAlso(
-                    Expression.Equal(createdAt, Expression.Constant(lastCreatedAt)),
-                    Expression.LessThan(id, Expression.Constant(lastId, typeof(TId)))
-                )
-            );
-
-        return Expression.Lambda<Func<T, bool>>(body, param);
-    }
-
-    /// <summary>
-    /// Replace parameter so both expressions share the same variable (p).
-    /// </summary>
     private static Expression ReplaceParameter(
         Expression body,
         ParameterExpression oldParam,

@@ -7,6 +7,5 @@ namespace SensorX.Data.Application.Commands.InternalPrices.ExtendInternalPrice;
 
 public sealed record ExtendInternalPriceCommand(
     [property: JsonIgnore] Guid Id,
-    DateTimeOffset? ExpiresAt,
-    TimeSpan? Duration
+    DateTimeOffset? ExpiresAt
 ) : IRequest<Result>;
