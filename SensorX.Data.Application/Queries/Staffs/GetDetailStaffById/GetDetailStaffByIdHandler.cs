@@ -22,8 +22,8 @@ public class GetDetailStaffByIdHandler(
                 x.Code.Value,
                 x.Name,
                 x.Email.Value,
-                x.Phone.Value,
-                x.Department.ToString(),
+                x.Phone != null ? x.Phone.Value : string.Empty,
+                x.Department,
                 x.CreatedAt,
                 x.UpdatedAt
             ));

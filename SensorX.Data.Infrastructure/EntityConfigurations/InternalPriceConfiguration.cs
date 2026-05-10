@@ -45,9 +45,11 @@ public class InternalPriceConfiguration : IEntityTypeConfiguration<InternalPrice
             });
         });
 
+        builder.HasIndex(s => new { s.ProductId, s.CreatedAt }).IsDescending(true, true);
+
         builder.HasOne<Product>()
-            .WithOne()
-            .HasForeignKey<InternalPrice>(p => p.ProductId)
+            .WithMany()
+            .HasForeignKey(p => p.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

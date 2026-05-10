@@ -16,7 +16,7 @@ public static class ProductSearch
 
         return query.Where(p =>
             p.Name.Contains(term) ||
-            p.Code.Value.Contains(term) ||
+            ((string)p.Code).Contains(term) ||
             p.Manufacture.Contains(term)
         );
     }

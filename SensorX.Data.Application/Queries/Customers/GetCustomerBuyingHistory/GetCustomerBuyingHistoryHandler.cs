@@ -22,9 +22,9 @@ public sealed class GetCustomerBuyingHistoryHandler(
                 x.Code.Value,
                 x.Name,
                 x.Email.Value,
-                x.Phone.Value,
-                x.Address,
-                x.TaxCode,
+                x.Phone != null ? x.Phone.Value : string.Empty,
+                x.Address ?? string.Empty,
+                x.TaxCode ?? string.Empty,
                 x.CreatedAt,
                 x.UpdatedAt
             ));

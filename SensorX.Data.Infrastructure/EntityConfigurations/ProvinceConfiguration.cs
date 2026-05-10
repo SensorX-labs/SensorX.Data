@@ -16,6 +16,20 @@ public class ProvinceConfiguration : IEntityTypeConfiguration<Province>
             .HasConversion(id => id.Value, v => new ProvinceId(v))
             .ValueGeneratedNever();
 
-        builder.Property(p => p.Name).IsRequired();
+        builder.OwnsMany(p => p.Wards, wardBuilder =>
+        {
+            wardBuilder.ToTable("Wards");
+            wardBuilder.WithOwner().HasForeignKey("ProvinceId");
+
+            wardBuilder.Property<ProvinceId>("ProvinceId")
+                .HasConversion(id => id.Value, v => new ProvinceId(v))
+                .IsRequired();
+
+            wardBuilder.HasKey(w => w.Id);
+            wardBuilder.Property(w => w.Id)
+                .HasConversion(id => id.Value, v => new WardId(v))
+                .ValueGeneratedNever();
+        });
+
     }
 }
