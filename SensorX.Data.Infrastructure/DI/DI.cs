@@ -2,8 +2,10 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Domain.SeedWork;
+using SensorX.Data.Infrastructure.Jobs;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.Infrastructure.Services;
 
@@ -16,6 +18,30 @@ namespace SensorX.Data.Infrastructure.DI
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddServices();
+            services.AddMassTransit(configuration);
+            services.AddQuartzJob();
+
+            return services;
+        }
+
+        private static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));
+
+            services.AddScoped<IQueryExecutor, QueryExecutor>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
+
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddHttpClient<IVietnamAdministrativeService, VietnamAdministrativeService>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddMassTransit(this IServiceCollection services, IConfiguration configuration)
+        {
             services.AddMassTransit(x =>
             {
                 // Đăng ký Consumer
@@ -69,17 +95,33 @@ namespace SensorX.Data.Infrastructure.DI
                     cfg.ConfigureEndpoints(context);
                 });
             });
+            return services;
+        }
 
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));
-            services.AddScoped<IQueryExecutor, QueryExecutor>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<ICurrentUser, CurrentUser>();
-            // Cloudinary
-            services.AddScoped<ICloudinaryService, CloudinaryService>();
+        private static IServiceCollection AddQuartzJob(this IServiceCollection services)
+        {
+            // Đăng ký Quartz
+            services.AddQuartz(q =>
+            {
+                // Tạo JobKey
+                var jobKey = new JobKey(nameof(ProcessDomainEventsJob));
 
-            // Vietnam Administrative Data
-            services.AddHttpClient<IVietnamAdministrativeService, VietnamAdministrativeService>();
+                // Đăng ký Job vào DI container của Quartz
+                q.AddJob<ProcessDomainEventsJob>(opts => opts.WithIdentity(jobKey));
+
+                // Lên lịch (Trigger) cho Job chạy lặp đi lặp lại
+                q.AddTrigger(opts => opts
+                    .ForJob(jobKey)
+                    .WithIdentity($"{nameof(ProcessDomainEventsJob)}-trigger")
+                    // Chạy mỗi 5 giây, mãi mãi
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInSeconds(5)
+                        .RepeatForever())
+                );
+            });
+
+            // Chạy Quartz dưới dạng Hosted Service
+            services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
             return services;
         }
