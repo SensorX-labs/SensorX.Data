@@ -48,8 +48,8 @@ namespace SensorX.Data.Infrastructure.DI
                 x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("data", false));
 
                 // Đăng ký Consumer
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateAccountEvent.CreateStaffConsumer>();
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccountEvent.CreateCustomerConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateStaff.CreateStaffConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateCustomer.CreateCustomerConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>

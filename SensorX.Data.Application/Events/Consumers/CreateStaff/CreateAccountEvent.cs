@@ -1,7 +1,7 @@
 using MassTransit;
 using SensorX.Data.Domain.Enums;
 
-namespace SensorX.Data.Application.Events.Consumers.CreateAccountEvent;
+namespace SensorX.Data.Application.Events.Consumers.CreateStaff;
 
 [MessageUrn("account-created")]
 [EntityName("account-created")]

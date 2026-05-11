@@ -6,10 +6,11 @@ using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;
 
-namespace SensorX.Data.Application.Events.Consumers.CustomerRegisterAccountEvent;
+namespace SensorX.Data.Application.Events.Consumers.CreateCustomer;
 
 public class CreateCustomerConsumer(
     IRepository<Customer> _customerRepository,
+    IPublishEndpoint _publishEndpoint,
     ILogger<CreateCustomerConsumer> _logger
 ) : IConsumer<CustomerRegisterAccountEvent>
 {
@@ -29,7 +30,31 @@ public class CreateCustomerConsumer(
             message.Address
         );
 
+        await _publishEndpoint.Publish(new CreateCustomerEvent(
+            customer.Id.Value,
+            customer.AccountId.Value,
+            customer.Name,
+            customer.TaxCode,
+            customer.Email,
+            customer.Phone,
+            customer.Address,
+            customer.CreatedAt
+        ), context.CancellationToken);
+
         await _customerRepository.AddAsync(customer);
         _logger.LogInformation("Customer created: {Customer}", customer);
     }
 }
+
+[MessageUrn("customer-created")]
+[EntityName("customer-created")]
+public sealed record CreateCustomerEvent(
+    Guid Id,
+    Guid AccountId,
+    string CompanyName,
+    string TaxCode,
+    string Email,
+    string? Phone,
+    string? Address,
+    DateTimeOffset CreatedAt
+);

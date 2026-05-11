@@ -1,6 +1,6 @@
 using MassTransit;
 
-namespace SensorX.Data.Application.Events.Consumers.CustomerRegisterAccountEvent;
+namespace SensorX.Data.Application.Events.Consumers.CreateCustomer;
 
 [MessageUrn("customer-registered")]
 [EntityName("customer-registered")]
