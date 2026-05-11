@@ -66,7 +66,6 @@ public class CreateProductHandler(
                 product.Code,
                 product.Name,
                 product.Manufacture,
-                category?.Name ?? "Không có danh mục",
                 product.Unit,
                 product.Status,
                 product.CreatedAt

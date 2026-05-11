@@ -9,7 +9,6 @@ public sealed record UpdateProductEvent(
     string Code,
     string Name,
     string Manufacture,
-    string CategoryName,
     string Unit,
     ProductStatus Status,
     DateTimeOffset? UpdatedAt

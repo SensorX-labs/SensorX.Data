@@ -10,7 +10,6 @@ public sealed record CreateProductEvent(
     string Code,
     string Name,
     string Manufacture,
-    string CategoryName,
     string Unit,
     ProductStatus Status,
     DateTimeOffset CreatedAt
