@@ -1,3 +1,4 @@
+using MassTransit;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -11,18 +12,19 @@ namespace SensorX.Data.Application.Commands.Products.CreateProduct;
 public class CreateProductHandler(
     IRepository<Product> _productRepository,
     IRepository<Category> _categoryRepository,
-    ICloudinaryService _cloudinaryService
+    ICloudinaryService _cloudinaryService,
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<CreateProductCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            CategoryId? categoryId = null;
+            Category? category = null;
             if (request.CategoryId.HasValue)
             {
-                categoryId = new CategoryId(request.CategoryId.Value);
-                var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+                var categoryId = new CategoryId(request.CategoryId.Value);
+                category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
                 if (category is null)
                 {
                     if (request.Images != null && request.Images.Count > 0)
@@ -37,7 +39,7 @@ public class CreateProductHandler(
                 code,
                 request.Name.Trim(),
                 request.Manufacture.Trim(),
-                categoryId,
+                category?.Id,
                 ProductStatus.Active,
                 request.Unit.Trim()
             );
@@ -58,6 +60,17 @@ public class CreateProductHandler(
                     product.AddProductAttribute(new ProductAttribute(attrDto.Name, attrDto.Value));
                 }
             }
+
+            await _publishEndpoint.Publish(new CreateProductEvent(
+                product.Id,
+                product.Code,
+                product.Name,
+                product.Manufacture,
+                category?.Name ?? "Không có danh mục",
+                product.Unit,
+                product.Status,
+                product.CreatedAt
+            ), cancellationToken);
 
             await _productRepository.AddAsync(product, cancellationToken);
 

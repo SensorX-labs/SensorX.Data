@@ -9,12 +9,11 @@ using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;
 
-namespace SensorX.Data.Application.Events.Consumers.CreateAccount;
+namespace SensorX.Data.Application.Events.Consumers.CreateAccountEvent;
 
-public class CreateAccountConsumer(
-    ILogger<CreateAccountConsumer> _logger,
-    IRepository<Staff> _staffRepository,
-    IUnitOfWork _unitOfWork
+public class CreateStaffConsumer(
+    ILogger<CreateStaffConsumer> _logger,
+    IRepository<Staff> _staffRepository
 ) : IConsumer<CreateAccountEvent>
 {
     public async Task Consume(ConsumeContext<CreateAccountEvent> context)
@@ -39,8 +38,7 @@ public class CreateAccountConsumer(
             DateTimeOffset.UtcNow,
             department
         );
-        await _staffRepository.Add(staff, context.CancellationToken);
-        await _unitOfWork.SaveChangesAsync(context.CancellationToken);
+        await _staffRepository.AddAsync(staff, context.CancellationToken);
 
         _logger.LogInformation("Creating Staff profile for AccountId: {AccountId}, Email: {Email}", message.AccountId, message.Email);
     }

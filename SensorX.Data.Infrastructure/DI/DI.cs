@@ -44,9 +44,12 @@ namespace SensorX.Data.Infrastructure.DI
         {
             services.AddMassTransit(x =>
             {
+                // Thêm chữ "Data" làm tiền tố cho Queue.
+                x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("data", false));
+
                 // Đăng ký Consumer
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>();
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateAccountEvent.CreateStaffConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccountEvent.CreateCustomerConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
@@ -70,26 +73,6 @@ namespace SensorX.Data.Infrastructure.DI
                     {
                         h.Username(configuration["RabbitMQ:Username"] ?? "guest");
                         h.Password(configuration["RabbitMQ:Password"] ?? "guest");
-                    });
-
-                    // Đổi tên Exchange giống với Gateway
-                    cfg.Message<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountEvent>(e =>
-                        e.SetEntityName("account-created"));
-
-                    // Cấu hình Queue để consume event
-                    cfg.ReceiveEndpoint("account-created-consumer", e =>
-                    {
-                        e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>(context);
-                    });
-
-                    // Đổi tên Exchange giống với Gateway
-                    cfg.Message<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountEvent>(e =>
-                        e.SetEntityName("customer-registered"));
-
-                    // Cấu hình Queue để consume event
-                    cfg.ReceiveEndpoint("customer-registered-consumer", e =>
-                    {
-                        e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountConsumer>(context);
                     });
 
                     cfg.ConfigureEndpoints(context);

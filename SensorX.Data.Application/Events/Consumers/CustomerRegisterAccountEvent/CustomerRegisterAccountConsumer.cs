@@ -6,11 +6,11 @@ using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;
 
-namespace SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount;
+namespace SensorX.Data.Application.Events.Consumers.CustomerRegisterAccountEvent;
 
-public class CustomerRegisterAccountConsumer(
+public class CreateCustomerConsumer(
     IRepository<Customer> _customerRepository,
-    ILogger<CustomerRegisterAccountConsumer> _logger
+    ILogger<CreateCustomerConsumer> _logger
 ) : IConsumer<CustomerRegisterAccountEvent>
 {
     public async Task Consume(ConsumeContext<CustomerRegisterAccountEvent> context)

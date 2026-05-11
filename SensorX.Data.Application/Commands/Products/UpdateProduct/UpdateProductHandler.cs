@@ -1,3 +1,4 @@
+using MassTransit;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -11,7 +12,8 @@ namespace SensorX.Data.Application.Commands.Products.UpdateProduct;
 public class UpdateProductHandler(
     IRepository<Product> _productRepository,
     IRepository<Category> _categoryRepository,
-    ICloudinaryService _cloudinaryService
+    ICloudinaryService _cloudinaryService,
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<UpdateProductCommand, Result>
 {
     public async Task<Result> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -58,14 +60,26 @@ public class UpdateProductHandler(
             product.AddProductAttribute(attr);
         }
 
+        Category? category = null;
         if (request.CategoryId.HasValue)
         {
             var categoryId = new CategoryId(request.CategoryId.Value);
-            var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+            category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
             if (category is null)
                 return Result.Failure("Không tìm thấy danh mục sản phẩm");
             product.ChangeCategory(categoryId);
         }
+
+        await _publishEndpoint.Publish(new UpdateProductEvent(
+            product.Id,
+            product.Code,
+            product.Name,
+            product.Manufacture,
+            category?.Name ?? "Không có danh mục",
+            product.Unit,
+            product.Status,
+            product.UpdatedAt
+        ), cancellationToken);
 
         await _productRepository.UpdateAsync(product, cancellationToken);
         return Result.Success("Cập nhật sản phẩm thành công");

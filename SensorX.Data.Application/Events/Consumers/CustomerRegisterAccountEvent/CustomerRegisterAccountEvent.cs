@@ -1,8 +1,9 @@
 using MassTransit;
 
-namespace SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount;
+namespace SensorX.Data.Application.Events.Consumers.CustomerRegisterAccountEvent;
 
 [MessageUrn("customer-registered")]
+[EntityName("customer-registered")]
 public sealed record CustomerRegisterAccountEvent
 {
     public Guid AccountId { get; init; }
