@@ -72,11 +72,9 @@ public class UpdateProductHandler(
 
         await _publishEndpoint.Publish(new UpdateProductEvent(
             product.Id,
-            product.Code,
             product.Name,
             product.Manufacture,
             product.Unit,
-            product.Status,
             product.UpdatedAt
         ), cancellationToken);
 
