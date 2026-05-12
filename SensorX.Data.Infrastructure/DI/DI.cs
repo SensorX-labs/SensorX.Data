@@ -66,6 +66,12 @@ namespace SensorX.Data.Infrastructure.DI
                         e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountConsumer>(context);
                     });
 
+                    cfg.Message<SensorX.Data.Application.Events.ProductSyncEvent>(e =>
+                        e.SetEntityName("product-sync"));
+
+                    cfg.Message<SensorX.Data.Application.Events.ProductDeletedEvent>(e =>
+                        e.SetEntityName("product-deleted"));
+
                     cfg.ConfigureEndpoints(context);
                 });
             });

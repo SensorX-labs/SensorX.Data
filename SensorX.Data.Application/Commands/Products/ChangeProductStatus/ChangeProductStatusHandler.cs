@@ -7,7 +7,8 @@ using SensorX.Data.Domain.SeedWork;
 namespace SensorX.Data.Application.Commands.Products.ChangeProductStatus;
 
 public class ChangeProductStatusHandler(
-    IRepository<Product> _productRepository
+    IRepository<Product> _productRepository,
+    MassTransit.IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<ChangeProductStatusCommand, Result>
 {
     public async Task<Result> Handle(ChangeProductStatusCommand request, CancellationToken cancellationToken)
@@ -22,6 +23,19 @@ public class ChangeProductStatusHandler(
         else
             product.Inactivate();
         await _productRepository.UpdateAsync(product, cancellationToken);
+
+        // Sync to other services (e.g. Warehouse)
+        await _publishEndpoint.Publish(new Events.ProductSyncEvent
+        {
+            ProductId = product.Id.Value,
+            Code = product.Code.Value,
+            Name = product.Name,
+            Unit = product.Unit,
+            Manufacture = product.Manufacture,
+            Status = product.Status.ToString(),
+            Timestamp = DateTimeOffset.UtcNow
+        }, cancellationToken);
+
         return Result.Success("Cập nhật trạng thái sản phẩm thành công");
     }
 }
