@@ -27,5 +27,5 @@ public partial record CitizenId
     [GeneratedRegex(@"^\d{12}$")]
     private static partial Regex GeneratedCitizenIdRegex();
 
-    public static implicit operator string(CitizenId id) => id.Value;
+    public static implicit operator string(CitizenId? id) => id?.Value ?? string.Empty;
 }

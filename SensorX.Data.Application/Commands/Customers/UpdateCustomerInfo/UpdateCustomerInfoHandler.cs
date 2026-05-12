@@ -1,3 +1,4 @@
+using MassTransit;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -9,7 +10,8 @@ using SensorX.Data.Domain.ValueObjects;
 namespace SensorX.Data.Application.Commands.Customers.UpdateCustomerInfo;
 
 public class UpdateCustomerInfoHandler(
-    IRepository<Customer> _customerRepository
+    IRepository<Customer> _customerRepository,
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<UpdateCustomerInfoCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(UpdateCustomerInfoCommand request, CancellationToken cancellationToken)
@@ -29,6 +31,15 @@ public class UpdateCustomerInfoHandler(
             request.TaxCode,
             request.Address
         );
+
+        await _publishEndpoint.Publish(new UpdateCustomerInfoEvent(
+            customer.Id,
+            customer.Name,
+            customer.Phone,
+            customer.Email,
+            customer.TaxCode,
+            customer.Address
+        ), cancellationToken);
 
         await _customerRepository.SaveChangesAsync(cancellationToken);
 

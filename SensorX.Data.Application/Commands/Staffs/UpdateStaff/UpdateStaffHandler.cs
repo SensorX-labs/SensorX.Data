@@ -1,3 +1,4 @@
+using MassTransit;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -10,7 +11,7 @@ namespace SensorX.Data.Application.Commands.Staffs.UpdateStaff;
 
 public class UpdateStaffHandler(
     IRepository<Staff> _staffRepository,
-    IUnitOfWork _unitOfWork
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<UpdateStaffCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(UpdateStaffCommand request, CancellationToken cancellationToken)
@@ -33,8 +34,18 @@ public class UpdateStaffHandler(
             request.Department
         );
 
-        await _staffRepository.Update(staff, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _publishEndpoint.Publish(new UpdateStaffEvent(
+            staff.Id,
+            staff.Name,
+            staff.Phone,
+            staff.Email,
+            staff.CitizenId,
+            staff.Biography,
+            staff.JoinDate,
+            staff.Department
+        ), cancellationToken);
+
+        await _staffRepository.SaveChangesAsync(cancellationToken);
 
         return Result<Guid>.Success(staff.Id.Value);
     }

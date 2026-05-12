@@ -1,9 +1,10 @@
 using MassTransit;
 using SensorX.Data.Domain.Enums;
 
-namespace SensorX.Data.Application.Events.Consumers.CreateAccount;
+namespace SensorX.Data.Application.Events.Consumers.CreateStaff;
 
 [MessageUrn("account-created")]
+[EntityName("account-created")]
 public record CreateAccountEvent
 {
     public Guid AccountId { get; init; }

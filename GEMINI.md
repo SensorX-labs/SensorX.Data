@@ -1,63 +1,43 @@
-# SensorX.Data Project Memory
+<!-- gitnexus:start -->
+# GitNexus — Code Intelligence
 
-## Pagination System (Updated 2026-04-23)
+This project is indexed by GitNexus as **SensorX.Data** (1766 symbols, 3477 relationships, 26 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
-The project now supports two types of pagination in `SensorX.Data.Application.Common.QueryExtensions`:
+> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
-### 1. Offset Pagination (`OffsetPagination` folder)
-- **Use case**: When total page numbers and total item counts are required (e.g., standard web tables).
-- **Base Query**: `OffsetPagedQuery` (contains `PageNumber`, `PageSize`).
-- **Result Wrapper**: `OffsetPagedResult<T>` (contains `TotalCount`, `TotalPages`, `HasNextPage`, etc.).
-- **Extension**: `ApplyOffsetPagination(request)`.
-- **Implementation Note**: Requires a `CountAsync` call before applying pagination to get the total count.
+## Always Do
 
-### 2. Keyset Pagination (`KeysetPagination` folder) - Formerly Cursor Pagination
-- **Use case**: High-performance infinite scroll or large datasets where `OFFSET` performance is an issue.
-- **Base Query**: `KeysetPagedQuery` (contains `LastCreatedAt`, `LastId`, etc.).
-- **Result Wrapper**: `KeysetPagedResult<T>` (contains cursors for next/previous).
-- **Extension**: `ApplyKeysetPagination(request, createdAtSelector, idSelector)`.
-- **Implementation Note**: 
-    - Use `Take(PageSize + 1)` to determine `hasMore`.
-    - `HasNext = IsPrevious ? true : hasMore`.
-    - `HasPrevious = IsPrevious ? hasMore : (LastCreatedAt.HasValue || LastId.HasValue)`.
+- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
+- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
+- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
+- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
 
-## Features Updated to Offset Pagination
-- `GetPageListCategories`
-- `GetPageListProducts`
-- `GetPageListStaffs`
-- `GetPageListCustomers`
+## Never Do
 
-## Internal Price Management (Updated 2026-04-24)
+- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
+- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
+- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
+- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
 
-### Commands & API
-- **CreateInternalPrice**: Creates a new price policy. Supports "Infinite" (no expiry) or fixed duration.
-- **DeactivateInternalPrice**: `PATCH /api/catalog/internalPrices/{id}/deactivate`. Marks a price list as expired immediately.
-- **ExtendInternalPrice**: `PATCH /api/catalog/internalPrices/{id}/extend`. Allows extending the expiration date or adding a duration.
+## Resources
 
-### Validation Rules
-- `SuggestedPrice` (Price for Qty 1) must be greater than or equal to `FloorPrice`.
-- `PriceTiers` must have `Quantity > 1`.
-- Price must decrease as Quantity increases across tiers.
-### Suggestion Logic (Updated 2026-04-27)
-- **Selection**: Returns the most "relevant" active price per product using `GroupBy(ProductId)` and `First()`.
-- **Priority Rules**:
-    1. `CreatedAt DESC`: Prefers more recently created price lists.
-    2. `(ExpiresAt - CreatedAt) ASC`: Prefers "short-term" (temporary/promotional) price lists over "infinite" ones if they share similar creation times.
-    3. `Id DESC`: Final deterministic fallback.
+| Resource | Use for |
+|----------|---------|
+| `gitnexus://repo/SensorX.Data/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/SensorX.Data/clusters` | All functional areas |
+| `gitnexus://repo/SensorX.Data/processes` | All execution flows |
+| `gitnexus://repo/SensorX.Data/process/{name}` | Step-by-step execution trace |
 
-## Technical Patterns
-- Use `IQueryBuilder<T>` to build the base query.
-- Use `IQueryExecutor` for materialization (`ToListAsync`, `CountAsync`).
-- **Grouping in Query**: Use `GroupBy(x => x.ProductId).Select(g => g.OrderBy(...).First())` to efficiently pick the best candidate per group in the database (supported in EF Core 6+).
-- Always apply `OrderBy` before or as part of pagination logic to ensure deterministic results.
-## Database & Migrations
+## CLI
 
-### Recent Fixes (2026-05-06)
-- **LINQ Translation Error in Administrative Queries**: Fixed an issue in `GetListProvinceHandler` and `GetListWardForProvinceHandler` where `.OrderBy(x => x.Code)` was called after `.Select(...)`.
-    - **Cause**: EF Core cannot translate ordering logic based on client-side DTO properties after projection.
-    - **Solution**: Moved `.OrderBy(x => x.Code)` before the `.Select(...)` projection to ensure the ordering happens at the database level using entity properties.
-- **PendingModelChangesWarning**: Fixed an issue where the API failed to start due to `Microsoft.EntityFrameworkCore.Migrations.PendingModelChangesWarning`.
-    - **Cause**: The `Department` property in `Staff` entity was changed to non-nullable in code, but the database schema hadn't been updated with a migration.
-    - **Solution**: Created and applied a new migration `UpdateModelChanges` to sync the database schema with the model.
-    - **EF Core 9+ Note**: EF Core now strictly validates that the model matches migrations on startup if automatic migrations are enabled. Always run `dotnet ef migrations add` after changing entities.
+| Task | Read this skill file |
+|------|---------------------|
+| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
+| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
+| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
+| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
+| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
+| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
+<!-- gitnexus:end -->
