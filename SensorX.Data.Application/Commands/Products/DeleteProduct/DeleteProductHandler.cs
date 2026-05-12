@@ -22,11 +22,11 @@ public class DeleteProductHandler(
         if (product.Status == ProductStatus.Active)
             return Result.Failure("Sản phẩm đang hoạt động không thể xóa. Vui lòng cập nhật trạng thái sang ngừng kinh doanh trước khi xóa.");
 
-        await _productRepository.DeleteAsync(product, cancellationToken);
-
         await _publishEndpoint.Publish(new DeleteProductEvent(
             product.Id
         ), cancellationToken);
+
+        await _productRepository.DeleteAsync(product, cancellationToken);
         return Result.Success("Xóa sản phẩm thành công");
     }
 }
