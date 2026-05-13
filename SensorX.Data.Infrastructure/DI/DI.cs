@@ -8,6 +8,8 @@ using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Infrastructure.Jobs;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.Infrastructure.Services;
+using SensorX.Data.Application.Events.Consumers.CreateStaff;
+using SensorX.Data.Application.Events.Consumers.CreateCustomer;
 
 namespace SensorX.Data.Infrastructure.DI
 {
@@ -48,8 +50,8 @@ namespace SensorX.Data.Infrastructure.DI
                 x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("data", false));
 
                 // Đăng ký Consumer
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateStaff.CreateStaffConsumer>();
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateCustomer.CreateCustomerConsumer>();
+                x.AddConsumer<CreateStaffConsumer>();
+                x.AddConsumer<CreateCustomerConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>

@@ -73,18 +73,6 @@ public class CreateProductHandler(
 
             await _productRepository.AddAsync(product, cancellationToken);
 
-            // Sync to other services (e.g. Warehouse)
-            await _publishEndpoint.Publish(new Events.ProductSyncEvent
-            {
-                ProductId = product.Id.Value,
-                Code = product.Code.Value,
-                Name = product.Name,
-                Unit = product.Unit,
-                Manufacture = product.Manufacture,
-                Status = product.Status.ToString(),
-                Timestamp = DateTimeOffset.UtcNow
-            }, cancellationToken);
-
             return Result<Guid>.Success(product.Id.Value);
         }
         catch (Exception ex)

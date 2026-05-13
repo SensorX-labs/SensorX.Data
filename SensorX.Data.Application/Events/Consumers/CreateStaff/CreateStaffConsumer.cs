@@ -53,6 +53,7 @@ public class CreateStaffConsumer(
                 department,
                 message.WarehouseId
             );
+            await _staffRepository.AddAsync(staff, context.CancellationToken);  
             await _publishEndpoint.Publish(new CreateStaffEvent(
             staff.Id.Value,
             staff.AccountId.Value,
@@ -64,8 +65,6 @@ public class CreateStaffConsumer(
         ), context.CancellationToken);
             _logger.LogInformation("Creating Staff profile for AccountId: {AccountId}, Email: {Email}, WarehouseId: {WarehouseId}", message.AccountId, message.Email, message.WarehouseId);
         }
-
-        await _staffRepository.AddAsync(staff, context.CancellationToken);
     }
 }
 

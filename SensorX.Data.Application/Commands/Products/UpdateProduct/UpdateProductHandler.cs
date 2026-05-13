@@ -80,18 +80,6 @@ public class UpdateProductHandler(
 
         await _productRepository.UpdateAsync(product, cancellationToken);
 
-        // Sync to other services (e.g. Warehouse)
-        await _publishEndpoint.Publish(new Events.ProductSyncEvent
-        {
-            ProductId = product.Id.Value,
-            Code = product.Code.Value,
-            Name = product.Name,
-            Unit = product.Unit,
-            Manufacture = product.Manufacture,
-            Status = product.Status.ToString(),
-            Timestamp = DateTimeOffset.UtcNow
-        }, cancellationToken);
-
         return Result.Success("Cập nhật sản phẩm thành công");
     }
 }

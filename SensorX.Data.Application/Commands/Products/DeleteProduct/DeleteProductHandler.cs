@@ -28,13 +28,6 @@ public class DeleteProductHandler(
 
         await _productRepository.DeleteAsync(product, cancellationToken);
 
-        // Sync to other services
-        await _publishEndpoint.Publish(new Events.ProductDeletedEvent
-        {
-            ProductId = product.Id.Value,
-            Timestamp = DateTimeOffset.UtcNow
-        }, cancellationToken);
-
         return Result.Success("Xóa sản phẩm thành công");
     }
 }
