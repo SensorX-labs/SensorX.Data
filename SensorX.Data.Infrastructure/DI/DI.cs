@@ -2,8 +2,10 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Domain.SeedWork;
+using SensorX.Data.Infrastructure.Jobs;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.Infrastructure.Services;
 
@@ -16,11 +18,38 @@ namespace SensorX.Data.Infrastructure.DI
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddServices();
+            services.AddMassTransit(configuration);
+            services.AddQuartzJob();
+
+            return services;
+        }
+
+        private static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));
+
+            services.AddScoped<IQueryExecutor, QueryExecutor>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
+
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddHttpClient<IVietnamAdministrativeService, VietnamAdministrativeService>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddMassTransit(this IServiceCollection services, IConfiguration configuration)
+        {
             services.AddMassTransit(x =>
             {
+                // Thêm chữ "Data" làm tiền tố cho Queue.
+                x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("data", false));
+
                 // Đăng ký Consumer
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>();
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateStaff.CreateStaffConsumer>();
+                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateCustomer.CreateCustomerConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
@@ -46,46 +75,36 @@ namespace SensorX.Data.Infrastructure.DI
                         h.Password(configuration["RabbitMQ:Password"] ?? "guest");
                     });
 
-                    // Đổi tên Exchange giống với Gateway
-                    cfg.Message<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountEvent>(e =>
-                        e.SetEntityName("account-created"));
-
-                    // Cấu hình Queue để consume event
-                    cfg.ReceiveEndpoint("account-created-consumer", e =>
-                    {
-                        e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CreateAccount.CreateAccountConsumer>(context);
-                    });
-
-                    // Đổi tên Exchange giống với Gateway
-                    cfg.Message<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountEvent>(e =>
-                        e.SetEntityName("customer-registered"));
-
-                    // Cấu hình Queue để consume event
-                    cfg.ReceiveEndpoint("customer-registered-consumer", e =>
-                    {
-                        e.ConfigureConsumer<SensorX.Data.Application.Events.Consumers.CustomerRegisterAccount.CustomerRegisterAccountConsumer>(context);
-                    });
-
-                    cfg.Message<SensorX.Data.Application.Events.ProductSyncEvent>(e =>
-                        e.SetEntityName("product-sync"));
-
-                    cfg.Message<SensorX.Data.Application.Events.ProductDeletedEvent>(e =>
-                        e.SetEntityName("product-deleted"));
-
                     cfg.ConfigureEndpoints(context);
                 });
             });
+            return services;
+        }
 
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped(typeof(IQueryBuilder<>), typeof(QueryBuilder<>));
-            services.AddScoped<IQueryExecutor, QueryExecutor>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<ICurrentUser, CurrentUser>();
-            // Cloudinary
-            services.AddScoped<ICloudinaryService, CloudinaryService>();
+        private static IServiceCollection AddQuartzJob(this IServiceCollection services)
+        {
+            // Đăng ký Quartz
+            services.AddQuartz(q =>
+            {
+                // Tạo JobKey
+                var jobKey = new JobKey(nameof(ProcessDomainEventsJob));
 
-            // Vietnam Administrative Data
-            services.AddHttpClient<IVietnamAdministrativeService, VietnamAdministrativeService>();
+                // Đăng ký Job vào DI container của Quartz
+                q.AddJob<ProcessDomainEventsJob>(opts => opts.WithIdentity(jobKey));
+
+                // Lên lịch (Trigger) cho Job chạy lặp đi lặp lại
+                q.AddTrigger(opts => opts
+                    .ForJob(jobKey)
+                    .WithIdentity($"{nameof(ProcessDomainEventsJob)}-trigger")
+                    // Chạy mỗi 5 giây, mãi mãi
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInSeconds(5)
+                        .RepeatForever())
+                );
+            });
+
+            // Chạy Quartz dưới dạng Hosted Service
+            services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
             return services;
         }

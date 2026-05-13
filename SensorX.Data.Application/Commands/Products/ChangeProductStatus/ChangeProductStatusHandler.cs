@@ -1,3 +1,4 @@
+using MassTransit;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -8,7 +9,7 @@ namespace SensorX.Data.Application.Commands.Products.ChangeProductStatus;
 
 public class ChangeProductStatusHandler(
     IRepository<Product> _productRepository,
-    MassTransit.IPublishEndpoint _publishEndpoint
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<ChangeProductStatusCommand, Result>
 {
     public async Task<Result> Handle(ChangeProductStatusCommand request, CancellationToken cancellationToken)
@@ -22,6 +23,13 @@ public class ChangeProductStatusHandler(
             product.Activate();
         else
             product.Inactivate();
+
+        await _publishEndpoint.Publish(new ChangeProductStatusEvent(
+            product.Id,
+            product.Status,
+            product.UpdatedAt
+        ), cancellationToken);
+
         await _productRepository.UpdateAsync(product, cancellationToken);
 
         // Sync to other services (e.g. Warehouse)

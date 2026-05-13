@@ -33,5 +33,5 @@ public partial record Phone
     private static partial Regex GeneratedPhoneRegex();
 
     // Implicit conversion để dễ dàng gán string cho Phone (tùy chọn)
-    public static implicit operator string(Phone phone) => phone.Value;
+    public static implicit operator string(Phone? phone) => phone?.Value ?? string.Empty;
 }

@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SensorX.Data.Application.Commands.Staffs.CreateStaff;
 using SensorX.Data.Application.Commands.Staffs.UpdateStaff;
 using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -23,15 +22,6 @@ public static class StaffQueries
         api.MapGet("/{staffId:guid}", GetStaffById).WithOpenApi();
         api.MapGet("/account/{accountId:guid}", GetStaffByAccountId).WithOpenApi();
         return api;
-    }
-
-    private static async Task<IResult> CreateStaff(
-        [FromBody] CreateStaffCommand command,
-        [FromServices] IMediator mediator
-    )
-    {
-        var result = await mediator.Send(command);
-        return result.ToResult();
     }
 
     private static async Task<IResult> GetPageListStaffs(
@@ -57,16 +47,6 @@ public static class StaffQueries
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(command);
-        return result.ToResult();
-    }
-
-    private static async Task<IResult> DeleteStaff(
-        [FromRoute] Guid staffId,
-        [FromServices] IMediator mediator
-    )
-    {
-        var command = new SensorX.Data.Application.Commands.Staffs.DeleteStaff.DeleteStaffCommand(staffId);
         var result = await mediator.Send(command);
         return result.ToResult();
     }

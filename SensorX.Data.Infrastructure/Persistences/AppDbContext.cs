@@ -1,15 +1,16 @@
+using System.Text.Json;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SensorX.Data.Application.Common.DomainEvent;
 using SensorX.Data.Domain.SeedWork;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace SensorX.Data.Infrastructure.Persistences;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options, IMediator mediator) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    private readonly IMediator _mediator = mediator;
+    public DbSet<DomainEventOutbox> DomainEventOutboxes { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
@@ -49,34 +50,41 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IMediator medi
             }
         }
     }
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        while (true)
+        // 1. Quét tìm các Aggregate có chứa Domain Event
+        var entitiesWithEvents = ChangeTracker.Entries<IHasDomainEvents>()
+            .Select(e => e.Entity)
+            .Where(e => e.DomainEvents.Count > 0)
+            .ToList();
+
+        // 2. Chuyển đổi Event thành Outbox Message
+        foreach (var entity in entitiesWithEvents)
         {
-            var entitiesWithEvents = ChangeTracker.Entries<IHasDomainEvents>()
-                .Select(e => e.Entity)
-                .Where(e => e.DomainEvents.Count > 0)
-                .ToList();
+            var domainEvents = entity.DomainEvents.ToArray();
 
-            if (entitiesWithEvents.Count == 0) break;
+            // Xóa event trong bộ nhớ để tránh bị lặp nếu SaveChanges chạy lại
+            entity.ClearDomainEvents();
 
-            foreach (var entity in entitiesWithEvents)
+            foreach (var domainEvent in domainEvents)
             {
-                var domainEvents = entity.DomainEvents.ToArray();
-                entity.ClearDomainEvents();
+                var eventType = domainEvent.GetType();
 
-                foreach (var domainEvent in domainEvents)
+                var outboxMessage = new DomainEventOutbox
                 {
-                    var notification = (INotification)Activator.CreateInstance(
-                        typeof(DomainEventNotification<>).MakeGenericType(domainEvent.GetType()),
-                        domainEvent
-                    )!;
+                    // Lấy FullName bao gồm cả namespace để Deserialize chính xác
+                    EventType = eventType.AssemblyQualifiedName!,
+                    Content = JsonSerializer.Serialize(domainEvent, eventType)
+                };
 
-                    await _mediator.Publish(notification, cancellationToken);
-                }
+                // Add vào Context (chưa lưu xuống DB ngay, phải chờ base.SaveChangesAsync)
+                DomainEventOutboxes.Add(outboxMessage);
             }
         }
 
+        // 3. Thực thi Transaction lưu xuống DB
+        // Lúc này: Data nghiệp vụ + DomainEventOutbox + MassTransitOutbox (nếu có) sẽ được lưu CÙNG LÚC!
         return await base.SaveChangesAsync(cancellationToken);
     }
 }
