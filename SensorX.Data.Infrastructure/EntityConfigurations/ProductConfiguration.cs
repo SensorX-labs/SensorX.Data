@@ -22,7 +22,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasConversion(c => c.Value, v => Code.From(v));
 
         builder.Property(s => s.CategoryId)
-            .HasConversion(id => id!.Value, v => new CategoryId(v));
+            .HasConversion(id => id.Value, v => new CategoryId(v));
 
         builder.OwnsMany(s => s.Images, s =>
         {
