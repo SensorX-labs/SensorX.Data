@@ -28,7 +28,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         Code code,
         string name,
         string manufacture,
-        CategoryId? categoryId,
+        CategoryId categoryId,
         ProductStatus status,
         string unit
     )
@@ -41,15 +41,14 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
             throw new DomainException("Đơn vị tính không được để trống");
 
         var product = new Product(ProductId.New(), code, name, manufacture, status, unit);
-        if (categoryId != null)
-            product.ChangeCategory(categoryId);
+        product.ChangeCategory(categoryId);
         return product;
     }
 
     public Code Code { get; private set; }
     public string Name { get; private set; }
     public string Manufacture { get; private set; }
-    public CategoryId? CategoryId { get; private set; }
+    public CategoryId CategoryId { get; private set; }
     public ProductStatus Status { get; private set; }
     public string Unit { get; private set; }
     public string? Showcase { get; private set; }

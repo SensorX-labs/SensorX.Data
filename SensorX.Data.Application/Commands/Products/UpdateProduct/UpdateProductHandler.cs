@@ -60,15 +60,11 @@ public class UpdateProductHandler(
             product.AddProductAttribute(attr);
         }
 
-        Category? category = null;
-        if (request.CategoryId.HasValue)
-        {
-            var categoryId = new CategoryId(request.CategoryId.Value);
-            category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
-            if (category is null)
-                return Result.Failure("Không tìm thấy danh mục sản phẩm");
-            product.ChangeCategory(categoryId);
-        }
+        var categoryId = new CategoryId(request.CategoryId);
+        var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+        if (category is null)
+            return Result.Failure("Không tìm thấy danh mục sản phẩm");
+        product.ChangeCategory(categoryId);
 
         await _publishEndpoint.Publish(new UpdateProductEvent(
             product.Id,
