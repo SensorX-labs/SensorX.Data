@@ -12,12 +12,12 @@ public static class ProductSearch
         if (string.IsNullOrWhiteSpace(searchTerm))
             return query;
 
-        var term = searchTerm.Trim();
+        var term = searchTerm.Trim().ToLower();
 
         return query.Where(p =>
-            p.Name.Contains(term) ||
-            ((string)p.Code).Contains(term) ||
-            p.Manufacture.Contains(term)
+            p.Name.ToLower().Contains(term) ||
+            ((string)p.Code).ToLower().Contains(term) ||
+            p.Manufacture.ToLower().Contains(term)
         );
     }
 }
