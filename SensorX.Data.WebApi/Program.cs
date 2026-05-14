@@ -1,13 +1,16 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
+using SensorX.Data.Domain.ValueObjects;
 using Microsoft.IdentityModel.Tokens;
 using SensorX.Data.Infrastructure.DI;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.WebApi.API;
 using SensorX.Data.WebApi.Configurations;
+using SensorX.Data.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 // Cấu hình Authentication
@@ -74,6 +77,21 @@ if (autoApplyMigration)
             using var scope = app.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await dbContext.Database.MigrateAsync();
+
+            if (!await dbContext.Set<Category>().AnyAsync())
+            {
+                var cat1 = Category.Create("Thiết bị tự động hóa", "Cảm biến, PLC, Biến tần");
+                var cat2 = Category.Create("Thiết bị đo lường", "Đồng hồ áp suất, lưu lượng");
+                dbContext.Set<Category>().AddRange(cat1, cat2);
+                await dbContext.SaveChangesAsync();
+
+                var p1 = Product.Create(Code.From("PRD-001"), "Cảm biến tiệm cận Omron E2E", "Omron", cat1.Id, ProductStatus.Active, "Cái");
+                var p2 = Product.Create(Code.From("PRD-002"), "Cảm biến quang Autonics BEN10M", "Autonics", cat1.Id, ProductStatus.Active, "Cái");
+                var p3 = Product.Create(Code.From("PRD-003"), "Đồng hồ đo áp suất Wika 213.53", "Wika", cat2.Id, ProductStatus.Active, "Cái");
+                dbContext.Set<Product>().AddRange(p1, p2, p3);
+                await dbContext.SaveChangesAsync();
+                app.Logger.LogInformation("Đã khởi tạo dữ liệu danh mục và sản phẩm mẫu thành công.");
+            }
             break;
         }
         catch (Exception ex) when (attempt < maxMigrationRetries)
@@ -99,6 +117,7 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseUserContext();
 app.UseAuthorization();
 
 app.MapApi();

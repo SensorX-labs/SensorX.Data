@@ -8,6 +8,8 @@ using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Infrastructure.Jobs;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.Infrastructure.Services;
+using SensorX.Data.Application.Events.Consumers.CreateStaff;
+using SensorX.Data.Application.Events.Consumers.CreateCustomer;
 
 namespace SensorX.Data.Infrastructure.DI
 {
@@ -16,7 +18,8 @@ namespace SensorX.Data.Infrastructure.DI
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
+                       .ConfigureWarnings(warnings => warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
             services.AddServices();
             services.AddMassTransit(configuration);
@@ -48,8 +51,8 @@ namespace SensorX.Data.Infrastructure.DI
                 x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("data", false));
 
                 // Đăng ký Consumer
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateStaff.CreateStaffConsumer>();
-                x.AddConsumer<SensorX.Data.Application.Events.Consumers.CreateCustomer.CreateCustomerConsumer>();
+                x.AddConsumer<CreateStaffConsumer>();
+                x.AddConsumer<CreateCustomerConsumer>();
 
                 // Đăng ký Entity Framework Outbox
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>

@@ -75,6 +75,7 @@ public class UpdateProductHandler(
         ), cancellationToken);
 
         await _productRepository.UpdateAsync(product, cancellationToken);
+
         return Result.Success("Cập nhật sản phẩm thành công");
     }
 }
