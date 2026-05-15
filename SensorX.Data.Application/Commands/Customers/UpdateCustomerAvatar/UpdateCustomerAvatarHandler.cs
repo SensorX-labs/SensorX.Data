@@ -2,20 +2,24 @@ using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate;
+using SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate.Specs;
 using SensorX.Data.Domain.SeedWork;
+using SensorX.Data.Domain.StrongIDs;
 
 namespace SensorX.Data.Application.Commands.Customers.UpdateCustomerAvatar;
 
 public sealed class UpdateCustomerAvatarHandler(
     IRepository<Customer> _customerRepository,
-    ICloudinaryService _cloudinaryService
+    ICloudinaryService _cloudinaryService,
+    ICurrentUser _currentUser
 ) : IRequestHandler<UpdateCustomerAvatarCommand, Result>
 {
     public async Task<Result> Handle(UpdateCustomerAvatarCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            var customer = await _customerRepository.GetByIdAsync(new CustomerId(request.Id), cancellationToken);
+            var specification = new AccountIdSpec(new AccountId(_currentUser.UserId ?? Guid.Empty));
+            var customer = await _customerRepository.FirstOrDefaultAsync(specification, cancellationToken);
             if (customer == null)
             {
                 await _cloudinaryService.DeleteImageAsync(request.Avatar, cancellationToken);

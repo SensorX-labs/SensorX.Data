@@ -1,13 +1,16 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
+using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate.Specs;
 using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
 using SensorX.Data.Domain.SeedWork;
+using SensorX.Data.Domain.StrongIDs;
 
 namespace SensorX.Data.Application.Commands.Staffs.UpdateStaffAvatar;
 
 public sealed class UpdateStaffAvatarHandler(
     IRepository<Staff> _staffRepository,
+    ICurrentUser _currentUser,
     ICloudinaryService _cloudinaryService
 ) : IRequestHandler<UpdateStaffAvatarCommand, Result>
 {
@@ -15,7 +18,8 @@ public sealed class UpdateStaffAvatarHandler(
     {
         try
         {
-            var staff = await _staffRepository.GetByIdAsync(new StaffId(request.Id), cancellationToken);
+            var specification = new AccountIdSpec(new AccountId(_currentUser.UserId ?? Guid.Empty));
+            var staff = await _staffRepository.FirstOrDefaultAsync(specification, cancellationToken);
             if (staff == null)
             {
                 await _cloudinaryService.DeleteImageAsync(request.Avatar, cancellationToken);

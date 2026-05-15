@@ -118,9 +118,9 @@ app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<UserContextMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<UserContextMiddleware>();
 app.MapApi();
 
 app.Run();

@@ -25,6 +25,7 @@ public sealed class GetDetailCustomerByAccountIdHandler(
                 x.Email.Value,
                 x.Phone != null ? x.Phone.Value : null,
                 x.Address,
+                x.AvatarUrl,
                 x.CreatedAt,
                 x.ShippingInfo != null ? new ShippingInfoResponse(
                     x.ShippingInfo.ProvinceId.Value,
