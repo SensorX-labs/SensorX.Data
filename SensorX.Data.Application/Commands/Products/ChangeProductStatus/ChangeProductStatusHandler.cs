@@ -31,6 +31,7 @@ public class ChangeProductStatusHandler(
         ), cancellationToken);
 
         await _productRepository.UpdateAsync(product, cancellationToken);
+
         return Result.Success("Cập nhật trạng thái sản phẩm thành công");
     }
 }

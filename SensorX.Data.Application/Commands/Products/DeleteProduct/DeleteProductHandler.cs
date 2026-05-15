@@ -27,6 +27,7 @@ public class DeleteProductHandler(
         ), cancellationToken);
 
         await _productRepository.DeleteAsync(product, cancellationToken);
+
         return Result.Success("Xóa sản phẩm thành công");
     }
 }
