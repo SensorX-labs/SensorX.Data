@@ -1,5 +1,5 @@
 using MassTransit;
-using SensorX.Data.Domain.Enums;
+using SensorX.Data.Application.Common.Interfaces;
 
 namespace SensorX.Data.Application.Events.Consumers.CreateStaff;
 

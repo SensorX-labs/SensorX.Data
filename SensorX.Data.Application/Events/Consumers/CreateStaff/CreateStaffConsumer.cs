@@ -4,7 +4,6 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
-using SensorX.Data.Domain.Enums;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 using SensorX.Data.Domain.ValueObjects;

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SensorX.Data.Infrastructure.DI;
@@ -29,6 +30,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultHandler>();
 
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
