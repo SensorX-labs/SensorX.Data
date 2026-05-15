@@ -3,10 +3,10 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
 using SensorX.Data.Domain.ValueObjects;
-using Microsoft.IdentityModel.Tokens;
 using SensorX.Data.Infrastructure.DI;
 using SensorX.Data.Infrastructure.Persistences;
 using SensorX.Data.WebApi.API;
@@ -119,9 +119,8 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
-app.UseUserContext();
 app.UseAuthorization();
-
+app.UseMiddleware<UserContextMiddleware>();
 app.MapApi();
 
 app.Run();
