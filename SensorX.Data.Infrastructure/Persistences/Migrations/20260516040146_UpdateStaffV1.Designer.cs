@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SensorX.Data.Infrastructure.Persistences;
@@ -11,9 +12,11 @@ using SensorX.Data.Infrastructure.Persistences;
 namespace SensorX.Data.Infrastructure.Persistences.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260516040146_UpdateStaffV1")]
+    partial class UpdateStaffV1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,7 +246,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Code")
@@ -563,8 +566,7 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.HasOne("SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate.Category", null)
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.OwnsMany("SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate.ProductAttribute", "Attributes", b1 =>
                         {
