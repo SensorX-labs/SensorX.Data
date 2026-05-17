@@ -50,8 +50,7 @@ public class CreateStaffConsumer(
                 null, // CitizenId chưa có
                 null, // Biography chưa có
                 DateTimeOffset.UtcNow,
-                department,
-                message.WarehouseId
+                department
             );
             await _staffRepository.AddAsync(staff, context.CancellationToken);  
             await _publishEndpoint.Publish(new CreateStaffEvent(
