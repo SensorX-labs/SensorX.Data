@@ -1,7 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SensorX.Data.Application.Commands.Customers.UpdateCustomerAvatar;
 using SensorX.Data.Application.Commands.Customers.UpdateCustomerInfo;
 using SensorX.Data.Application.Commands.Customers.UpdateShippingInfo;
+using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.WebApi.Configurations;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Commands;
@@ -14,9 +17,11 @@ public static class CustomerCommands
 
         api.MapPut("update-info", UpdateCustomerInfo).WithOpenApi();
         api.MapPut("update-shipping-info", UpdateShippingInfo).WithOpenApi();
+        api.MapPut("update-avatar", UpdateCustomerAvatar).WithOpenApi();
         return api;
     }
 
+    [AuthorizeRole(Role.Customer)]
     private static async Task<IResult> UpdateCustomerInfo(
         [FromBody] UpdateCustomerInfoCommand command,
         [FromServices] IMediator mediator
@@ -26,8 +31,19 @@ public static class CustomerCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Customer)]
     private static async Task<IResult> UpdateShippingInfo(
         [FromBody] UpdateShippingInfoCommand command,
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(command);
+        return result.ToResult();
+    }
+
+    [AuthorizeRole(Role.Customer)]
+    private static async Task<IResult> UpdateCustomerAvatar(
+        [FromBody] UpdateCustomerAvatarCommand command,
         [FromServices] IMediator mediator
     )
     {

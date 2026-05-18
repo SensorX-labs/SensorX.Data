@@ -20,6 +20,11 @@ public class GetPageListStaffsHandler(
         {
             var sourceQuery = _staffBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
+            if (request.Status.HasValue)
+            {
+                sourceQuery = sourceQuery.Where(x => x.Status == request.Status.Value);
+            }
+
             var totalCount = await _queryExecutor.CountAsync(sourceQuery, cancellationToken);
 
             var dtoQuery = sourceQuery
@@ -34,6 +39,7 @@ public class GetPageListStaffsHandler(
                     x.Phone != null ? x.Phone.Value : string.Empty,
                     x.CitizenId != null ? x.CitizenId.Value : string.Empty,
                     x.Department,
+                    x.Status,
                     x.CreatedAt
                 ));
 

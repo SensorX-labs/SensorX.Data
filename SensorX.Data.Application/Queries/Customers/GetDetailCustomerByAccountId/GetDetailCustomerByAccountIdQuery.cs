@@ -14,6 +14,7 @@ public sealed record GetDetailCustomerByAccountIdResponse(
     string Email,
     string? Phone,
     string? Address,
+    string? AvatarUrl,
     DateTimeOffset CreatedAt,
     ShippingInfoResponse? ShippingInfo
 );

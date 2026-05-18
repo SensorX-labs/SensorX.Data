@@ -25,6 +25,7 @@ public class Staff : User<StaffId>
         JoinDate = joinDate;
         Department = department;
         WarehouseId = warehouseId;
+        Status = StaffStatus.Active;
     }
 
     public CitizenId? CitizenId { get; private set; }
@@ -32,6 +33,7 @@ public class Staff : User<StaffId>
     public DateTimeOffset JoinDate { get; private set; }
     public Department Department { get; private set; }
     public Guid? WarehouseId { get; private set; }
+    public StaffStatus Status { get; private set; }
 
     public void UpdateProfile(
         string name,
@@ -56,6 +58,13 @@ public class Staff : User<StaffId>
     {
         Department = department;
         WarehouseId = warehouseId;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void ChangeStatus(StaffStatus status)
+    {
+        if (Status == status) return;
+        Status = status;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 }
