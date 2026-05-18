@@ -1,8 +1,9 @@
+using MassTransit;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
-using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate.Specs;
 using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
+using SensorX.Data.Domain.Contexts.UserContext.StaffAggregate.Specs;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.StrongIDs;
 
@@ -11,7 +12,8 @@ namespace SensorX.Data.Application.Commands.Staffs.UpdateStaffAvatar;
 public sealed class UpdateStaffAvatarHandler(
     IRepository<Staff> _staffRepository,
     ICurrentUser _currentUser,
-    ICloudinaryService _cloudinaryService
+    ICloudinaryService _cloudinaryService,
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<UpdateStaffAvatarCommand, Result>
 {
     public async Task<Result> Handle(UpdateStaffAvatarCommand request, CancellationToken cancellationToken)
@@ -27,7 +29,10 @@ public sealed class UpdateStaffAvatarHandler(
             }
 
             staff.UpdateAvatar(request.Avatar);
-
+            await _publishEndpoint.Publish(new UpdateStaffAvatarEvent(
+                staff.Id,
+                request.Avatar
+            ), cancellationToken);
             await _staffRepository.SaveChangesAsync(cancellationToken);
 
             return Result.Success("Cập nhật ảnh đại diện thành công");

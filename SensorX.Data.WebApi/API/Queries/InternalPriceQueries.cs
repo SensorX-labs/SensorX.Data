@@ -26,11 +26,6 @@ public static class InternalPriceQueries
             .WithSummary("Get internal price by ID")
             .WithDescription("Lấy chi tiết chính sách giá nội bộ theo ID.");
 
-        api.MapGet("/product/{productId:guid}", GetInternalPricesByProductId)
-            .WithOpenApi()
-            .WithSummary("Get all internal prices for a product")
-            .WithDescription("Lấy tất cả các chính sách giá nội bộ liên kết với một ID sản phẩm cụ thể.");
-
         api.MapGet("/list", GetPageListInternalPrice)
             .WithOpenApi()
             .WithSummary("Get paged list of internal prices")
@@ -60,15 +55,6 @@ public static class InternalPriceQueries
     )
     {
         Result<GetInternalPriceByIdResponse> result = await mediator.Send(new GetInternalPriceByIdQuery(id));
-        return result.ToResult();
-    }
-
-    private static async Task<IResult> GetInternalPricesByProductId(
-        [FromRoute] Guid productId,
-        [FromServices] IMediator mediator
-    )
-    {
-        Result<GetInternalPricesByProductIdResponse> result = await mediator.Send(new GetInternalPricesByProductIdQuery(productId));
         return result.ToResult();
     }
 
