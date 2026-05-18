@@ -12,7 +12,7 @@ using SensorX.Data.Infrastructure.Persistences;
 namespace SensorX.Data.Infrastructure.Persistences.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260518094147_AddStaffStatus")]
+    [Migration("20260518183830_AddStaffStatus")]
     partial class AddStaffStatus
     {
         /// <inheritdoc />
@@ -371,8 +371,9 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Department")
-                        .HasColumnType("integer");
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
