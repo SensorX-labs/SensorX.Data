@@ -60,6 +60,7 @@ public class CreateStaffConsumer(
             staff.Name,
             staff.Email,
             staff.Department,
+            staff.Status,
             staff.CreatedAt
         ), context.CancellationToken);
             _logger.LogInformation("Creating Staff profile for AccountId: {AccountId}, Email: {Email}, WarehouseId: {WarehouseId}", message.AccountId, message.Email, message.WarehouseId);
@@ -76,6 +77,7 @@ public sealed record CreateStaffEvent(
     string Name,
     string Email,
     Department Department,
+    StaffStatus Status,
     DateTimeOffset CreatedAt
 );
 

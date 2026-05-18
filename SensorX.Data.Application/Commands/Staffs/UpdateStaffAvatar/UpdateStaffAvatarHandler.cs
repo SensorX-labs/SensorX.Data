@@ -30,7 +30,8 @@ public sealed class UpdateStaffAvatarHandler(
 
             staff.UpdateAvatar(request.Avatar);
             await _publishEndpoint.Publish(new UpdateStaffAvatarEvent(
-                staff.Id,
+                staff.Id.Value,
+                staff.AccountId.Value,
                 request.Avatar
             ), cancellationToken);
             await _staffRepository.SaveChangesAsync(cancellationToken);

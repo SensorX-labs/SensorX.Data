@@ -1,3 +1,4 @@
+using MassTransit;
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
@@ -11,7 +12,8 @@ namespace SensorX.Data.Application.Commands.Customers.UpdateCustomerAvatar;
 public sealed class UpdateCustomerAvatarHandler(
     IRepository<Customer> _customerRepository,
     ICloudinaryService _cloudinaryService,
-    ICurrentUser _currentUser
+    ICurrentUser _currentUser,
+    IPublishEndpoint _publishEndpoint
 ) : IRequestHandler<UpdateCustomerAvatarCommand, Result>
 {
     public async Task<Result> Handle(UpdateCustomerAvatarCommand request, CancellationToken cancellationToken)
@@ -27,6 +29,11 @@ public sealed class UpdateCustomerAvatarHandler(
             }
 
             customer.UpdateAvatar(request.Avatar);
+
+            await _publishEndpoint.Publish(new CustomerAvatarUpdatedEvent(
+                customer.AccountId.Value,
+                request.Avatar
+            ), cancellationToken);
 
             await _customerRepository.SaveChangesAsync(cancellationToken);
 

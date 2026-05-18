@@ -6,5 +6,6 @@ namespace SensorX.Data.Application.Commands.Staffs.UpdateStaffAvatar;
 [EntityName("staff-avatar-updated")]
 public sealed record UpdateStaffAvatarEvent(
     Guid Id,
+    Guid AccountId,
     string AvatarUrl
 );

@@ -6,11 +6,10 @@ using SensorX.Data.Application.Commands.InternalPrices.ExtendInternalPrice;
 using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.InternalPrices.GetHistoryPriceForProduct;
+using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceById;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
-using SensorX.Data.Application.Queries.InternalPrices.GetInternalPricesByProductId;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceSuggest;
 using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
-using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceById;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Queries;
