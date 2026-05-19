@@ -4,23 +4,36 @@ using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Domain.Contexts.UserContext.StaffAggregate;
 
-public class Staff(
-    StaffId id,
-    AccountId accountId,
-    Code code,
-    string name,
-    Phone? phone,
-    Email email,
-    CitizenId? citizenId,
-    string? biography,
-    DateTimeOffset joinDate,
-    Department department
-    ) : User<StaffId>(id, accountId, code, name, phone, email)
+public class Staff : User<StaffId>
 {
-    public CitizenId? CitizenId { get; private set; } = citizenId;
-    public string? Biography { get; private set; } = biography;
-    public DateTimeOffset JoinDate { get; private set; } = joinDate;
-    public Department Department { get; private set; } = department;
+    public Staff(
+        StaffId id,
+        AccountId accountId,
+        Code code,
+        string name,
+        Phone? phone,
+        Email email,
+        CitizenId? citizenId,
+        string? biography,
+        DateTimeOffset joinDate,
+        Department department,
+        Guid? warehouseId = null
+    ) : base(id, accountId, code, name, phone, email)
+    {
+        CitizenId = citizenId;
+        Biography = biography;
+        JoinDate = joinDate;
+        Department = department;
+        WarehouseId = warehouseId;
+        Status = StaffStatus.Active;
+    }
+
+    public CitizenId? CitizenId { get; private set; }
+    public string? Biography { get; private set; }
+    public DateTimeOffset JoinDate { get; private set; }
+    public Department Department { get; private set; }
+    public Guid? WarehouseId { get; private set; }
+    public StaffStatus Status { get; private set; }
 
     public void UpdateProfile(
         string name,
@@ -42,6 +55,13 @@ public class Staff(
     public void AssignDepartmentAndWarehouse(Department department, Guid? warehouseId)
     {
         Department = department;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    public void ChangeStatus(StaffStatus status)
+    {
+        if (Status == status) return;
+        Status = status;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

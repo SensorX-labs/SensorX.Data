@@ -20,17 +20,13 @@ public class CreateProductHandler(
     {
         try
         {
-            Category? category = null;
-            if (request.CategoryId.HasValue)
+            var categoryId = new CategoryId(request.CategoryId);
+            var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+            if (category is null)
             {
-                var categoryId = new CategoryId(request.CategoryId.Value);
-                category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
-                if (category is null)
-                {
-                    if (request.Images != null && request.Images.Count > 0)
-                        await _cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
-                    return Result<Guid>.Failure("Danh mục sản phẩm không tồn tại");
-                }
+                if (request.Images != null && request.Images.Count > 0)
+                    await _cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
+                return Result<Guid>.Failure("Danh mục sản phẩm không tồn tại");
             }
 
             var code = Code.Create("PRD");
@@ -39,7 +35,7 @@ public class CreateProductHandler(
                 code,
                 request.Name.Trim(),
                 request.Manufacture.Trim(),
-                category?.Id,
+                category.Id,
                 ProductStatus.Active,
                 request.Unit.Trim()
             );

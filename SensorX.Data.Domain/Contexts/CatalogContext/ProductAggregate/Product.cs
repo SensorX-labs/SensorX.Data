@@ -12,6 +12,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         Code code,
         string name,
         string manufacture,
+        CategoryId categoryId,
         ProductStatus status,
         string unit
     ) : base(id)
@@ -19,6 +20,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         Code = code;
         Name = name;
         Manufacture = manufacture;
+        CategoryId = categoryId;
         Status = status;
         Unit = unit;
         CreatedAt = DateTimeOffset.UtcNow;
@@ -28,7 +30,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         Code code,
         string name,
         string manufacture,
-        CategoryId? categoryId,
+        CategoryId categoryId,
         ProductStatus status,
         string unit
     )
@@ -40,16 +42,14 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         if (string.IsNullOrWhiteSpace(unit))
             throw new DomainException("Đơn vị tính không được để trống");
 
-        var product = new Product(ProductId.New(), code, name, manufacture, status, unit);
-        if (categoryId != null)
-            product.ChangeCategory(categoryId);
+        var product = new Product(ProductId.New(), code, name, manufacture, categoryId, status, unit);
         return product;
     }
 
     public Code Code { get; private set; }
     public string Name { get; private set; }
     public string Manufacture { get; private set; }
-    public CategoryId? CategoryId { get; private set; }
+    public CategoryId CategoryId { get; private set; }
     public ProductStatus Status { get; private set; }
     public string Unit { get; private set; }
     public string? Showcase { get; private set; }
