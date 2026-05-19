@@ -35,8 +35,7 @@ public class UpdateProfileHandler(
             string.IsNullOrWhiteSpace(request.CitizenId) ? null : CitizenId.From(request.CitizenId),
             request.Biography,
             staff.JoinDate,
-            staff.Department,
-            staff.WarehouseId
+            staff.Department
         );
 
         await _publishEndpoint.Publish(new UpdateStaffEvent(

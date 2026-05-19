@@ -34,7 +34,6 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
 
         builder.Property(s => s.CitizenId)
             .HasConversion(c => c != null ? c.Value : null, v => v != null ? CitizenId.From(v) : null);
-        builder.Property(s => s.WarehouseId);
         builder.Property(s => s.Department)
             .HasConversion(
                 d => d.ToString(),

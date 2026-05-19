@@ -16,15 +16,13 @@ public class Staff : User<StaffId>
         CitizenId? citizenId,
         string? biography,
         DateTimeOffset joinDate,
-        Department department,
-        Guid? warehouseId = null
+        Department department
     ) : base(id, accountId, code, name, phone, email)
     {
         CitizenId = citizenId;
         Biography = biography;
         JoinDate = joinDate;
         Department = department;
-        WarehouseId = warehouseId;
         Status = StaffStatus.Active;
     }
 
@@ -32,7 +30,6 @@ public class Staff : User<StaffId>
     public string? Biography { get; private set; }
     public DateTimeOffset JoinDate { get; private set; }
     public Department Department { get; private set; }
-    public Guid? WarehouseId { get; private set; }
     public StaffStatus Status { get; private set; }
 
     public void UpdateProfile(
@@ -42,8 +39,7 @@ public class Staff : User<StaffId>
         CitizenId? citizenId,
         string? biography,
         DateTimeOffset joinDate,
-        Department department,
-        Guid? warehouseId = null
+        Department department
     )
     {
         base.UpdateProfile(name, phone, email);
@@ -51,13 +47,11 @@ public class Staff : User<StaffId>
         Biography = biography;
         JoinDate = joinDate;
         Department = department;
-        WarehouseId = warehouseId;
     }
 
-    public void AssignDepartmentAndWarehouse(Department department, Guid? warehouseId)
+    public void AssignDepartmentAndWarehouse(Department department)
     {
         Department = department;
-        WarehouseId = warehouseId;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
