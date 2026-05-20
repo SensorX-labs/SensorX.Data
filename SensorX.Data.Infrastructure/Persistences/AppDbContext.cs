@@ -4,6 +4,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SensorX.Data.Application.Common.DomainEvent;
+using SensorX.Data.Domain.Contexts.CatalogContext.SupplierAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.UnitOfQuantityAggregate;
 using SensorX.Data.Domain.SeedWork;
 
 namespace SensorX.Data.Infrastructure.Persistences;
@@ -11,6 +13,8 @@ namespace SensorX.Data.Infrastructure.Persistences;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<DomainEventOutbox> DomainEventOutboxes { get; set; }
+    public DbSet<Supplier> Suppliers { get; set; }
+    public DbSet<UnitOfQuantity> UnitOfQuantities { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
