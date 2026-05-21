@@ -33,9 +33,9 @@ public class CreateStaffConsumer(
         
         if (existingStaff != null)
         {
-            existingStaff.AssignDepartmentAndWarehouse(department, message.WarehouseId);
+            existingStaff.AssignDepartmentAndWarehouse(department);
             await _staffRepository.Update(existingStaff, context.CancellationToken);
-            _logger.LogInformation("Updated Staff profile for AccountId: {AccountId}, WarehouseId: {WarehouseId}", message.AccountId, message.WarehouseId);
+            _logger.LogInformation("Updated Staff profile for AccountId: {AccountId}", message.AccountId);
         }
         else
         {
@@ -49,8 +49,7 @@ public class CreateStaffConsumer(
                 null, // CitizenId chưa có
                 null, // Biography chưa có
                 DateTimeOffset.UtcNow,
-                department,
-                message.WarehouseId
+                department
             );
             await _staffRepository.AddAsync(staff, context.CancellationToken);  
             await _publishEndpoint.Publish(new CreateStaffEvent(
@@ -63,7 +62,7 @@ public class CreateStaffConsumer(
             staff.Status,
             staff.CreatedAt
         ), context.CancellationToken);
-            _logger.LogInformation("Creating Staff profile for AccountId: {AccountId}, Email: {Email}, WarehouseId: {WarehouseId}", message.AccountId, message.Email, message.WarehouseId);
+            _logger.LogInformation("Creating Staff profile for AccountId: {AccountId}, Email: {Email}", message.AccountId, message.Email);
         }
     }
 }
