@@ -7,11 +7,11 @@ public sealed record GetPageListProductsResponse(
     Guid Id,
     string Code,
     string Name,
-    string Manufacture,
+    string SupplierName,
     string CategoryName,
     ProductStatus Status,
     DateTimeOffset CreatedAt,
     List<string> Images,
-    string Unit
+    string UnitOfQuantityName
 );
-
+

@@ -7,8 +7,8 @@ public sealed record GetProductPricingPolicyResponse(
     Guid ProductId,
     string ProductCode,
     string ProductName,
-    string Manufacture,
-    string Unit,
+    string SupplierName,
+    string UnitOfQuantityName,
     ProductStatus ProductStatus,           // 0=Inactive, 1=Active
 
     // InternalPrice data

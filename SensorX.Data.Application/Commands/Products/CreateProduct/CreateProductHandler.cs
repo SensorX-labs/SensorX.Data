@@ -4,16 +4,20 @@ using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.SupplierAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.UnitOfQuantityAggregate;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Application.Commands.Products.CreateProduct;
 
 public class CreateProductHandler(
-    IRepository<Product> _productRepository,
-    IRepository<Category> _categoryRepository,
-    ICloudinaryService _cloudinaryService,
-    IPublishEndpoint _publishEndpoint
+    IRepository<Product> productRepository,
+    IRepository<Category> categoryRepository,
+    IRepository<Supplier> supplierRepository,
+    IRepository<UnitOfQuantity> unitOfQuantityRepository,
+    ICloudinaryService cloudinaryService,
+    IPublishEndpoint publishEndpoint
 ) : IRequestHandler<CreateProductCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -21,31 +25,49 @@ public class CreateProductHandler(
         try
         {
             var categoryId = new CategoryId(request.CategoryId);
-            var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
+            var category = await categoryRepository.GetByIdAsync(categoryId, cancellationToken);
             if (category is null)
             {
-                if (request.Images != null && request.Images.Count > 0)
-                    await _cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
+                if (request.Images is { Count: > 0 })
+                    await cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
                 return Result<Guid>.Failure("Danh mục sản phẩm không tồn tại");
+            }
+
+            var supplierId = new SupplierId(request.SupplierId);
+            var supplier = await supplierRepository.GetByIdAsync(supplierId, cancellationToken);
+            if (supplier is null)
+            {
+                if (request.Images is { Count: > 0 })
+                    await cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
+                return Result<Guid>.Failure("Nhà cung cấp không tồn tại");
+            }
+
+            var unitOfQuantityId = new UnitOfQuantityId(request.UnitOfQuantityId);
+            var unitOfQuantity = await unitOfQuantityRepository.GetByIdAsync(unitOfQuantityId, cancellationToken);
+            if (unitOfQuantity is null)
+            {
+                if (request.Images is { Count: > 0 })
+                    await cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
+                return Result<Guid>.Failure("Đơn vị tính không tồn tại");
             }
 
             var code = Code.Create("PRD");
 
             var product = Product.Create(
                 code,
-                request.Name.Trim(),
-                request.Manufacture.Trim(),
+                request.Name,
+                supplier.Id,
                 category.Id,
                 ProductStatus.Active,
-                request.Unit.Trim()
+                unitOfQuantity.Id
             );
             product.SetShowcase(request.Showcase);
 
             if (request.Images != null)
             {
-                foreach (var imageDto in request.Images)
+                foreach (var imageUrl in request.Images)
                 {
-                    product.AddImage(new ProductImage(imageDto));
+                    product.AddImage(new ProductImage(imageUrl));
                 }
             }
 
@@ -57,24 +79,24 @@ public class CreateProductHandler(
                 }
             }
 
-            await _publishEndpoint.Publish(new CreateProductEvent(
+            await publishEndpoint.Publish(new CreateProductEvent(
                 product.Id,
                 product.Code,
                 product.Name,
-                product.Manufacture,
-                product.Unit,
+                product.SupplierId.Value,
+                product.UnitOfQuantityId.Value,
                 product.Status,
                 product.CreatedAt
             ), cancellationToken);
 
-            await _productRepository.AddAsync(product, cancellationToken);
+            await productRepository.AddAsync(product, cancellationToken);
 
             return Result<Guid>.Success(product.Id.Value);
         }
         catch (Exception ex)
         {
-            if (request.Images != null && request.Images.Count > 0)
-                await _cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
+            if (request.Images is { Count: > 0 })
+                await cloudinaryService.DeleteImagesAsync(request.Images, cancellationToken);
             return Result<Guid>.Failure(ex.Message);
         }
     }

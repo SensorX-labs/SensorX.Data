@@ -1,5 +1,7 @@
 using SensorX.Data.Domain.Common.Exceptions;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.SupplierAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.UnitOfQuantityAggregate;
 using SensorX.Data.Domain.SeedWork;
 using SensorX.Data.Domain.ValueObjects;
 
@@ -11,47 +13,46 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         ProductId id,
         Code code,
         string name,
-        string manufacture,
+        SupplierId supplierId,
         CategoryId categoryId,
         ProductStatus status,
-        string unit
+        UnitOfQuantityId unitOfQuantityId
     ) : base(id)
     {
         Code = code;
         Name = name;
-        Manufacture = manufacture;
+        SupplierId = supplierId;
         CategoryId = categoryId;
         Status = status;
-        Unit = unit;
+        UnitOfQuantityId = unitOfQuantityId;
         CreatedAt = DateTimeOffset.UtcNow;
     }
 
     public static Product Create(
         Code code,
         string name,
-        string manufacture,
+        SupplierId supplierId,
         CategoryId categoryId,
         ProductStatus status,
-        string unit
+        UnitOfQuantityId unitOfQuantityId
     )
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Tên sản phẩm không được để trống");
-        if (string.IsNullOrWhiteSpace(manufacture))
-            throw new DomainException("Hãng sản xuất không được để trống");
-        if (string.IsNullOrWhiteSpace(unit))
+        if (supplierId.Value == Guid.Empty)
+            throw new DomainException("Nhà cung cấp không được để trống");
+        if (unitOfQuantityId.Value == Guid.Empty)
             throw new DomainException("Đơn vị tính không được để trống");
 
-        var product = new Product(ProductId.New(), code, name, manufacture, categoryId, status, unit);
-        return product;
+        return new Product(ProductId.New(), code, name.Trim(), supplierId, categoryId, status, unitOfQuantityId);
     }
 
     public Code Code { get; private set; }
     public string Name { get; private set; }
-    public string Manufacture { get; private set; }
+    public SupplierId SupplierId { get; private set; }
     public CategoryId CategoryId { get; private set; }
     public ProductStatus Status { get; private set; }
-    public string Unit { get; private set; }
+    public UnitOfQuantityId UnitOfQuantityId { get; private set; }
     public string? Showcase { get; private set; }
 
     private readonly List<ProductImage> _images = [];
@@ -66,11 +67,18 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
     public void Activate() => Status = ProductStatus.Active;
     public void Inactivate() => Status = ProductStatus.Inactive;
 
-    public void UpdateProduct(string name, string manufacture, string unit)
+    public void UpdateProduct(string name, SupplierId supplierId, UnitOfQuantityId unitOfQuantityId)
     {
-        Name = name;
-        Manufacture = manufacture;
-        Unit = unit;
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException("Tên sản phẩm không được để trống");
+        if (supplierId.Value == Guid.Empty)
+            throw new DomainException("Nhà cung cấp không được để trống");
+        if (unitOfQuantityId.Value == Guid.Empty)
+            throw new DomainException("Đơn vị tính không được để trống");
+
+        Name = name.Trim();
+        SupplierId = supplierId;
+        UnitOfQuantityId = unitOfQuantityId;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
@@ -81,6 +89,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         _images.Add(image);
         UpdatedAt = DateTimeOffset.UtcNow;
     }
+
     public void RemoveImage(ProductImage image)
     {
         if (!_images.Contains(image))
@@ -88,6 +97,7 @@ public class Product : Entity<ProductId>, IAggregateRoot, ICreationTrackable, IU
         _images.Remove(image);
         UpdatedAt = DateTimeOffset.UtcNow;
     }
+
     public void ChangeCategory(CategoryId newCategoryId)
     {
         CategoryId = newCategoryId;

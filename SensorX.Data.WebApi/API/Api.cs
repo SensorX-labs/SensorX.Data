@@ -16,6 +16,8 @@ public static class Api
         api.MapCategoryCommands();
         api.MapProductCommands();
         api.MapInternalPriceCommands();
+        api.MapSupplierCommands();
+        api.MapUnitOfQuantityCommands();
 
         //Query apis
         api.MapCustomerQueries();
@@ -23,6 +25,8 @@ public static class Api
         api.MapCategoryQueries();
         api.MapProductQueries();
         api.MapInternalPriceQueries();
+        api.MapSupplierQueries();
+        api.MapUnitOfQuantityQueries();
 
         //Service apis
         api.MapImageService();

@@ -253,10 +253,6 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Manufacture")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -267,9 +263,11 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UnitOfQuantityId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -278,7 +276,63 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("UnitOfQuantityId");
+
                     b.ToTable("Products", (string)null);
+                });
+
+            modelBuilder.Entity("SensorX.Data.Domain.Contexts.CatalogContext.SupplierAggregate.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Suppliers", (string)null);
+                });
+
+            modelBuilder.Entity("SensorX.Data.Domain.Contexts.CatalogContext.UnitOfQuantityAggregate.UnitOfQuantity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UnitOfQuantities", (string)null);
                 });
 
             modelBuilder.Entity("SensorX.Data.Domain.Contexts.UserContext.CustomerAggregate.Customer", b =>
@@ -564,6 +618,18 @@ namespace SensorX.Data.Infrastructure.Persistences.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("SensorX.Data.Domain.Contexts.CatalogContext.SupplierAggregate.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SensorX.Data.Domain.Contexts.CatalogContext.UnitOfQuantityAggregate.UnitOfQuantity", null)
+                        .WithMany()
+                        .HasForeignKey("UnitOfQuantityId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.OwnsMany("SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate.ProductAttribute", "Attributes", b1 =>
