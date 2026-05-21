@@ -9,8 +9,8 @@ public sealed record CreateProductEvent(
     Guid Id,
     string Code,
     string Name,
-    string Manufacture,
-    string Unit,
+    Guid SupplierId,
+    Guid UnitOfQuantityId,
     ProductStatus Status,
     DateTimeOffset CreatedAt
 );

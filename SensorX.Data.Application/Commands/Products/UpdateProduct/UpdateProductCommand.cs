@@ -7,9 +7,9 @@ namespace SensorX.Data.Application.Commands.Products.UpdateProduct;
 public sealed record UpdateProductCommand(
     [property: JsonIgnore] Guid Id,
     string Name,
-    string Manufacture,
+    Guid SupplierId,
     Guid CategoryId,
-    string Unit,
+    Guid UnitOfQuantityId,
     string? Showcase = null,
     List<string>? Images = null,
     List<ProductAttributeCommand>? Attributes = null

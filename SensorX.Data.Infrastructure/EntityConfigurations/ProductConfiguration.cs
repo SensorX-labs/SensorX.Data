@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.SupplierAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.UnitOfQuantityAggregate;
 using SensorX.Data.Domain.ValueObjects;
 
 namespace SensorX.Data.Infrastructure.EntityConfigurations;
@@ -24,6 +26,12 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(s => s.CategoryId)
             .HasConversion(id => id.Value, v => new CategoryId(v));
 
+        builder.Property(s => s.SupplierId)
+            .HasConversion(id => id.Value, v => new SupplierId(v));
+
+        builder.Property(s => s.UnitOfQuantityId)
+            .HasConversion(id => id.Value, v => new UnitOfQuantityId(v));
+
         builder.OwnsMany(s => s.Images, s =>
         {
             s.ToTable("ProductImages");
@@ -43,5 +51,15 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .WithMany()
             .HasForeignKey(s => s.CategoryId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne<Supplier>()
+            .WithMany()
+            .HasForeignKey(s => s.SupplierId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<UnitOfQuantity>()
+            .WithMany()
+            .HasForeignKey(s => s.UnitOfQuantityId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
