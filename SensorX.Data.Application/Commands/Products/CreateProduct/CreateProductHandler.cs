@@ -83,8 +83,8 @@ public class CreateProductHandler(
                 product.Id,
                 product.Code,
                 product.Name,
-                product.SupplierId.Value,
-                product.UnitOfQuantityId.Value,
+                supplier.Name,
+                unitOfQuantity.Name,
                 product.Status,
                 product.CreatedAt
             ), cancellationToken);
