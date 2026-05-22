@@ -1,17 +1,20 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
 using SensorX.Data.Application.Common.QueryExtensions.OffsetPagination;
-using SensorX.Data.Application.Common.QueryExtensions.Search;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.SupplierAggregate;
+using SensorX.Data.Domain.Contexts.CatalogContext.UnitOfQuantityAggregate;
 
 namespace SensorX.Data.Application.Queries.Products.GetPageListProducts;
 
 public class GetPageListProductsHandler(
-    IQueryBuilder<Product> _productBuilder,
-    IQueryBuilder<Category> _categoryBuilder,
-    IQueryExecutor _queryExecutor
+    IQueryBuilder<Product> productBuilder,
+    IQueryBuilder<Category> categoryBuilder,
+    IQueryBuilder<Supplier> supplierBuilder,
+    IQueryBuilder<UnitOfQuantity> unitOfQuantityBuilder,
+    IQueryExecutor queryExecutor
 ) : IRequestHandler<GetPageListProductsQuery, Result<OffsetPagedResult<GetPageListProductsResponse>>>
 {
     public async Task<Result<OffsetPagedResult<GetPageListProductsResponse>>> Handle(
@@ -20,48 +23,62 @@ public class GetPageListProductsHandler(
     {
         try
         {
-            IQueryable<Product> query = _productBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
+            IQueryable<Product> query = productBuilder.QueryAsNoTracking;
 
             if (request.Status.HasValue)
             {
                 query = query.Where(x => x.Status == request.Status);
             }
-            var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
-            var pagedProductBaseQuery = query
-                            .OrderByDescending(x => x.CreatedAt)
-                            .ThenByDescending(x => x.Id)
-                            .ApplyOffsetPagination(request);
-
-            var sourceQuery = from product in pagedProductBaseQuery
-                              join category in _categoryBuilder.QueryAsNoTracking
+            var sourceQuery = from product in query
+                              join category in categoryBuilder.QueryAsNoTracking
                                   on product.CategoryId equals category.Id into cs
                               from c in cs.DefaultIfEmpty()
-                              select new { product, category = c };
+                              join supplier in supplierBuilder.QueryAsNoTracking
+                                  on product.SupplierId equals supplier.Id into ss
+                              from s in ss.DefaultIfEmpty()
+                              join unit in unitOfQuantityBuilder.QueryAsNoTracking
+                                  on product.UnitOfQuantityId equals unit.Id into us
+                              from u in us.DefaultIfEmpty()
+                              select new { product, category = c, supplier = s, unit = u };
 
-            var dtoQuery = sourceQuery.Select(x => new GetPageListProductsResponse(
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                var term = request.SearchTerm.Trim().ToLower();
+                sourceQuery = sourceQuery.Where(x =>
+                    x.product.Name.ToLower().Contains(term) ||
+                    x.product.Code.Value.ToLower().Contains(term) ||
+                    (x.supplier != null && x.supplier.Name.ToLower().Contains(term)));
+            }
+
+            var totalCount = await queryExecutor.CountAsync(sourceQuery, cancellationToken);
+
+            var pagedSourceQuery = sourceQuery
+                .OrderByDescending(x => x.product.CreatedAt)
+                .ThenByDescending(x => x.product.Id)
+                .ApplyOffsetPagination(request);
+
+            var dtoQuery = pagedSourceQuery.Select(x => new GetPageListProductsResponse(
                 x.product.Id.Value,
                 x.product.Code.Value,
                 x.product.Name,
-                x.product.Manufacture,
+                x.supplier != null ? x.supplier.Name : "",
                 x.category != null ? x.category.Name : "",
                 x.product.Status,
                 x.product.CreatedAt,
                 x.product.Images.Select(i => i.ImageUrl).ToList(),
-                x.product.Unit
+                x.unit != null ? x.unit.Name : ""
             ));
 
-            var items = await _queryExecutor.ToListAsync(dtoQuery, cancellationToken);
+            var items = await queryExecutor.ToListAsync(dtoQuery, cancellationToken);
 
-            var result = new OffsetPagedResult<GetPageListProductsResponse>
+            return Result<OffsetPagedResult<GetPageListProductsResponse>>.Success(new OffsetPagedResult<GetPageListProductsResponse>
             {
                 Items = items,
                 PageNumber = request.PageNumber ?? 1,
                 PageSize = request.PageSize ?? 10,
                 TotalCount = totalCount
-            };
-
-            return Result<OffsetPagedResult<GetPageListProductsResponse>>.Success(result);
+            });
         }
         catch (Exception ex)
         {

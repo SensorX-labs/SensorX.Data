@@ -7,7 +7,7 @@ namespace SensorX.Data.Application.Commands.Products.UpdateProduct;
 public sealed record UpdateProductEvent(
     Guid Id,
     string Name,
-    string Manufacture,
-    string Unit,
+    Guid SupplierId,
+    Guid UnitOfQuantityId,
     DateTimeOffset? UpdatedAt
 );
