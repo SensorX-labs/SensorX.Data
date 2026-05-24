@@ -31,6 +31,7 @@ public static class Api
         //Service apis
         api.MapImageService();
         api.MapVietnamAdministrativeService();
+        api.MapMasterInternalServices();
         return api;
     }
 }

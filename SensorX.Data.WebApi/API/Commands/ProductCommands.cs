@@ -4,6 +4,8 @@ using SensorX.Data.Application.Commands.Products.ChangeProductStatus;
 using SensorX.Data.Application.Commands.Products.CreateProduct;
 using SensorX.Data.Application.Commands.Products.DeleteProduct;
 using SensorX.Data.Application.Commands.Products.UpdateProduct;
+using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.WebApi.Configurations;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Commands;
@@ -59,6 +61,7 @@ public static class ProductCommands
         return api;
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> CreateProduct(
         [FromBody] CreateProductCommand command,
         [FromServices] IMediator mediator
@@ -68,6 +71,7 @@ public static class ProductCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> DeleteProduct(
         [FromRoute] Guid id,
         [FromServices] IMediator mediator
@@ -77,6 +81,7 @@ public static class ProductCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> UpdateProduct(
         [FromRoute] Guid id,
         [FromBody] UpdateProductCommand command,
@@ -88,6 +93,7 @@ public static class ProductCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> ChangeProductStatus(
         [FromRoute] Guid id,
         [FromBody] ChangeProductStatusCommand command,

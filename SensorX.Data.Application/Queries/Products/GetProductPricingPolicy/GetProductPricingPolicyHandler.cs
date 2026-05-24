@@ -33,6 +33,7 @@ public class GetProductPricingPolicyHandler(
                     where productIds.Contains(p.Id)
                     select new GetProductPricingPolicyResponse(
                         p.Id.Value,
+                        p.CategoryId.Value,
                         p.Code.Value,
                         p.Name,
                         s.Name,
