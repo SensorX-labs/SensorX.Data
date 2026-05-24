@@ -80,8 +80,8 @@ public class UpdateProductHandler(
         await publishEndpoint.Publish(new UpdateProductEvent(
             product.Id,
             product.Name,
-            product.SupplierId.Value,
-            product.UnitOfQuantityId.Value,
+            supplier.Name,
+            unitOfQuantity.Name,
             product.UpdatedAt
         ), cancellationToken);
 
