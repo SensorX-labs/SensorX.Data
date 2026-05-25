@@ -20,6 +20,54 @@ public sealed class GetPageListCustomersHandler(
         {
             var sourceQuery = _customerBuilder.QueryAsNoTracking.ApplySearch(request.SearchTerm);
 
+            if (!string.IsNullOrWhiteSpace(request.Code))
+            {
+                var code = request.Code.Trim();
+                sourceQuery = sourceQuery.Where(x => ((string)x.Code).Contains(code));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Name))
+            {
+                var name = request.Name.Trim();
+                sourceQuery = sourceQuery.Where(x => x.Name.Contains(name));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.TaxCode))
+            {
+                var taxCode = request.TaxCode.Trim();
+                sourceQuery = sourceQuery.Where(x => x.TaxCode != null && x.TaxCode.Contains(taxCode));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Email))
+            {
+                var email = request.Email.Trim();
+                sourceQuery = sourceQuery.Where(x => ((string)x.Email).Contains(email));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+            {
+                var phone = request.Phone.Trim();
+                sourceQuery = sourceQuery.Where(x => x.Phone != null && ((string)x.Phone).Contains(phone));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Address))
+            {
+                var address = request.Address.Trim();
+                sourceQuery = sourceQuery.Where(x => x.Address != null && x.Address.Contains(address));
+            }
+
+            if (request.CreatedFrom.HasValue)
+            {
+                var createdFrom = request.CreatedFrom.Value.Date;
+                sourceQuery = sourceQuery.Where(x => x.CreatedAt >= createdFrom);
+            }
+
+            if (request.CreatedTo.HasValue)
+            {
+                var createdToExclusive = request.CreatedTo.Value.Date.AddDays(1);
+                sourceQuery = sourceQuery.Where(x => x.CreatedAt < createdToExclusive);
+            }
+
             var totalCount = await _queryExecutor.CountAsync(sourceQuery, cancellationToken);
 
             var pagedQuery = sourceQuery
