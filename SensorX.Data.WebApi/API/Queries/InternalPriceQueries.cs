@@ -10,6 +10,8 @@ using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceById;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceSuggest;
 using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
+using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.WebApi.Configurations;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Queries;
@@ -58,6 +60,7 @@ public static class InternalPriceQueries
         return api;
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetInternalPriceById(
         [FromRoute] Guid id,
         [FromServices] IMediator mediator
@@ -67,6 +70,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetPageListInternalPrice(
         [AsParameters] GetPageListInternalPriceQuery query,
         [FromServices] IMediator mediator
@@ -76,6 +80,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetHistoryPriceForProduct(
         [FromRoute] Guid productId,
         [FromServices] IMediator mediator
@@ -85,6 +90,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetInternalPriceStats(
         [FromServices] IMediator mediator
     )
@@ -93,6 +99,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetInternalPriceSuggest(
         [FromBody] GetInternalPriceSuggestQuery query,
         [FromServices] IMediator mediator

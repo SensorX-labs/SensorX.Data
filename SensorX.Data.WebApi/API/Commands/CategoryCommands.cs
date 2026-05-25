@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.Categories.CreateCategory;
 using SensorX.Data.Application.Commands.Categories.DeleteCategory;
 using SensorX.Data.Application.Commands.Categories.SetParentCategory;
+using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.WebApi.Configurations;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Commands;
@@ -36,6 +38,7 @@ public static class CategoryCommands
         return api;
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> CreateCategory(
         [FromBody] CreateCategoryCommand command,
         [FromServices] IMediator mediator
@@ -45,6 +48,7 @@ public static class CategoryCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> SetParent(
         [FromRoute] Guid id,
         [FromBody] SetParentCategoryCommand command,
@@ -56,6 +60,7 @@ public static class CategoryCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> DeleteCategory(
         [FromRoute] Guid id,
         [FromServices] IMediator mediator

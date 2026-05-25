@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SensorX.Data.Application.Commands.UnitOfQuantities.CreateUnitOfQuantity;
 using SensorX.Data.Application.Commands.UnitOfQuantities.DeleteUnitOfQuantity;
 using SensorX.Data.Application.Commands.UnitOfQuantities.UpdateUnitOfQuantity;
+using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.WebApi.Configurations;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Commands;
@@ -28,6 +30,7 @@ public static class UnitOfQuantityCommands
         return api;
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> CreateUnitOfQuantity(
         [FromBody] CreateUnitOfQuantityCommand command,
         [FromServices] IMediator mediator
@@ -37,6 +40,7 @@ public static class UnitOfQuantityCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> UpdateUnitOfQuantity(
         [FromRoute] Guid id,
         [FromBody] UpdateUnitOfQuantityCommand command,
@@ -48,6 +52,7 @@ public static class UnitOfQuantityCommands
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.Manager)]
     private static async Task<IResult> DeleteUnitOfQuantity(
         [FromRoute] Guid id,
         [FromServices] IMediator mediator

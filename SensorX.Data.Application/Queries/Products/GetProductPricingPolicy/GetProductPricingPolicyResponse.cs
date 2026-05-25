@@ -5,6 +5,7 @@ namespace SensorX.Data.Application.Queries.Products.GetProductPricingPolicy;
 public sealed record GetProductPricingPolicyResponse(
     // Domain properties - Product
     Guid ProductId,
+    Guid CategoryId,
     string ProductCode,
     string ProductName,
     string SupplierName,
