@@ -28,7 +28,17 @@ public static class InternalPriceQueries
         api.MapGet("/list", GetPageListInternalPrice)
             .WithOpenApi()
             .WithSummary("Get paged list of internal prices")
-            .WithDescription("Lấy danh sách phân trang của tất cả các chính sách giá nội bộ kèm chức năng tìm kiếm.");
+            .WithDescription("""
+                Lấy danh sách phân trang của tất cả các chính sách giá nội bộ.
+                - SearchTerm: Tìm nhanh theo mã sản phẩm / tên sản phẩm
+                - ProductCode: Lọc riêng theo mã sản phẩm
+                - ProductName: Lọc riêng theo tên sản phẩm
+                - Status: Lọc theo trạng thái hiệu lực
+                - ExpiresFrom: Ngày hết hạn bắt đầu (yyyy-MM-dd)
+                - ExpiresTo: Ngày hết hạn kết thúc (yyyy-MM-dd)
+                - SuggestedPriceFrom/SuggestedPriceTo: Khoảng giá đề xuất
+                - FloorPriceFrom/FloorPriceTo: Khoảng giá sàn
+                """);
 
         api.MapGet("/product/{productId:guid}/history", GetHistoryPriceForProduct)
             .WithOpenApi()

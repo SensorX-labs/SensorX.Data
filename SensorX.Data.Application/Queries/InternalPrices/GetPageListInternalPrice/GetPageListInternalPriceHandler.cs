@@ -23,10 +23,21 @@ public sealed class GetPageListInternalPriceHandler(
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
+            var term = request.SearchTerm.Trim();
             query = query.Where(i =>
-                i.product.Name.Contains(request.SearchTerm)
-                || ((string)i.product.Code).Contains(request.SearchTerm)
+                i.product.Name.Contains(term)
+                || ((string)i.product.Code).Contains(term)
             );
+        }
+        if (!string.IsNullOrWhiteSpace(request.ProductCode))
+        {
+            var codeTerm = request.ProductCode.Trim();
+            query = query.Where(i => ((string)i.product.Code).Contains(codeTerm));
+        }
+        if (!string.IsNullOrWhiteSpace(request.ProductName))
+        {
+            var nameTerm = request.ProductName.Trim();
+            query = query.Where(i => i.product.Name.Contains(nameTerm));
         }
         if (request.Status.HasValue)
         {
@@ -44,6 +55,36 @@ public sealed class GetPageListInternalPriceHandler(
 
                 _ => query
             };
+        }
+        if (request.ExpiresFrom.HasValue)
+        {
+            var expiresFrom = new DateTimeOffset(
+                request.ExpiresFrom.Value.ToDateTime(TimeOnly.MinValue),
+                TimeSpan.Zero);
+            query = query.Where(i => i.internalPrice.ExpiresAt >= expiresFrom);
+        }
+        if (request.ExpiresTo.HasValue)
+        {
+            var expiresToExclusive = new DateTimeOffset(
+                request.ExpiresTo.Value.ToDateTime(TimeOnly.MinValue),
+                TimeSpan.Zero).AddDays(1);
+            query = query.Where(i => i.internalPrice.ExpiresAt < expiresToExclusive);
+        }
+        if (request.SuggestedPriceFrom.HasValue)
+        {
+            query = query.Where(i => i.internalPrice.SuggestedPrice.Amount >= request.SuggestedPriceFrom.Value);
+        }
+        if (request.SuggestedPriceTo.HasValue)
+        {
+            query = query.Where(i => i.internalPrice.SuggestedPrice.Amount <= request.SuggestedPriceTo.Value);
+        }
+        if (request.FloorPriceFrom.HasValue)
+        {
+            query = query.Where(i => i.internalPrice.FloorPrice.Amount >= request.FloorPriceFrom.Value);
+        }
+        if (request.FloorPriceTo.HasValue)
+        {
+            query = query.Where(i => i.internalPrice.FloorPrice.Amount <= request.FloorPriceTo.Value);
         }
         var totalCount = await _queryExecutor.CountAsync(query, cancellationToken);
 
