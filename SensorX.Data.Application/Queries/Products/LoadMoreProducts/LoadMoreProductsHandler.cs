@@ -54,7 +54,7 @@ public sealed class LoadMoreProductsHandler(
             var term = request.SearchTerm.Trim().ToLower();
             sourceQuery = sourceQuery.Where(x =>
                 x.product.Name.ToLower().Contains(term) ||
-                x.product.Code.Value.ToLower().Contains(term) ||
+                ((string)x.product.Code).ToLower().Contains(term) ||
                 x.supplierName.ToLower().Contains(term));
         }
 
