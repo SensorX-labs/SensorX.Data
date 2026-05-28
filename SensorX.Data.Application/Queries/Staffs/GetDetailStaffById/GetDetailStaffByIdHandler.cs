@@ -18,14 +18,18 @@ public class GetDetailStaffByIdHandler(
         var query = staffQueryBuilder.QueryAsNoTracking
             .Where(x => x.Id == new StaffId(request.StaffId))
             .Select(x => new GetDetailStaffByIdResponse(
-                x.Id.Value,
-                x.Code.Value,
+                x.Id,
+                x.Code,
                 x.Name,
-                x.Email.Value,
-                x.Phone != null ? x.Phone.Value : string.Empty,
+                x.Phone,
+                x.Email,
+                x.CitizenId,
+                x.Biography,
+                x.JoinDate,
                 x.Department,
+                x.Status,
                 x.CreatedAt,
-                x.UpdatedAt
+                x.AvatarUrl
             ));
 
         var staff = await queryExecutor.FirstOrDefaultAsync(query, cancellationToken);

@@ -10,6 +10,8 @@ using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceById;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceListStats;
 using SensorX.Data.Application.Queries.InternalPrices.GetInternalPriceSuggest;
 using SensorX.Data.Application.Queries.InternalPrices.GetPageListInternalPrice;
+using SensorX.Data.Application.Common.Interfaces;
+using SensorX.Data.WebApi.Configurations;
 using SensorX.Data.WebApi.Extensions;
 
 namespace SensorX.Data.WebApi.API.Queries;
@@ -28,7 +30,17 @@ public static class InternalPriceQueries
         api.MapGet("/list", GetPageListInternalPrice)
             .WithOpenApi()
             .WithSummary("Get paged list of internal prices")
-            .WithDescription("Lấy danh sách phân trang của tất cả các chính sách giá nội bộ kèm chức năng tìm kiếm.");
+            .WithDescription("""
+                Lấy danh sách phân trang của tất cả các chính sách giá nội bộ.
+                - SearchTerm: Tìm nhanh theo mã sản phẩm / tên sản phẩm
+                - ProductCode: Lọc riêng theo mã sản phẩm
+                - ProductName: Lọc riêng theo tên sản phẩm
+                - Status: Lọc theo trạng thái hiệu lực
+                - ExpiresFrom: Ngày hết hạn bắt đầu (yyyy-MM-dd)
+                - ExpiresTo: Ngày hết hạn kết thúc (yyyy-MM-dd)
+                - SuggestedPriceFrom/SuggestedPriceTo: Khoảng giá đề xuất
+                - FloorPriceFrom/FloorPriceTo: Khoảng giá sàn
+                """);
 
         api.MapGet("/product/{productId:guid}/history", GetHistoryPriceForProduct)
             .WithOpenApi()
@@ -48,6 +60,7 @@ public static class InternalPriceQueries
         return api;
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetInternalPriceById(
         [FromRoute] Guid id,
         [FromServices] IMediator mediator
@@ -57,6 +70,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetPageListInternalPrice(
         [AsParameters] GetPageListInternalPriceQuery query,
         [FromServices] IMediator mediator
@@ -66,6 +80,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetHistoryPriceForProduct(
         [FromRoute] Guid productId,
         [FromServices] IMediator mediator
@@ -75,6 +90,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetInternalPriceStats(
         [FromServices] IMediator mediator
     )
@@ -83,6 +99,7 @@ public static class InternalPriceQueries
         return result.ToResult();
     }
 
+    [AuthorizeRole(Role.SaleStaff, Role.Manager)]
     private static async Task<IResult> GetInternalPriceSuggest(
         [FromBody] GetInternalPriceSuggestQuery query,
         [FromServices] IMediator mediator
