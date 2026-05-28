@@ -25,6 +25,62 @@ public class GetPageListStaffsHandler(
                 sourceQuery = sourceQuery.Where(x => x.Status == request.Status.Value);
             }
 
+            if (!string.IsNullOrWhiteSpace(request.Code))
+            {
+                var code = request.Code.Trim();
+                sourceQuery = sourceQuery.Where(x => ((string)x.Code).Contains(code));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Name))
+            {
+                var name = request.Name.Trim();
+                sourceQuery = sourceQuery.Where(x => x.Name.Contains(name));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Email))
+            {
+                var email = request.Email.Trim();
+                sourceQuery = sourceQuery.Where(x => ((string)x.Email).Contains(email));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+            {
+                var phone = request.Phone.Trim();
+                sourceQuery = sourceQuery.Where(x => x.Phone != null && ((string)x.Phone).Contains(phone));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.CitizenId))
+            {
+                var citizenId = request.CitizenId.Trim();
+                sourceQuery = sourceQuery.Where(x => x.CitizenId != null && ((string)x.CitizenId).Contains(citizenId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Department) &&
+                Enum.TryParse<Department>(request.Department, true, out var department))
+            {
+                sourceQuery = sourceQuery.Where(x => x.Department == department);
+            }
+
+            if (request.JoinFrom.HasValue)
+            {
+                sourceQuery = sourceQuery.Where(x => x.JoinDate >= request.JoinFrom.Value);
+            }
+
+            if (request.JoinTo.HasValue)
+            {
+                sourceQuery = sourceQuery.Where(x => x.JoinDate <= request.JoinTo.Value);
+            }
+
+            if (request.CreatedFrom.HasValue)
+            {
+                sourceQuery = sourceQuery.Where(x => x.CreatedAt >= request.CreatedFrom.Value);
+            }
+
+            if (request.CreatedTo.HasValue)
+            {
+                sourceQuery = sourceQuery.Where(x => x.CreatedAt <= request.CreatedTo.Value);
+            }
+
             var totalCount = await _queryExecutor.CountAsync(sourceQuery, cancellationToken);
 
             var dtoQuery = sourceQuery
@@ -40,6 +96,7 @@ public class GetPageListStaffsHandler(
                     x.CitizenId != null ? x.CitizenId.Value : string.Empty,
                     x.Department,
                     x.Status,
+                    x.JoinDate,
                     x.CreatedAt
                 ));
 
