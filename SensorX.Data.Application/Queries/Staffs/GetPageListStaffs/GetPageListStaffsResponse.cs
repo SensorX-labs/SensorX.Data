@@ -12,6 +12,7 @@ public sealed record GetPageListStaffsResponse(
     string CitizenId,
     Department Department,
     StaffStatus Status,
+    DateTimeOffset JoinDate,
     DateTimeOffset CreatedAt
 );
 
