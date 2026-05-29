@@ -25,10 +25,11 @@ public static class AnalyticsQueries
     }
 
     private static async Task<IResult> GetDashboardMasterStats(
+        [FromQuery] string? timeRange,
         [FromServices] IMediator mediator
     )
     {
-        var result = await mediator.Send(new GetDashboardMasterStatsQuery());
+        var result = await mediator.Send(new GetDashboardMasterStatsQuery(timeRange ?? "month"));
         return result.ToResult();
     }
 }

@@ -15,7 +15,7 @@ using SensorX.Data.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 // Cấu hình Authentication
-Console.WriteLine(builder.Environment.IsDevelopment() ? "Running in Development mode" : "Running in Production mode");
+Console.WriteLine(builder.Environment.IsDevelopment() ? "Running in Development mode (restarted)" : "Running in Production mode");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
