@@ -1,6 +1,6 @@
 using MediatR;
 using SensorX.Data.Application.Common.Interfaces;
-using SensorX.Data.Application.Common.QueryExtensions.KeysetPagination;
+using SensorX.Data.Application.Common.QueryExtensions.LoadMore;
 using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Domain.Contexts.CatalogContext.CategoryAggregate;
 using SensorX.Data.Domain.Contexts.CatalogContext.ProductAggregate;
@@ -15,9 +15,9 @@ public sealed class LoadMoreProductsHandler(
     IQueryBuilder<Supplier> supplierBuilder,
     IQueryBuilder<UnitOfQuantity> unitOfQuantityBuilder,
     IQueryExecutor queryExecutor
-) : IRequestHandler<LoadMoreProductsQuery, Result<KeysetPagedResult<LoadMoreProductsResponse>>>
+) : IRequestHandler<LoadMoreProductsQuery, Result<LoadMoreResult<LoadMoreProductsResponse>>>
 {
-    public async Task<Result<KeysetPagedResult<LoadMoreProductsResponse>>> Handle(LoadMoreProductsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<LoadMoreResult<LoadMoreProductsResponse>>> Handle(LoadMoreProductsQuery request, CancellationToken cancellationToken)
     {
         var productQuery = productBuilder.QueryAsNoTracking;
 
@@ -28,8 +28,8 @@ public sealed class LoadMoreProductsHandler(
         }
 
         var pagedProductBaseQuery = request.SortByName
-            ? productQuery.ApplyKeysetPaginationWithOrder(request.LastValue, x => x.Name, request.LastId, x => (Guid)x.Id, request.IsDescending)
-            : productQuery.ApplyKeysetPaginationWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending);
+            ? productQuery.ApplyLoadMoreWithOrder(request.LastValue, x => x.Name, request.LastId, x => (Guid)x.Id, request.IsDescending)
+            : productQuery.ApplyLoadMoreWithOrder(request.LastValue.ToCursor<DateTimeOffset>(), x => x.CreatedAt, request.LastId, x => (Guid)x.Id, request.IsDescending);
 
         var sourceQuery = from product in pagedProductBaseQuery
                           join category in categoryBuilder.QueryAsNoTracking
@@ -78,7 +78,7 @@ public sealed class LoadMoreProductsHandler(
 
         var lastItem = responseItems.LastOrDefault();
 
-        return Result<KeysetPagedResult<LoadMoreProductsResponse>>.Success(new KeysetPagedResult<LoadMoreProductsResponse>
+        return Result<LoadMoreResult<LoadMoreProductsResponse>>.Success(new LoadMoreResult<LoadMoreProductsResponse>
         {
             Items = responseItems,
             LastId = lastItem?.Id,

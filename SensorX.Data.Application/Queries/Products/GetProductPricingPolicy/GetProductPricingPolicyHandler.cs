@@ -29,7 +29,8 @@ public class GetProductPricingPolicyHandler(
         var query = from p in productQueryBuilder.QueryAsNoTracking
                     join s in supplierQueryBuilder.QueryAsNoTracking on p.SupplierId equals s.Id
                     join u in unitOfQuantityQueryBuilder.QueryAsNoTracking on p.UnitOfQuantityId equals u.Id
-                    join ip in internalPriceQueryBuilder.QueryAsNoTracking on p.Id equals ip.ProductId
+                    join ip in internalPriceQueryBuilder.QueryAsNoTracking on p.Id equals ip.ProductId into ipGroup
+                    from ip in ipGroup.DefaultIfEmpty()
                     where productIds.Contains(p.Id)
                     select new GetProductPricingPolicyResponse(
                         p.Id.Value,
@@ -39,12 +40,12 @@ public class GetProductPricingPolicyHandler(
                         s.Name,
                         u.Name,
                         p.Status,
-                        ip.SuggestedPrice.Amount,
-                        ip.FloorPrice.Amount,
-                        ip.PriceTiers.Select(pt => new ProductPriceTier(
+                        ip != null ? ip.SuggestedPrice.Amount : 0,
+                        ip != null ? ip.FloorPrice.Amount : 0,
+                        ip != null ? ip.PriceTiers.Select(pt => new ProductPriceTier(
                             pt.Quantity.Value,
                             pt.Price.Amount
-                        )).ToList(),
+                        )).ToList() : new List<ProductPriceTier>(),
                         p.CreatedAt,
                         p.UpdatedAt
                     );
