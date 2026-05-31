@@ -6,8 +6,8 @@ using SensorX.Data.Application.Common.ResponseClient;
 using SensorX.Data.Application.Queries.Staffs.GetDetailStaffById;
 using SensorX.Data.Application.Queries.Staffs.GetPageListStaffs;
 using SensorX.Data.Application.Queries.Staffs.GetProfile;
-using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 using SensorX.Data.Application.Queries.Staffs.GetStaffListStats;
+using SensorX.Data.Application.Queries.Staffs.GetStaffMetrics;
 using SensorX.Data.WebApi.Configurations;
 using SensorX.Data.WebApi.Extensions;
 
@@ -39,7 +39,7 @@ public static class StaffQueries
         return api;
     }
 
-    [AuthorizeRole(Role.Manager)]
+    [AuthorizeRole(Role.Manager, Role.Admin)]
     private static async Task<IResult> GetPageListStaffs(
         [AsParameters] GetPageListStaffsQuery query,
         [FromServices] IMediator mediator
@@ -49,7 +49,7 @@ public static class StaffQueries
         return result.ToResult();
     }
 
-    [AuthorizeRole(Role.Manager)]
+    [AuthorizeRole(Role.Manager, Role.Admin)]
     private static async Task<IResult> GetStaffListStats(
         [FromServices] IMediator mediator
     )
@@ -67,7 +67,7 @@ public static class StaffQueries
         return result.ToResult();
     }
 
-    [AuthorizeRole(Role.Manager)]
+    [AuthorizeRole(Role.Manager, Role.Admin)]
     private static async Task<IResult> GetStaffById(
         [FromRoute] Guid staffId,
         [FromServices] IMediator mediator
@@ -77,7 +77,6 @@ public static class StaffQueries
         return result.ToResult();
     }
 
-    [AuthorizeRole(Role.Manager, Role.SaleStaff, Role.WarehouseStaff)]
     private static async Task<IResult> GetProfile(
         [FromServices] IMediator mediator
     )
