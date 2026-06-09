@@ -9,6 +9,7 @@ public sealed record GetStaffMetricsResponse(
     string Email,
     string Phone,
     Department Department,
+    DateTimeOffset JoinDate,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt
 );

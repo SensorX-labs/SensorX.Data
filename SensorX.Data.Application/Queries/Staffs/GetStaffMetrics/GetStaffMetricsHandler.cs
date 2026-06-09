@@ -24,6 +24,7 @@ public class GetStaffMetricsHandler(
                 x.Email.Value,
                 x.Phone != null ? x.Phone.Value : string.Empty,
                 x.Department,
+                x.JoinDate,
                 x.CreatedAt,
                 x.UpdatedAt
             ));
