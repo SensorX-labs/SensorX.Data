@@ -27,6 +27,7 @@ public static class Api
         api.MapInternalPriceQueries();
         api.MapSupplierQueries();
         api.MapUnitOfQuantityQueries();
+        api.MapAnalyticsQueries();
 
         //Service apis
         api.MapImageService();

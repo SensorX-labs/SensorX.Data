@@ -57,6 +57,11 @@ public static class ProductQueries
                 - IsDescending: true để sort giảm dần (Z-A hoặc Newest), false để sort tăng dần (A-Z hoặc Oldest) (mặc định: true)
                 """);
 
+        api.MapGet("/warehouse-pricing-context", GetWarehouseProductContext)
+            .WithOpenApi()
+            .WithSummary("Get product context for warehouse")
+            .WithDescription("Lấy thông tin giá và danh mục của sản phẩm phục vụ thống kê kho");
+
         api.MapGet("/list-stats", GetProductListStats)
             .WithOpenApi()
             .WithSummary("Get product list stats")
@@ -121,6 +126,14 @@ public static class ProductQueries
     )
     {
         var result = await mediator.Send(new GetPageProductDetailQuery(id));
+        return result.ToResult();
+    }
+
+    private static async Task<IResult> GetWarehouseProductContext(
+        [FromServices] IMediator mediator
+    )
+    {
+        var result = await mediator.Send(new SensorX.Data.Application.Queries.Products.GetWarehouseProductContext.GetWarehouseProductContextQuery());
         return result.ToResult();
     }
 }
