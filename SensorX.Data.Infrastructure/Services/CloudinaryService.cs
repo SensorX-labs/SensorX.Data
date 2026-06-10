@@ -89,8 +89,8 @@ public class CloudinaryService : ICloudinaryService
             var publicId = ExtractPublicIdFromUrl(imageUrl);
             if (string.IsNullOrEmpty(publicId))
             {
-                _logger.LogWarning("Could not extract public ID from URL: {Url}", imageUrl);
-                return Result<bool>.Failure("Could not extract public ID from URL");
+                _logger.LogWarning("Could not extract public ID from URL (likely an external image URL, bypassing delete): {Url}", imageUrl);
+                return Result<bool>.Success(true);
             }
 
             var deleteParams = new DeletionParams(publicId)
